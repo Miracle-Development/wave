@@ -1,0 +1,36 @@
+name: wave
+description: "Peer-to-peer calls and chat application"
+
+# Prevent accidental publishing to pub.dev.
+publish_to: "none"
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.6.2
+
+dependencies:
+  build_runner: ^2.4.15
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  md_ui_kit:
+    git:
+      url: https://github.com/Miracle-Development/md_ui_kit.git
+      ref: main
+
+flutter:
+  uses-material-design: true
+
+  # Enable generation of localized Strings from arb files.
+  generate: true
+
+  assets:
+    # Add assets from the images directory to the application.
+    - assets/images/
