@@ -430,14 +430,14 @@ packages:
     source: hosted
     version: "0.11.1"
   md_ui_kit:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       path: "."
       ref: main
-      resolved-ref: "33919d45df0b4eb59673088e33b498a93401d3b5"
+      resolved-ref: a3d89cc10f2af61a15b91adc293e3d2742f45eae
       url: "https://github.com/Miracle-Development/md_ui_kit.git"
     source: git
-    version: "1.6.0"
+    version: "2.0.1"
   meta:
     dependency: transitive
     description:
@@ -583,7 +583,7 @@ packages:
     source: hosted
     version: "4.1.0"
   shared_preferences:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: shared_preferences
       sha256: "6e8bf70b7fef813df4e9a36f658ac46d107db4b4cfe1048b477d4e453a8159f5"

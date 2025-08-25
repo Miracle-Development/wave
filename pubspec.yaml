@@ -15,15 +15,16 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  md_ui_kit:
+    git:
+      url: https://github.com/Miracle-Development/md_ui_kit.git
+      ref: main
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  md_ui_kit:
-    git:
-      url: https://github.com/Miracle-Development/md_ui_kit.git
-      ref: main
 
 flutter:
   uses-material-design: true
@@ -31,6 +32,19 @@ flutter:
   # Enable generation of localized Strings from arb files.
   generate: true
 
+  shaders:
+    - shaders/gaussian_blur.frag
+    - shaders/blurred_circle.frag
+
   assets:
     # Add assets from the images directory to the application.
     - assets/images/
+    - assets/fonts/
+    - assets/icons/logo/wave.svg
+    - assets/icons/initial_wave/
+
+  fonts:
+    - family: Play
+      fonts:
+        - asset: assets/fonts/Play-Regular.ttf
+        - asset: assets/fonts/Play-Bold.ttf
