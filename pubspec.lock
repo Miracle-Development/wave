@@ -434,10 +434,10 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: a3d89cc10f2af61a15b91adc293e3d2742f45eae
+      resolved-ref: f7aa1fce202695f7a1374d57aeb8fbbec05a8039
       url: "https://github.com/Miracle-Development/md_ui_kit.git"
     source: git
-    version: "2.0.1"
+    version: "2.0.3"
   meta:
     dependency: transitive
     description:

@@ -36,13 +36,13 @@ class _InitialScreenImplState extends State<InitialScreenImpl> {
     // await prefs.setBool('splash_shown', true);
 
     // ждём и анимируем исчезновение
-    Timer(const Duration(milliseconds: 3000), () {
+    Timer(const Duration(milliseconds: 5500), () {
       setState(() {
         _opacity = 0.0;
       });
     });
 
-    Timer(const Duration(milliseconds: 2500), () {
+    Timer(const Duration(milliseconds: 5000), () {
       setState(() {
         _showSplash = false;
       });
@@ -63,7 +63,7 @@ class _InitialScreenImplState extends State<InitialScreenImpl> {
         if (!_showSplash) const HomeScreen(),
         AnimatedOpacity(
           opacity: _opacity,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 400),
           curve: Curves.easeOut,
           child: InitialScreen(
             wavePositionedBottom: kIsWeb ? 120 : 100,

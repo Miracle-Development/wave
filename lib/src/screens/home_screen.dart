@@ -32,30 +32,26 @@ class _HomeScreenState extends State<HomeScreen>
       duration: const Duration(milliseconds: 1800), // общее время
     );
 
-    // 1. сначала карточка (0.0–0.4)
     _offsetAnimation = Tween<Offset>(
       begin: const Offset(0.0, 1.0),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+        curve: const Interval(0.0, 0.35, curve: Curves.easeOut),
       ),
     );
 
-    // 2. потом верхняя (0.5–0.8)
     _topAnim = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.6, 0.7, curve: Curves.easeOut),
+      curve: const Interval(0.4, 0.5, curve: Curves.easeOut),
     );
 
-    // 3. и нижняя (0.7–1.0)
     _bottomAnim = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.7, 0.8, curve: Curves.easeOut),
+      curve: const Interval(0.5, 0.55, curve: Curves.easeOut),
     );
 
-    // запуск с задержкой
     Future.delayed(const Duration(milliseconds: 800), () {
       if (mounted) _controller.forward();
     });
