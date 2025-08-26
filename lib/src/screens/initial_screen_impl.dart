@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/screens/initial_screen.dart';
+import 'package:wave/core/colors.dart';
 import 'package:wave/src/screens/home_screen.dart';
 
 class InitialScreenImpl extends StatefulWidget {
@@ -13,7 +14,7 @@ class InitialScreenImpl extends StatefulWidget {
 
 class _InitialScreenImplState extends State<InitialScreenImpl> {
   bool _showSplash = true;
-  double _opacity = 1.0;
+  // double _opacity = 1.0;
 
   @override
   void initState() {
@@ -36,13 +37,13 @@ class _InitialScreenImplState extends State<InitialScreenImpl> {
     // await prefs.setBool('splash_shown', true);
 
     // ждём и анимируем исчезновение
-    Timer(const Duration(milliseconds: 5500), () {
-      setState(() {
-        _opacity = 0.0;
-      });
-    });
+    // Timer(const Duration(milliseconds: 5500), () {
+    //   setState(() {
+    //     _opacity = 0.0;
+    //   });
+    // });
 
-    Timer(const Duration(milliseconds: 5000), () {
+    Timer(const Duration(milliseconds: 5500), () {
       setState(() {
         _showSplash = false;
       });
@@ -58,18 +59,41 @@ class _InitialScreenImplState extends State<InitialScreenImpl> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        if (!_showSplash) const HomeScreen(),
-        AnimatedOpacity(
-          opacity: _opacity,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeOut,
-          child: InitialScreen(
-            wavePositionedBottom: kIsWeb ? 120 : 100,
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      layoutBuilder: (currentChild, previousChildren) {
+        return DecoratedBox(
+          decoration: BoxDecoration(color: WaveColors.backgroundColor),
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              ...previousChildren,
+              if (currentChild != null) currentChild,
+            ],
           ),
-        ),
-      ],
+        );
+      },
+      transitionBuilder: (child, animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      },
+      child: _buildChild(),
     );
+  }
+
+  _buildChild() {
+    switch (_showSplash) {
+      case true:
+        return InitialScreen(
+          key: const ValueKey("splash"),
+          wavePositionedBottom: kIsWeb ? 120 : 100,
+        );
+      case false:
+        return const HomeScreen(
+          key: ValueKey("home"),
+        );
+    }
   }
 }

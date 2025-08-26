@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class WaveColors {
-  static final containerColor = Color(0xFF11111E).withValues(alpha: 0.8);
-  static const brandFirstStrip = Color(0xFF4346F3);
-  static const brandSecondStrip = Color(0xFF3033D4);
+  static const backgroundColor = Color.fromRGBO(13, 13, 15, 1);
+  static const containerColor = Color.fromRGBO(17, 17, 30, 0.6);
+  static const brandFirstStrip = Color.fromRGBO(67, 70, 243, 1);
+  static const brandSecondStrip = Color.fromRGBO(48, 51, 212, 1);
+  
 }
