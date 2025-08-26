@@ -9,18 +9,22 @@ class StartScreen extends StatefulWidget {
   final VoidCallback? onNext;
 
   @override
-  State<StartScreen> createState() => StartScreenState();
+  State<StartScreen> createState() => _StartScreenState();
 }
 
-class StartScreenState extends State<StartScreen>
-    with SingleTickerProviderStateMixin {
+class _StartScreenState extends State<StartScreen>
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _offsetAnimation;
 
-  late Animation<double> _topAnim;
-  late Animation<double> _bottomAnim;
+  late AnimationController _topClipController;
+  late AnimationController _bottomClipController;
+  late Animation<double> _topClipAnim;
+  late Animation<double> _bottomClipAnim;
 
   bool _showButton = false;
+  bool _isExiting = false;
+  bool _isReverseAnim = false;
 
   @override
   void initState() {
@@ -28,7 +32,7 @@ class StartScreenState extends State<StartScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1800), // общее время
+      duration: const Duration(milliseconds: 1800),
     );
 
     _offsetAnimation = Tween<Offset>(
@@ -41,22 +45,24 @@ class StartScreenState extends State<StartScreen>
       ),
     );
 
-    _topAnim = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.4, 0.5, curve: Curves.easeOut),
+    _topClipController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+    );
+    _bottomClipController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 180),
     );
 
-    _bottomAnim = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.5, 0.55, curve: Curves.easeOut),
-    );
+    _topClipAnim =
+        CurvedAnimation(parent: _topClipController, curve: Curves.easeOut);
+    _bottomClipAnim =
+        CurvedAnimation(parent: _bottomClipController, curve: Curves.easeOut);
+
+    _controller.addListener(_handleMainControllerTick);
 
     Future.delayed(const Duration(milliseconds: 2200), () {
-      if (mounted) {
-        setState(() {
-          _showButton = true;
-        });
-      }
+      if (mounted) setState(() => _showButton = true);
     });
 
     Future.delayed(const Duration(milliseconds: 400), () {
@@ -64,10 +70,52 @@ class StartScreenState extends State<StartScreen>
     });
   }
 
+  void _handleMainControllerTick() {
+    if (_controller.value >= 0.4 &&
+        _topClipController.status == AnimationStatus.dismissed) {
+      _topClipController.forward();
+    }
+    if (_controller.value >= 0.5 &&
+        _bottomClipController.status == AnimationStatus.dismissed) {
+      _bottomClipController.forward();
+    }
+  }
+
   @override
   void dispose() {
+    _controller.removeListener(_handleMainControllerTick);
     _controller.dispose();
+    _topClipController.dispose();
+    _bottomClipController.dispose();
     super.dispose();
+  }
+
+  Future<void> _onStartPressed() async {
+    if (_isExiting) return;
+    _isExiting = true;
+
+    setState(() {
+      _isReverseAnim = true;
+    });
+
+    // 1) Скрываем кнопку (opacity)
+    if (mounted) setState(() => _showButton = false);
+    await Future.delayed(const Duration(milliseconds: 320));
+
+    // 2) Верхняя полоса: если не полностью показана — доводим, затем reverse()
+    if (_topClipController.status != AnimationStatus.completed) {
+      await _topClipController.forward();
+    }
+    await _topClipController.reverse();
+
+    // 3) Нижняя полоса: аналогично (внимание: это останется слева->справа при reveal, и будет так же сворачиваться)
+    if (_bottomClipController.status != AnimationStatus.completed) {
+      await _bottomClipController.forward();
+    }
+    await _bottomClipController.reverse();
+
+    // 4) Вызов перехода дальше
+    widget.onNext?.call();
   }
 
   @override
@@ -79,13 +127,9 @@ class StartScreenState extends State<StartScreen>
       child: LayoutBuilder(
         builder: (context, constraints) {
           final w = constraints.constrainWidth();
-
-          // если constraints.maxHeight бесконечен — возьмём высоту экрана (минус topPadding)
           final rawMaxH = constraints.maxHeight;
           final screenH = MediaQuery.of(context).size.height;
           final h = rawMaxH.isFinite ? rawMaxH : (screenH - topPadding);
-
-          // безопасный Size для CustomPaint и SizedBox
           final safeSize = Size(w, h);
 
           final quadTop = [
@@ -103,13 +147,16 @@ class StartScreenState extends State<StartScreen>
 
           return Stack(
             children: [
-              // НИЖНЯЯ полоса (слева -> вправо): рисуем первой, чтобы была под контентом
+              // НИЖНЯЯ полоса — раскрывается слева->справа (fromLeft: true), при reverse будет сворачиваться справа->лево?
+              // Нет — reverse уменьшает width от текущего состояния, сохраняя точку привязки (здесь слева), т.е. сворачивается слева->право.
               AnimatedBuilder(
-                animation: _bottomAnim,
+                animation: _bottomClipAnim,
                 builder: (context, _) {
                   return ClipRect(
-                    clipper:
-                        _HorizontalClipper(_bottomAnim.value, fromLeft: true),
+                    clipper: _HorizontalClipper(
+                      _bottomClipAnim.value,
+                      fromLeft: !_isReverseAnim,
+                    ),
                     child: CustomPaint(
                       size: safeSize,
                       painter: QuadPainter(
@@ -124,7 +171,7 @@ class StartScreenState extends State<StartScreen>
                 },
               ),
 
-              // КАРТОЧКА / КОНТЕНТ (SlideTransition)
+              // Контент
               SlideTransition(
                 position: _offsetAnimation,
                 child: Padding(
@@ -156,14 +203,14 @@ class StartScreenState extends State<StartScreen>
                 ),
               ),
 
-              // ВЕРХНЯЯ полоса (справа -> влево): рисуем последней, чтобы быть поверх
+              // ВЕРХНЯЯ полоса — раскрывается справа->влево (fromLeft: false). reverse() вернёт её обратно справа->влево.
               AnimatedBuilder(
-                animation: _topAnim,
+                animation: _topClipAnim,
                 builder: (context, _) {
                   return ClipRect(
                     clipper: _HorizontalClipper(
-                      _topAnim.value,
-                      fromLeft: false,
+                      _topClipAnim.value,
+                      fromLeft: _isReverseAnim,
                     ),
                     child: CustomPaint(
                       size: safeSize,
@@ -179,11 +226,12 @@ class StartScreenState extends State<StartScreen>
                 },
               ),
 
+              // Кнопка
               Positioned.fill(
                 child: AnimatedOpacity(
                   curve: Curves.easeInOut,
                   opacity: _showButton ? 1.0 : 0.0,
-                  duration: Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 300),
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: Padding(
@@ -191,10 +239,10 @@ class StartScreenState extends State<StartScreen>
                       child: MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
-                          onTap: widget.onNext,
+                          onTap: _onStartPressed,
                           child: Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
+                              borderRadius: const BorderRadius.only(
                                 bottomLeft: Radius.circular(12),
                                 bottomRight: Radius.circular(24),
                                 topLeft: Radius.circular(24),

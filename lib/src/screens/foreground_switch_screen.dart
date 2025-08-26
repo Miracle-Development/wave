@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wave/src/screens/foreground_switch_screen/enable_microphone_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/start_screen.dart';
 
 class ForegroundSwitchScreen extends StatefulWidget {
@@ -23,10 +24,48 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      transitionBuilder: (child, animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: child,
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        // определяем, incoming ли child (ему соответствует текущий _step)
+        final isIncoming = child.key == ValueKey<int>(_steper);
+
+        if (isIncoming) {
+          // входящий: ждём delayFraction, затем плавно 0->1
+          final delayedIn = CurvedAnimation(
+            parent: animation,
+            curve: Interval(
+              0.2,
+              1,
+              curve: Curves.easeInOut,
+            ),
+          );
+          return FadeTransition(
+            opacity: delayedIn,
+            child: child,
+          );
+        } else {
+          final delayedOut = CurvedAnimation(
+            parent: animation,
+            curve: Interval(
+              0.0,
+              0.4,
+              curve: Curves.easeInOut,
+            ),
+          );
+          return FadeTransition(
+            opacity: delayedOut,
+            child: child,
+          );
+        }
+      },
+      layoutBuilder: (currentChild, previousChildren) {
+        return Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            ...previousChildren, // старые экраны остаются и плавно исчезают
+            if (currentChild != null) currentChild, // новый экран накладывается
+          ],
         );
       },
       child: _buildStep(_steper),
@@ -38,17 +77,16 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     switch (step) {
       case 0:
         return StartScreen(
-          key: const ValueKey("start"),
+          key: const ValueKey<int>(0),
           onNext: _onStartButtonPressed,
         );
       case 1:
-        return Container(
-          key: const ValueKey("microphone"),
-          color: Colors.red,
+        return EnableMicrophoneScreen(
+          key: const ValueKey<int>(1),
         );
       default:
         return Container(
-          key: const ValueKey("other"),
+          key: const ValueKey<int>(-1),
           color: Colors.blue,
         );
     }
