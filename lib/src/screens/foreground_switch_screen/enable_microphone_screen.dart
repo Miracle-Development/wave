@@ -11,10 +11,10 @@ class EnableMicrophoneScreen extends StatelessWidget {
 
     return Stack(
       children: [
-        Container(
-          color: Colors.red,
-          child: Text('Enable Microphone Screen'),
-        ),
+        // Align(
+        //   alignment: Alignment.center,
+        //   child:
+        // ),
         LayoutBuilder(
           builder: (context, constraints) {
             final w = constraints.constrainWidth();
@@ -28,8 +28,11 @@ class EnableMicrophoneScreen extends StatelessWidget {
             final safeSize = Size(w, h);
 
             return Padding(
-              padding:
-                  const EdgeInsets.only(left: 20, right: 20, top: topPadding,),
+              padding: const EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: topPadding,
+              ),
               child: Container(
                 height: h,
                 decoration: BoxDecoration(
@@ -39,19 +42,28 @@ class EnableMicrophoneScreen extends StatelessWidget {
                   ),
                   color: WaveColors.containerColor,
                 ),
-                child: Center(
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: MdText(
-                        'Welcome!',
-                        type: MdTextType.subtitle,
-                        weight: MdTextWeight.bold,
-                        color: MdTextColor.brandColor,
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: MdText(
+                          'Welcome!',
+                          type: MdTextType.subtitle,
+                          weight: MdTextWeight.bold,
+                          color: MdTextColor.brandColor,
+                        ),
                       ),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.all(50.0),
+                      child: Container(
+                        color: Colors.green,
+                        child: Text('Enable Microphone Screen'),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );

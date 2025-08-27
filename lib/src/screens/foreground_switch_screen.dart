@@ -24,47 +24,23 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      switchInCurve: Curves.easeOut,
-      switchOutCurve: Curves.easeIn,
+      switchInCurve: Curves.linear,
+      switchOutCurve: Curves.linear,
       transitionBuilder: (Widget child, Animation<double> animation) {
         // определяем, incoming ли child (ему соответствует текущий _step)
-        final isIncoming = child.key == ValueKey<int>(_steper);
-
-        if (isIncoming) {
-          // входящий: ждём delayFraction, затем плавно 0->1
-          final delayedIn = CurvedAnimation(
-            parent: animation,
-            curve: Interval(
-              0.2,
-              1,
-              curve: Curves.easeInOut,
-            ),
-          );
-          return FadeTransition(
-            opacity: delayedIn,
-            child: child,
-          );
-        } else {
-          final delayedOut = CurvedAnimation(
-            parent: animation,
-            curve: Interval(
-              0.0,
-              0.4,
-              curve: Curves.easeInOut,
-            ),
-          );
-          return FadeTransition(
-            opacity: delayedOut,
-            child: child,
-          );
-        }
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
       },
       layoutBuilder: (currentChild, previousChildren) {
         return Stack(
           alignment: Alignment.center,
           children: <Widget>[
-            ...previousChildren, // старые экраны остаются и плавно исчезают
-            if (currentChild != null) currentChild, // новый экран накладывается
+            // старые экраны остаются и плавно исчезают
+            ...previousChildren,
+            // новый экран накладывается
+            if (currentChild != null) currentChild,
           ],
         );
       },

@@ -139,7 +139,7 @@ class _StartScreenState extends State<StartScreen>
             const Offset(0.0, 0.80),
           ];
           final quadBottom = [
-            const Offset(0.0, 0.70),
+            const Offset(0.0, 0.60),
             const Offset(1.0, 0.70),
             const Offset(1.0, 0.90),
             const Offset(0.0, 0.80),
