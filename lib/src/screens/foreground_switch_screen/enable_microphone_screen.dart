@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:md_ui_kit/widgets/md_text.dart';
+import 'package:md_ui_kit/_core/colors.dart';
+import 'package:md_ui_kit/widgets/wave_text.dart';
 import 'package:wave/core/colors.dart';
 
 class EnableMicrophoneScreen extends StatelessWidget {
@@ -31,7 +32,6 @@ class EnableMicrophoneScreen extends StatelessWidget {
               padding: const EdgeInsets.only(
                 left: 20,
                 right: 20,
-                top: topPadding,
               ),
               child: Container(
                 height: h,
@@ -48,11 +48,11 @@ class EnableMicrophoneScreen extends StatelessWidget {
                       alignment: Alignment.topCenter,
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
-                        child: MdText(
+                        child: WaveText(
                           'Welcome!',
-                          type: MdTextType.subtitle,
-                          weight: MdTextWeight.bold,
-                          color: MdTextColor.brandColor,
+                          type: WaveTextType.subtitle,
+                          weight: WaveTextWeight.bold,
+                          color: MdColors.textBrandColor,
                         ),
                       ),
                     ),

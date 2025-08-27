@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:md_ui_kit/widgets/md_text.dart';
+import 'package:md_ui_kit/_core/colors.dart';
+import 'package:md_ui_kit/widgets/wave_text.dart';
 import 'package:wave/core/colors.dart';
 import 'package:wave/src/widgets/quad_painter.dart';
 
@@ -122,79 +123,145 @@ class _StartScreenState extends State<StartScreen>
   Widget build(BuildContext context) {
     const double topPadding = 40 + 28;
 
-    return Padding(
-      padding: const EdgeInsets.only(top: topPadding),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final w = constraints.constrainWidth();
-          final rawMaxH = constraints.maxHeight;
-          final screenH = MediaQuery.of(context).size.height;
-          final h = rawMaxH.isFinite ? rawMaxH : (screenH - topPadding);
-          final safeSize = Size(w, h);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final w = constraints.constrainWidth();
+        final rawMaxH = constraints.maxHeight;
+        final screenH = MediaQuery.of(context).size.height;
+        final h = rawMaxH.isFinite ? rawMaxH : (screenH - topPadding);
+        final safeSize = Size(w, h);
 
-          final quadTop = [
-            const Offset(0.0, 0.60),
-            const Offset(1.0, 0.50),
-            const Offset(1.0, 0.70),
-            const Offset(0.0, 0.80),
-          ];
-          final quadBottom = [
-            const Offset(0.0, 0.60),
-            const Offset(1.0, 0.70),
-            const Offset(1.0, 0.90),
-            const Offset(0.0, 0.80),
-          ];
+        final quadTop = [
+          const Offset(0.0, 0.60),
+          const Offset(1.0, 0.50),
+          const Offset(1.0, 0.70),
+          const Offset(0.0, 0.80),
+        ];
+        final quadBottom = [
+          const Offset(0.0, 0.60),
+          const Offset(1.0, 0.70),
+          const Offset(1.0, 0.90),
+          const Offset(0.0, 0.80),
+        ];
 
-          return Stack(
-            children: [
-              // НИЖНЯЯ полоса — раскрывается слева->справа (fromLeft: true), при reverse будет сворачиваться справа->лево?
-              // Нет — reverse уменьшает width от текущего состояния, сохраняя точку привязки (здесь слева), т.е. сворачивается слева->право.
-              AnimatedBuilder(
-                animation: _bottomClipAnim,
-                builder: (context, _) {
-                  return ClipRect(
-                    clipper: _HorizontalClipper(
-                      _bottomClipAnim.value,
-                      fromLeft: !_isReverseAnim,
+        return Stack(
+          children: [
+            // НИЖНЯЯ полоса — раскрывается слева->справа (fromLeft: true), при reverse будет сворачиваться справа->лево?
+            // Нет — reverse уменьшает width от текущего состояния, сохраняя точку привязки (здесь слева), т.е. сворачивается слева->право.
+            AnimatedBuilder(
+              animation: _bottomClipAnim,
+              builder: (context, _) {
+                return ClipRect(
+                  clipper: _HorizontalClipper(
+                    _bottomClipAnim.value,
+                    fromLeft: !_isReverseAnim,
+                  ),
+                  child: CustomPaint(
+                    size: safeSize,
+                    painter: QuadPainter(
+                      points: quadBottom,
+                      normalized: true,
+                      color: WaveColors.brandSecondStrip,
+                      drawShadow: true,
+                      shadowElevation: 10,
                     ),
-                    child: CustomPaint(
-                      size: safeSize,
-                      painter: QuadPainter(
-                        points: quadBottom,
-                        normalized: true,
-                        color: WaveColors.brandSecondStrip,
-                        drawShadow: true,
-                        shadowElevation: 10,
+                  ),
+                );
+              },
+            ),
+
+            // Контент
+            SlideTransition(
+              position: _offsetAnimation,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Container(
+                  height: h,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                    color: WaveColors.containerColor,
+                  ),
+                  child: Center(
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: WaveText(
+                          'Welcome!',
+                          type: WaveTextType.subtitle,
+                          weight: WaveTextWeight.bold,
+                          color: MdColors.textBrandColor,
+                        ),
                       ),
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
+            ),
 
-              // Контент
-              SlideTransition(
-                position: _offsetAnimation,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Container(
-                    height: h,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-                      color: WaveColors.containerColor,
+            // ВЕРХНЯЯ полоса — раскрывается справа->влево (fromLeft: false). reverse() вернёт её обратно справа->влево.
+            AnimatedBuilder(
+              animation: _topClipAnim,
+              builder: (context, _) {
+                return ClipRect(
+                  clipper: _HorizontalClipper(
+                    _topClipAnim.value,
+                    fromLeft: _isReverseAnim,
+                  ),
+                  child: CustomPaint(
+                    size: safeSize,
+                    painter: QuadPainter(
+                      points: quadTop,
+                      normalized: true,
+                      color: WaveColors.brandFirstStrip,
+                      drawShadow: true,
+                      shadowElevation: 10,
                     ),
-                    child: Center(
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: MdText(
-                            'Welcome!',
-                            type: MdTextType.subtitle,
-                            weight: MdTextWeight.bold,
-                            color: MdTextColor.brandColor,
+                  ),
+                );
+              },
+            ),
+
+            // Кнопка
+            Positioned.fill(
+              child: AnimatedOpacity(
+                curve: Curves.easeInOut,
+                opacity: _showButton ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 300),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 225.0),
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: _onStartPressed,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(12),
+                              bottomRight: Radius.circular(24),
+                              topLeft: Radius.circular(24),
+                              topRight: Radius.circular(12),
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 11,
+                              horizontal: 60,
+                            ),
+                            child: WaveText(
+                              'Start',
+                              
+                              
+                              type: WaveTextType.title,
+                              weight: WaveTextWeight.bold,
+                              color: MdColors.textBrandColor,
+                            ),
                           ),
                         ),
                       ),
@@ -202,77 +269,10 @@ class _StartScreenState extends State<StartScreen>
                   ),
                 ),
               ),
-
-              // ВЕРХНЯЯ полоса — раскрывается справа->влево (fromLeft: false). reverse() вернёт её обратно справа->влево.
-              AnimatedBuilder(
-                animation: _topClipAnim,
-                builder: (context, _) {
-                  return ClipRect(
-                    clipper: _HorizontalClipper(
-                      _topClipAnim.value,
-                      fromLeft: _isReverseAnim,
-                    ),
-                    child: CustomPaint(
-                      size: safeSize,
-                      painter: QuadPainter(
-                        points: quadTop,
-                        normalized: true,
-                        color: WaveColors.brandFirstStrip,
-                        drawShadow: true,
-                        shadowElevation: 10,
-                      ),
-                    ),
-                  );
-                },
-              ),
-
-              // Кнопка
-              Positioned.fill(
-                child: AnimatedOpacity(
-                  curve: Curves.easeInOut,
-                  opacity: _showButton ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 236.0),
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          onTap: _onStartPressed,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.only(
-                                bottomLeft: Radius.circular(12),
-                                bottomRight: Radius.circular(24),
-                                topLeft: Radius.circular(24),
-                                topRight: Radius.circular(12),
-                              ),
-                              color: Colors.white,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 11,
-                                horizontal: 60,
-                              ),
-                              child: MdText(
-                                'Start',
-                                color: MdTextColor.brandColor,
-                                weight: MdTextWeight.bold,
-                                type: MdTextType.title,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
