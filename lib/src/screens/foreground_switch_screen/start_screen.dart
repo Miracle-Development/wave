@@ -232,9 +232,9 @@ class _StartScreenState extends State<StartScreen>
                 opacity: _showButton ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 300),
                 child: Align(
-                  alignment: Alignment.bottomCenter,
+                  alignment: Alignment.center,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 225.0),
+                    padding: EdgeInsets.only(top: screenH / 3 - 48),
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
@@ -256,8 +256,6 @@ class _StartScreenState extends State<StartScreen>
                             ),
                             child: WaveText(
                               'Start',
-                              
-                              
                               type: WaveTextType.title,
                               weight: WaveTextWeight.bold,
                               color: MdColors.textBrandColor,
