@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
+import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:md_ui_kit/widgets/wave_text.dart';
 import 'package:wave/core/colors.dart';
 import 'package:wave/src/widgets/quad_painter.dart';
@@ -193,7 +194,7 @@ class _StartScreenState extends State<StartScreen>
                           'Welcome!',
                           type: WaveTextType.subtitle,
                           weight: WaveTextWeight.bold,
-                          color: MdColors.textBrandColor,
+                          color: MdColors.brandColor,
                         ),
                       ),
                     ),
@@ -227,42 +228,56 @@ class _StartScreenState extends State<StartScreen>
 
             // Кнопка
             Positioned.fill(
-              child: AnimatedOpacity(
-                curve: Curves.easeInOut,
-                opacity: _showButton ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 300),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: screenH / 3 - 48),
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: _onStartPressed,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.only(
-                              bottomLeft: Radius.circular(12),
-                              bottomRight: Radius.circular(24),
-                              topLeft: Radius.circular(24),
-                              topRight: Radius.circular(12),
-                            ),
-                            color: Colors.white,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 11,
-                              horizontal: 60,
-                            ),
-                            child: WaveText(
-                              'Start',
-                              type: WaveTextType.title,
-                              weight: WaveTextWeight.bold,
-                              color: MdColors.textBrandColor,
-                            ),
-                          ),
+              child: IgnorePointer(
+                ignoring: !_showButton,
+                child: AnimatedOpacity(
+                  curve: Curves.easeInOut,
+                  opacity: _showButton ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: screenH / 3 - 48),
+                      child: WaveSimpleButton(
+                        label: 'Start',
+                        onPressed: _onStartPressed,
+                        type: WaveButtonType.alternative,
+                        showShadow: true,
+                        padding: EdgeInsets.symmetric(
+                          vertical: 11,
+                          horizontal: 56,
                         ),
                       ),
+
+                      // MouseRegion(
+                      //   cursor: SystemMouseCursors.click,
+                      //   child: GestureDetector(
+                      //     onTap: _onStartPressed,
+                      //     child: Container(
+                      //       decoration: BoxDecoration(
+                      //         borderRadius: const BorderRadius.only(
+                      //           bottomLeft: Radius.circular(12),
+                      //           bottomRight: Radius.circular(24),
+                      //           topLeft: Radius.circular(24),
+                      //           topRight: Radius.circular(12),
+                      //         ),
+                      //         color: Colors.white,
+                      //       ),
+                      //       child: Padding(
+                      //         padding: const EdgeInsets.symmetric(
+                      //           vertical: 11,
+                      //           horizontal: 60,
+                      //         ),
+                      //         child: WaveText(
+                      //           'Start',
+                      //           type: WaveTextType.title,
+                      //           weight: WaveTextWeight.bold,
+                      //           color: MdColors.brandColor,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ),
                   ),
                 ),

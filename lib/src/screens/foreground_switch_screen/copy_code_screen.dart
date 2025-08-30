@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
+import 'package:md_ui_kit/md_ui_kit.dart';
+import 'package:md_ui_kit/widgets/wave_divider.dart';
 import 'package:md_ui_kit/widgets/wave_simple_button.dart';
 import 'package:md_ui_kit/widgets/wave_text.dart';
 import 'package:wave/core/colors.dart';
 
-class EnableMicrophoneScreen extends StatelessWidget {
-  const EnableMicrophoneScreen({
+class CopyCodeScreen extends StatelessWidget {
+  const CopyCodeScreen({
     super.key,
-    required this.onNext,
+    required this.onCopyCodePressed,
   });
 
-  final VoidCallback onNext;
+  final VoidCallback onCopyCodePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +20,6 @@ class EnableMicrophoneScreen extends StatelessWidget {
 
     return Stack(
       children: [
-        // Align(
-        //   alignment: Alignment.center,
-        //   child:
-        // ),
         LayoutBuilder(
           builder: (context, constraints) {
             final w = constraints.constrainWidth();
@@ -66,16 +64,32 @@ class EnableMicrophoneScreen extends StatelessWidget {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        WaveText(
-                          'Allow access, please',
-                          type: WaveTextType.subtitle,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 57.0),
+                          child: WaveText(
+                            'This is your two-word pair code. Copy and send it to your friend',
+                            type: WaveTextType.caption,
+                            maxLines: 3,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
+                        SizedBox(height: 27),
+                        WaveTextButton(
+                          label: 'copy-code',
+                          onPressed: onCopyCodePressed,
+                        ),
+                        SizedBox(height: 135),
+                        WaveSimpleButton(label: 'Check pair'),
                         SizedBox(height: 20),
-                        WaveSimpleButton(
-                          label: 'Mic on',
-                          onPressed: onNext,
-                          showShadow: true,
-                          type: WaveButtonType.alternative,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 57.0),
+                          child: WaveText(
+                            'Wait your friend to paste the code for button enabling',
+                            type: WaveTextType.caption,
+                            maxLines: 3,
+                            textAlign: TextAlign.center,
+                            color: MdColors.disabledColor,
+                          ),
                         ),
                       ],
                     ),

@@ -37,11 +37,11 @@ flutter:
     - shaders/blurred_circle.frag
 
   assets:
-    # Add assets from the images directory to the application.
-    - assets/images/
     - assets/fonts/
-    - assets/icons/logo/wave.svg
+    - assets/icons/logo/
     - assets/icons/initial_wave/
+    - assets/icons/copy/
+    - assets/icons/nav_bar/
 
   fonts:
     - family: Play

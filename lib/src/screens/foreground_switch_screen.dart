@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:wave/src/screens/foreground_switch_screen/copy_code_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/enable_microphone_screen.dart';
+import 'package:wave/src/screens/foreground_switch_screen/start_connection_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/start_screen.dart';
 
 class ForegroundSwitchScreen extends StatefulWidget {
@@ -10,7 +12,7 @@ class ForegroundSwitchScreen extends StatefulWidget {
 }
 
 class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
-  int _steper = 0;
+  int _steper = 0; // TODO back to 0   if stable
 
   bool _isOfferingScreen = true;
 
@@ -20,10 +22,30 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     });
   }
 
+  void _onEnableMicPressed() {
+    setState(() {
+      _steper++;
+    });
+  }
+
+  void _onCreateCodePressed() {
+    setState(() {
+      _steper++;
+    });
+  }
+
+  void _onPasteCodePressed() {}
+
+  void _onCopyCodePressed() {
+    // setState(() {
+    //   _steper++;
+    // });
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 400),
       switchInCurve: Curves.linear,
       switchOutCurve: Curves.linear,
       transitionBuilder: (Widget child, Animation<double> animation) {
@@ -57,8 +79,22 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           onNext: _onStartButtonPressed,
         );
       case 1:
+        // TODO add shared pref check, if done - skip
         return EnableMicrophoneScreen(
           key: const ValueKey<int>(1),
+          onNext: _onEnableMicPressed,
+        );
+      case 2:
+        return StartConnectionScreen(
+          key: const ValueKey<int>(2),
+          onCreateCode: _onCreateCodePressed,
+          onPasteCode: _onPasteCodePressed,
+        );
+      case 3:
+        return CopyCodeScreen(
+          key: const ValueKey<int>(3),
+          onCopyCodePressed: _onCopyCodePressed,
+          // onPasteCode: _onPasteCodePressed,
         );
       default:
         return Container(
