@@ -4,7 +4,7 @@ import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:md_ui_kit/widgets/wave_divider.dart';
 import 'package:md_ui_kit/widgets/wave_simple_button.dart';
 import 'package:md_ui_kit/widgets/wave_text.dart';
-import 'package:wave/core/colors.dart';
+import 'package:wave/src/core/colors.dart';
 
 class CopyCodeScreen extends StatelessWidget {
   const CopyCodeScreen({

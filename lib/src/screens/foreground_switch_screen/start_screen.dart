@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:md_ui_kit/widgets/wave_text.dart';
-import 'package:wave/core/colors.dart';
+import 'package:wave/src/core/colors.dart';
 import 'package:wave/src/widgets/quad_painter.dart';
 
 class StartScreen extends StatefulWidget {

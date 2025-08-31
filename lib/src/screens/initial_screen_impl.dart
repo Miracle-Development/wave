@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/screens/initial_screen.dart';
-import 'package:wave/core/colors.dart';
+import 'package:wave/src/core/colors.dart';
 import 'package:wave/src/screens/home_screen.dart';
 
 class InitialScreenImpl extends StatefulWidget {
