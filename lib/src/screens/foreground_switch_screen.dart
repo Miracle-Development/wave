@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wave/src/core/webrtc_manager.dart';
@@ -18,6 +17,8 @@ enum VisibleScreenType {
   micOnAnimated,
   selectAction,
   selectActionAnimated,
+  createCode,
+  pasteCode,
 }
 
 class ForegroundSwitchScreen extends StatefulWidget {
@@ -42,8 +43,6 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final label = 'test-code';
-
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
       switchInCurve: Curves.linear,
@@ -65,12 +64,12 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           ],
         );
       },
-      child: _buildStep(_stepper, label),
+      child: _buildStep(_stepper),
     );
   }
 
 // обязательно! разные ключи для разных виджетов
-  Widget _buildStep(VisibleScreenType stepper, String label) {
+  Widget _buildStep(VisibleScreenType stepper) {
     const postfix = '_screen';
     switch (stepper) {
       // Экран с кнопкой "Start", скрывается если нажался хотя бы раз
@@ -125,6 +124,15 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           child: StartConnectionScreen(
             onCreateCode: _onCreateCodePressed,
             onPasteCode: _onPasteCodePressed,
+          ),
+        );
+
+      // Экран создания кода
+      case VisibleScreenType.createCode:
+        return AnimatedContainerWrapper(
+          key: ValueKey<String>('createCode$postfix'),
+          isAnimated: false,
+          child: CopyCodeScreen(
           ),
         );
 
@@ -221,22 +229,12 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   }
 
   void _onCreateCodePressed() {
-    // setState(() {
-    //   _steper++;
-    // });
+    setState(() {
+      _stepper = VisibleScreenType.createCode;
+    });
   }
 
-  Future<void> _onCopyCodePressed(String text) async {
-    await Clipboard.setData(ClipboardData(text: text));
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Скопировано')),
-    );
 
-    // setState(() {
-    //   _steper++;
-    // });
-  }
 
   Future<void> _onPasteCodePressed() async {
     // TODO remove, only for debugging

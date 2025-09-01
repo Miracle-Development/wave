@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
 
-class CopyCodeScreen extends StatelessWidget {
-  const CopyCodeScreen({
-    super.key,
-    required this.onCopyCodePressed,
-    required this.label,
-  });
+class CopyCodeScreen extends StatefulWidget {
+  const CopyCodeScreen({super.key});
 
-  final Function(String) onCopyCodePressed;
-  final String label;
+  @override
+  State<CopyCodeScreen> createState() => _CopyCodeScreenState();
+}
+
+class _CopyCodeScreenState extends State<CopyCodeScreen> {
+  final label = 'test-code';
+
+  Future<void> _onCopyCodePressed(String text) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    // if (!mounted) return;
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(content: Text('Скопировано')),
+    // );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +38,7 @@ class CopyCodeScreen extends StatelessWidget {
         SizedBox(height: 27),
         WaveTextButton(
           label: label,
-          onPressed: () => onCopyCodePressed(label),
+          onPressed: () => _onCopyCodePressed(label),
         ),
         SizedBox(height: 135),
         WaveSimpleButton(label: 'Check pair'),
