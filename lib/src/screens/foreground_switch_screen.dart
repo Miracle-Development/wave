@@ -15,7 +15,7 @@ const prefsMicAccessKey = 'got_mic_access';
 enum VisibleScreenType {
   startButton,
   micOn,
-  minOnAnimated,
+  micOnAnimated,
   selectAction,
   selectActionAnimated,
 }
@@ -36,6 +36,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   @override
   void initState() {
     _checkHasStartButtonPressed();
+    _checkMicPermission();
     super.initState();
   }
 
@@ -93,7 +94,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
 
       // Экран с кнопкой "Mic on", скрывается если нажался хотя бы раз
       // с анимацией, если открывается сразу после заставки
-      case VisibleScreenType.minOnAnimated:
+      case VisibleScreenType.micOnAnimated:
         return AnimatedContainerWrapper(
           purpleTitle: 'One more step',
           isAnimated: true,
@@ -151,33 +152,59 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
 
     if (gotStarted) {
       setState(() {
-        _stepper = VisibleScreenType.minOnAnimated;
+        _stepper = VisibleScreenType.micOnAnimated;
       });
+      return;
+    }
+  }
+
+  Future<void> _checkMicPermission() async {
+    final webrtcManager = context.read<WebRTCManager>();
+    final prefs = await SharedPreferences.getInstance();
+
+    final hasAccessPref = prefs.getBool(prefsMicAccessKey) ?? false;
+
+    final hasAccess = await webrtcManager.checkMicrophonePermission();
+
+    if (hasAccess && hasAccessPref) {
+      await webrtcManager.updateAudioDevices();
+
+      setState(() {
+        _stepper = VisibleScreenType.selectActionAnimated;
+      });
+      return;
+    } else {
+      await prefs.setBool(prefsMicAccessKey, false);
       return;
     }
   }
 
   Future<void> _onEnableMicPressed() async {
     final webrtcManager = context.read<WebRTCManager>();
+    final prefs = await SharedPreferences.getInstance();
     final hasAccess = await webrtcManager.checkMicrophonePermission();
 
     if (hasAccess) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Доступ к микрофону получен')),
-        );
-      }
+      // if (mounted) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text('Доступ к микрофону получен')),
+      //   );
+      // }
 
-      await webrtcManager
-          .updateAudioDevices(); // функция обновления списка устройств
+      // функция обновления списка устройств
+      await webrtcManager.updateAudioDevices();
 
+      // запоминаем
+      await prefs.setBool(prefsMicAccessKey, true);
       setState(() {
         _stepper = VisibleScreenType.selectActionAnimated;
       });
     } else {
       // TODO: Доступ не получен
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Доступ к микрофону не получен')),
+        SnackBar(
+            content: Text(
+                'Доступ к микрофону не получен, разрешите его в настройках')),
       );
       // setState(() {
       //   _stepper = VisibleScreenType.selectAction;
@@ -215,5 +242,6 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     // TODO remove, only for debugging
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(prefsFirstTimeStartKey, false);
+    await prefs.setBool(prefsMicAccessKey, false);
   }
 }

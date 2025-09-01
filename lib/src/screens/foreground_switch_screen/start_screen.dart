@@ -235,7 +235,7 @@ class _StartScreenState extends State<StartScreen>
                   child: Align(
                     alignment: Alignment.center,
                     child: Padding(
-                      padding: EdgeInsets.only(top: screenH / 3 - 48),
+                      padding: EdgeInsets.only(top: screenH / 3 - 68),
                       child: WaveSimpleButton(
                         label: 'Start',
                         onPressed: _onStartPressed,
