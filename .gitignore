@@ -49,5 +49,5 @@ app.*.map.json
 # .ios/
 
 # FVM related
-# .fvm/
-# !.fvm/fvm_config.json
+.fvm/
+!.fvm/fvm_config.json
