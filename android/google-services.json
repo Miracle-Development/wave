@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1068464170703",
+    "project_id": "wave-p2p",
+    "storage_bucket": "wave-p2p.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1068464170703:android:afb5349f02f8e8a0a239ba",
+        "android_client_info": {
+          "package_name": "com.developmiracle.wave"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7mgTJr51VV8_s4wG5QpnkWrne2HrCsrw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1068464170703:android:522cdd2c61ed6687a239ba",
+        "android_client_info": {
+          "package_name": "com.example.p2p_chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7mgTJr51VV8_s4wG5QpnkWrne2HrCsrw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

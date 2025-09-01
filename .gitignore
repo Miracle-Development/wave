@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Add-to-app related
+# .android/
+# .ios/
+
+# FVM related
+.fvm/
+!.fvm/fvm_config.json
