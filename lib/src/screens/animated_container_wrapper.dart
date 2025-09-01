@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/widgets/wave_text.dart';
-import 'package:wave/src/core/colors.dart';
 
 class AnimatedContainerWrapper extends StatefulWidget {
   const AnimatedContainerWrapper({
@@ -82,7 +81,7 @@ class _AnimatedContainerWrapperState extends State<AnimatedContainerWrapper>
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
               ),
-              color: WaveColors.containerColor,
+              color: MdColors.containerColor,
             ),
             child: widget.purpleTitle != null
                 ? Center(

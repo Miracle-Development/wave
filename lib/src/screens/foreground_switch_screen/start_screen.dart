@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
-import 'package:md_ui_kit/widgets/wave_text.dart';
-import 'package:wave/src/core/colors.dart';
 import 'package:wave/src/widgets/quad_painter.dart';
 
 class StartScreen extends StatefulWidget {
@@ -162,7 +160,7 @@ class _StartScreenState extends State<StartScreen>
                     painter: QuadPainter(
                       points: quadBottom,
                       normalized: true,
-                      color: WaveColors.brandSecondStrip,
+                      color: MdColors.brandSecondStrip,
                       drawShadow: true,
                       shadowElevation: 10,
                     ),
@@ -183,7 +181,7 @@ class _StartScreenState extends State<StartScreen>
                       topLeft: Radius.circular(20),
                       topRight: Radius.circular(20),
                     ),
-                    color: WaveColors.containerColor,
+                    color: MdColors.containerColor,
                   ),
                   child: Center(
                     child: Align(
@@ -217,7 +215,7 @@ class _StartScreenState extends State<StartScreen>
                     painter: QuadPainter(
                       points: quadTop,
                       normalized: true,
-                      color: WaveColors.brandFirstStrip,
+                      color: MdColors.brandFirstStrip,
                       drawShadow: true,
                       shadowElevation: 10,
                     ),
