@@ -10,6 +10,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GradientScaffoldWrapper(
       showLogo: true,
+      iosTopPadding: 82,
       child: ForegroundSwitchScreen(),
     );
   }

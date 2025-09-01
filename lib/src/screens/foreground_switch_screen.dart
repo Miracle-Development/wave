@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wave/src/screens/animated_container_wrapper.dart';
 import 'package:wave/src/screens/foreground_switch_screen/copy_code_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/enable_microphone_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/start_connection_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/start_screen.dart';
+
+const prefsFirstTimeStartKey = 'got_started_first_time';
+
+enum VisibleScreenType {
+  startButton,
+  micOn,
+  minOnAnimated,
+  selectAction,
+  selectActionAnimated,
+}
 
 class ForegroundSwitchScreen extends StatefulWidget {
   const ForegroundSwitchScreen({super.key});
@@ -12,44 +25,39 @@ class ForegroundSwitchScreen extends StatefulWidget {
 }
 
 class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
-  int _steper = 0; // TODO back to 0   if stable
+  VisibleScreenType _stepper = VisibleScreenType.startButton;
+  // int _steper = 0; // TODO back to 0   if stable
 
-  bool _isOfferingScreen = true;
+  // bool _isOfferingScreen = true;
 
-  void _onStartButtonPressed() {
-    setState(() {
-      _steper++;
-    });
+  Future<void> _checkHasStartButtonPressed() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final gotStarted = prefs.getBool(prefsFirstTimeStartKey) ?? false;
+
+    if (gotStarted) {
+      setState(() {
+        _stepper = VisibleScreenType.minOnAnimated;
+      });
+      return;
+    }
   }
 
-  void _onEnableMicPressed() {
-    setState(() {
-      _steper++;
-    });
-  }
-
-  void _onCreateCodePressed() {
-    setState(() {
-      _steper++;
-    });
-  }
-
-  void _onPasteCodePressed() {}
-
-  void _onCopyCodePressed() {
-    // setState(() {
-    //   _steper++;
-    // });
+  @override
+  void initState() {
+    _checkHasStartButtonPressed();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final label = 'test-code';
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
       switchInCurve: Curves.linear,
       switchOutCurve: Curves.linear,
       transitionBuilder: (Widget child, Animation<double> animation) {
-        // определяем, incoming ли child (ему соответствует текущий _step)
         return FadeTransition(
           opacity: animation,
           child: child,
@@ -66,41 +74,119 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           ],
         );
       },
-      child: _buildStep(_steper),
+      child: _buildStep(_stepper, label),
     );
   }
 
 // обязательно! разные ключи для разных виджетов
-  Widget _buildStep(int step) {
-    switch (step) {
-      case 0:
+  Widget _buildStep(VisibleScreenType stepper, String label) {
+    const postfix = '_screen';
+    switch (stepper) {
+      // Экран с кнопкой "Start", скрывается если нажался хотя бы раз
+      case VisibleScreenType.startButton:
         return StartScreen(
-          key: const ValueKey<int>(0),
+          key: ValueKey<String>('startButton$postfix'),
           onNext: _onStartButtonPressed,
         );
-      case 1:
-        // TODO add shared pref check, if done - skip
-        return EnableMicrophoneScreen(
-          key: const ValueKey<int>(1),
-          onNext: _onEnableMicPressed,
+
+      // Экран с кнопкой "Mic on", скрывается если нажался хотя бы раз
+      // без анимации, если проигрывается после startButton
+      case VisibleScreenType.micOn:
+        return AnimatedContainerWrapper(
+          purpleTitle: 'One more step',
+          isAnimated: false,
+          key: ValueKey<String>('micOn$postfix'),
+          child: EnableMicrophoneScreen(
+            onNext: _onEnableMicPressed,
+          ),
         );
-      case 2:
-        return StartConnectionScreen(
-          key: const ValueKey<int>(2),
-          onCreateCode: _onCreateCodePressed,
-          onPasteCode: _onPasteCodePressed,
+
+      // Экран с кнопкой "Mic on", скрывается если нажался хотя бы раз
+      // с анимацией, если открывается сразу после заставки
+      case VisibleScreenType.minOnAnimated:
+        return AnimatedContainerWrapper(
+          purpleTitle: 'One more step',
+          isAnimated: true,
+          key: ValueKey<String>('minOnAnimated$postfix'),
+          child: EnableMicrophoneScreen(
+            onNext: _onEnableMicPressed,
+          ),
         );
-      case 3:
-        return CopyCodeScreen(
-          key: const ValueKey<int>(3),
-          onCopyCodePressed: _onCopyCodePressed,
-          // onPasteCode: _onPasteCodePressed,
+
+      // Экран с выбором действия - создать/вставить код
+      // без анимации, если проигрывается после micOn
+      case VisibleScreenType.selectAction:
+        return AnimatedContainerWrapper(
+          isAnimated: false,
+          key: ValueKey<String>('selectAction$postfix'),
+          child: StartConnectionScreen(
+            onCreateCode: _onCreateCodePressed,
+            onPasteCode: _onPasteCodePressed,
+          ),
         );
+
+      // Экран с выбором действия - создать/вставить код
+      // без анимации, если проигрывается после micOn
+      case VisibleScreenType.selectActionAnimated:
+        return AnimatedContainerWrapper(
+          key: ValueKey<String>('selectActionAnimated$postfix'),
+          isAnimated: true,
+          child: StartConnectionScreen(
+            onCreateCode: _onCreateCodePressed,
+            onPasteCode: _onPasteCodePressed,
+          ),
+        );
+
+      // case VisibleScreenType.selectAction:
+      //   return CopyCodeScreen(
+      //     key: ValueKey<String>('selectAction$postfix'),
+      //     label: label,
+      //     onCopyCodePressed: (code) => _onCopyCodePressed(code),
+      //     // onPasteCode: _onPasteCodePressed,
+      //   );
       default:
         return Container(
           key: const ValueKey<int>(-1),
           color: Colors.blue,
         );
     }
+  }
+
+  Future<void> _onStartButtonPressed() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(prefsFirstTimeStartKey, true);
+    setState(() {
+      _stepper = VisibleScreenType.micOn;
+    });
+  }
+
+  void _onEnableMicPressed() {
+    setState(() {
+      _stepper = VisibleScreenType.selectAction;
+    });
+  }
+
+  void _onCreateCodePressed() {
+    // setState(() {
+    //   _steper++;
+    // });
+  }
+
+  Future<void> _onCopyCodePressed(String text) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Скопировано')),
+    );
+
+    // setState(() {
+    //   _steper++;
+    // });
+  }
+
+  Future<void> _onPasteCodePressed() async {
+    // TODO remove, only for debugging
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(prefsFirstTimeStartKey, false);
   }
 }
