@@ -3,10 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_words/english_words.dart' as words;
 import 'package:flutter/foundation.dart' show ChangeNotifier, kIsWeb;
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wave/models/call_state.dart';
+import 'package:wave/models/chat_message.dart';
+import 'dart:io' show Platform;
 
-import '../../models/call_state.dart';
-import '../../models/chat_message.dart';
 import 'signaling.dart';
 import 'storage.dart';
 
@@ -100,7 +102,8 @@ class WebRTCManager extends ChangeNotifier {
 
   void _wireDataChannel(RTCDataChannel dc) {
     dc.onMessage = (m) {
-      final text = m.isBinary ? '[binary ${m.binary?.length ?? 0} bytes]' : m.text;
+      final text =
+          m.isBinary ? '[binary ${m.binary?.length ?? 0} bytes]' : m.text;
       final msg = ChatMessage(
         id: DateTime.now().microsecondsSinceEpoch.toString(),
         author: 'Собеседник',
@@ -133,6 +136,26 @@ class WebRTCManager extends ChangeNotifier {
   }
 
   // ====== AUDIO helpers ======
+  // Future<void> _ensureLocalAudio({bool unmuted = true}) async {
+  //   if (localStream != null) {
+  //     final tracks = localStream!.getAudioTracks();
+  //     if (tracks.isNotEmpty) tracks.first.enabled = unmuted;
+  //     _muted = !unmuted;
+  //     notifyListeners();
+  //     return;
+  //   }
+  //   final constraints = <String, dynamic>{
+  //     'audio': selectedMicId == null ? true : {'deviceId': selectedMicId},
+  //     'video': false
+  //   };
+  //   final s = await navigator.mediaDevices.getUserMedia(constraints);
+  //   localStream = s;
+  //   _muted = !unmuted;
+  //   // КРИТИЧНО: добавить трек ДО создания оффера/ответа
+  //   await signaling.attachLocal(s);
+  //   notifyListeners();
+  // }
+
   Future<void> _ensureLocalAudio({bool unmuted = true}) async {
     if (localStream != null) {
       final tracks = localStream!.getAudioTracks();
@@ -141,16 +164,114 @@ class WebRTCManager extends ChangeNotifier {
       notifyListeners();
       return;
     }
+
+    // Используем сохраненный ID микрофона, если есть
     final constraints = <String, dynamic>{
       'audio': selectedMicId == null ? true : {'deviceId': selectedMicId},
       'video': false
     };
-    final s = await navigator.mediaDevices.getUserMedia(constraints);
-    localStream = s;
-    _muted = !unmuted;
-    // КРИТИЧНО: добавить трек ДО создания оффера/ответа
-    await signaling.attachLocal(s);
+
+    try {
+      final s = await navigator.mediaDevices.getUserMedia(constraints);
+      localStream = s;
+
+      // Микрофон остается выключенным до явного включения
+      final audioTracks = s.getAudioTracks();
+      if (audioTracks.isNotEmpty) {
+        audioTracks.first.enabled = false; // По умолчанию выключен
+      }
+
+      _muted = true; // Соответствует выключенному состоянию
+      await signaling.attachLocal(s);
+      notifyListeners();
+    } catch (e) {
+      print('Error accessing microphone: $e');
+      // Обработка ошибки (например, показать сообщение пользователю)
+    }
+  }
+
+// отдельный метод для запроса разрешения на микрофон
+  Future<bool> _requestMicrophoneAccess() async {
+    try {
+      // Запрос доступа к микрофону
+      final constraints = {'audio': true, 'video': false};
+      final stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      // Немедленно отключаем аудиотрек (микрофон не активен)
+      final audioTracks = stream.getAudioTracks();
+      if (audioTracks.isNotEmpty) {
+        audioTracks.first.enabled = false;
+      }
+
+      // Освобождаем поток (доступ получен, но не используем)
+      audioTracks.forEach((track) => track.stop());
+      stream.dispose();
+
+      // Обновляем список устройств
+      await updateAudioDevices();
+
+      return true;
+    } catch (e) {
+      print('Microphone access denied: $e');
+      return false;
+    }
+  }
+
+  // метод для запроса разрешения (мультиплатформенный)
+  Future<bool> checkMicrophonePermission() async {
+    if (Platform.isAndroid || Platform.isIOS) {
+      try {
+        // На мобильных используем permission_handler
+        final status = await Permission.microphone.request();
+        return status.isGranted;
+      } catch (e) {
+        print('Microphone access denied: $e');
+        return false;
+      }
+    } else {
+      // На Web используем стандартный API
+      try {
+        final stream =
+            await navigator.mediaDevices.getUserMedia({'audio': true});
+        stream.getTracks().forEach((track) => track.stop());
+        return true;
+      } catch (e) {
+        print('Microphone access denied: $e');
+        return false;
+      }
+    }
+  }
+
+// метод для обновления аудиоустройств
+  Future<void> updateAudioDevices() async {
+    final devices = await navigator.mediaDevices.enumerateDevices();
+    final microphones = devices.where((device) => device.kind == 'audioinput');
+
+    // Обновляем состояние приложения с новым списком микрофонов
+    // Например: availableMics = microphones.toList();
+    microphones.toList();
+    selectedMicId = microphones.first.deviceId; // или сохраненный выбор
     notifyListeners();
+  }
+
+// кастомный метод для включения микрофона
+  void toggleMicrophone(bool isMuted) async {
+    if (localStream == null) {
+      // Сначала запрашиваем доступ если нужно
+      final hasAccess =
+          await _requestMicrophoneAccess(); // TODO заменить на другой метод
+      if (!hasAccess) return;
+
+      // Создаем поток для использования
+      await _ensureLocalAudio(unmuted: false);
+    }
+
+    final tracks = localStream!.getAudioTracks();
+    if (tracks.isNotEmpty) {
+      tracks.first.enabled = isMuted;
+      _muted = isMuted;
+      notifyListeners();
+    }
   }
 
   // ====== Firebase signaling (random wordpair ID) ======
@@ -270,7 +391,8 @@ class WebRTCManager extends ChangeNotifier {
     }
     final answerBlob = data['answer'] as String?;
     if (answerBlob == null || answerBlob.isEmpty) {
-      throw Exception('Ответ для "$id" пока не готов — попросите собеседника нажать "Принять приглашение"');
+      throw Exception(
+          'Ответ для "$id" пока не готов — попросите собеседника нажать "Принять приглашение"');
     }
     // сохраним и для UI (на всякий)
     lastAnswerBlob = answerBlob;
@@ -301,8 +423,10 @@ class WebRTCManager extends ChangeNotifier {
           comp.complete();
         }
       }
+
       c.onDataChannelState = sub;
-      await Future.any([comp.future, Future.delayed(const Duration(seconds: 5))]);
+      await Future.any(
+          [comp.future, Future.delayed(const Duration(seconds: 5))]);
       c.onDataChannelState = null;
     }
 

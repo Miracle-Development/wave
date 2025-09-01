@@ -1,6 +1,8 @@
-## 1.1.0
+## 1.0.1
 
-- [dev-1] Create/Paste code feature added 
+- Ios icons added
+- Ios mic permissions granted
+- Base navigation implemented
 
 ## 1.0.0
 

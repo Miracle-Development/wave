@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/widgets/wave_simple_button.dart';
 import 'package:md_ui_kit/widgets/wave_text.dart';
 

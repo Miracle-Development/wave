@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wave/src/core/webrtc_manager.dart';
 import 'package:wave/src/screens/animated_container_wrapper.dart';
 import 'package:wave/src/screens/foreground_switch_screen/copy_code_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/enable_microphone_screen.dart';
@@ -8,6 +10,7 @@ import 'package:wave/src/screens/foreground_switch_screen/start_connection_scree
 import 'package:wave/src/screens/foreground_switch_screen/start_screen.dart';
 
 const prefsFirstTimeStartKey = 'got_started_first_time';
+const prefsMicAccessKey = 'got_mic_access';
 
 enum VisibleScreenType {
   startButton,
@@ -29,19 +32,6 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   // int _steper = 0; // TODO back to 0   if stable
 
   // bool _isOfferingScreen = true;
-
-  Future<void> _checkHasStartButtonPressed() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final gotStarted = prefs.getBool(prefsFirstTimeStartKey) ?? false;
-
-    if (gotStarted) {
-      setState(() {
-        _stepper = VisibleScreenType.minOnAnimated;
-      });
-      return;
-    }
-  }
 
   @override
   void initState() {
@@ -144,6 +134,8 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       //     onCopyCodePressed: (code) => _onCopyCodePressed(code),
       //     // onPasteCode: _onPasteCodePressed,
       //   );
+
+      // TODO: DO NOT REMOVE TO PREFENT FAILURE ON PROD
       default:
         return Container(
           key: const ValueKey<int>(-1),
@@ -152,17 +144,52 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     }
   }
 
+  Future<void> _checkHasStartButtonPressed() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final gotStarted = prefs.getBool(prefsFirstTimeStartKey) ?? false;
+
+    if (gotStarted) {
+      setState(() {
+        _stepper = VisibleScreenType.minOnAnimated;
+      });
+      return;
+    }
+  }
+
+  Future<void> _onEnableMicPressed() async {
+    final webrtcManager = context.read<WebRTCManager>();
+    final hasAccess = await webrtcManager.checkMicrophonePermission();
+
+    if (hasAccess) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Доступ к микрофону получен')),
+        );
+      }
+
+      await webrtcManager
+          .updateAudioDevices(); // функция обновления списка устройств
+
+      setState(() {
+        _stepper = VisibleScreenType.selectActionAnimated;
+      });
+    } else {
+      // TODO: Доступ не получен
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Доступ к микрофону не получен')),
+      );
+      // setState(() {
+      //   _stepper = VisibleScreenType.selectAction;
+      // });
+    }
+  }
+
   Future<void> _onStartButtonPressed() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(prefsFirstTimeStartKey, true);
     setState(() {
       _stepper = VisibleScreenType.micOn;
-    });
-  }
-
-  void _onEnableMicPressed() {
-    setState(() {
-      _stepper = VisibleScreenType.selectAction;
     });
   }
 
