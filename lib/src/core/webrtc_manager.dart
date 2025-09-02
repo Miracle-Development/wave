@@ -191,45 +191,36 @@ class WebRTCManager extends ChangeNotifier {
   }
 
 // отдельный метод для запроса разрешения на микрофон
-  Future<bool> _requestMicrophoneAccess() async {
-    try {
-      // Запрос доступа к микрофону
-      final constraints = {'audio': true, 'video': false};
-      final stream = await navigator.mediaDevices.getUserMedia(constraints);
+  // Future<bool> _requestMicrophoneAccess() async {
+  //   try {
+  //     // Запрос доступа к микрофону
+  //     final constraints = {'audio': true, 'video': false};
+  //     final stream = await navigator.mediaDevices.getUserMedia(constraints);
 
-      // Немедленно отключаем аудиотрек (микрофон не активен)
-      final audioTracks = stream.getAudioTracks();
-      if (audioTracks.isNotEmpty) {
-        audioTracks.first.enabled = false;
-      }
+  //     // Немедленно отключаем аудиотрек (микрофон не активен)
+  //     final audioTracks = stream.getAudioTracks();
+  //     if (audioTracks.isNotEmpty) {
+  //       audioTracks.first.enabled = false;
+  //     }
 
-      // Освобождаем поток (доступ получен, но не используем)
-      audioTracks.forEach((track) => track.stop());
-      stream.dispose();
+  //     // Освобождаем поток (доступ получен, но не используем)
+  //     audioTracks.forEach((track) => track.stop());
+  //     stream.dispose();
 
-      // Обновляем список устройств
-      await updateAudioDevices();
+  //     // Обновляем список устройств
+  //     await updateAudioDevices();
 
-      return true;
-    } catch (e) {
-      print('Microphone access denied: $e');
-      return false;
-    }
-  }
+  //     return true;
+  //   } catch (e) {
+  //     print('Microphone access denied: $e');
+  //     return false;
+  //   }
+  // }
 
   // метод для запроса разрешения (мультиплатформенный)
   Future<bool> checkMicrophonePermission() async {
-    if (Platform.isAndroid || Platform.isIOS) {
-      try {
-        // На мобильных используем permission_handler
-        final status = await Permission.microphone.request();
-        return status.isGranted;
-      } catch (e) {
-        print('Microphone access denied: $e');
-        return false;
-      }
-    } else {
-      // На Web используем стандартный API
+    // На Web используем стандартный API
+    if (kIsWeb) {
       try {
         final stream =
             await navigator.mediaDevices.getUserMedia({'audio': true});
@@ -240,6 +231,18 @@ class WebRTCManager extends ChangeNotifier {
         return false;
       }
     }
+    if (Platform.isAndroid || Platform.isIOS) {
+      try {
+        // На мобильных используем permission_handler
+        final status = await Permission.microphone.request();
+        return status.isGranted;
+      } catch (e) {
+        print('Microphone access denied: $e');
+        return false;
+      }
+    }
+    print('Unsupported device');
+    return false;
   }
 
 // метод для обновления аудиоустройств
@@ -259,7 +262,7 @@ class WebRTCManager extends ChangeNotifier {
     if (localStream == null) {
       // Сначала запрашиваем доступ если нужно
       final hasAccess =
-          await _requestMicrophoneAccess(); // TODO заменить на другой метод
+          await checkMicrophonePermission(); // TODO проверить корректность замены закомменченного метода
       if (!hasAccess) return;
 
       // Создаем поток для использования

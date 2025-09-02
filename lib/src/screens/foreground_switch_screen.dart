@@ -132,8 +132,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
         return AnimatedContainerWrapper(
           key: ValueKey<String>('createCode$postfix'),
           isAnimated: false,
-          child: CopyCodeScreen(
-          ),
+          child: CopyCodeScreen(),
         );
 
       // case VisibleScreenType.selectAction:
@@ -169,21 +168,25 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   Future<void> _checkMicPermission() async {
     final webrtcManager = context.read<WebRTCManager>();
     final prefs = await SharedPreferences.getInstance();
-
     final hasAccessPref = prefs.getBool(prefsMicAccessKey) ?? false;
 
-    final hasAccess = await webrtcManager.checkMicrophonePermission();
+    // предпроверка, чтобы не было заранее запроса доступа на веб
+    final gotStarted = prefs.getBool(prefsFirstTimeStartKey) ?? false;
 
-    if (hasAccess && hasAccessPref) {
-      await webrtcManager.updateAudioDevices();
+    if (gotStarted) {
+      final hasAccess = await webrtcManager.checkMicrophonePermission();
 
-      setState(() {
-        _stepper = VisibleScreenType.selectActionAnimated;
-      });
-      return;
-    } else {
-      await prefs.setBool(prefsMicAccessKey, false);
-      return;
+      if (hasAccess && hasAccessPref) {
+        await webrtcManager.updateAudioDevices();
+
+        setState(() {
+          _stepper = VisibleScreenType.selectActionAnimated;
+        });
+        return;
+      } else {
+        await prefs.setBool(prefsMicAccessKey, false);
+        return;
+      }
     }
   }
 
@@ -233,8 +236,6 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       _stepper = VisibleScreenType.createCode;
     });
   }
-
-
 
   Future<void> _onPasteCodePressed() async {
     // TODO remove, only for debugging
