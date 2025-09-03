@@ -39,7 +39,10 @@ class StartConnectionScreen extends StatelessWidget {
           ),
         ),
         SizedBox(height: 80),
-        WaveDivider(type: WaveDividerType.disabled, label: 'OR'),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: WaveDivider(type: WaveDividerType.disabled, label: 'OR'),
+        ),
         SizedBox(height: 80),
         WaveText(
           'Paste code from friend',

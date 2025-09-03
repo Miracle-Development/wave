@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wave/src/core/keys.dart';
 import 'package:wave/src/core/webrtc_manager.dart';
 import 'package:wave/src/screens/animated_container_wrapper.dart';
+import 'package:wave/src/screens/dynamic_container_wrapper.dart';
 import 'package:wave/src/screens/foreground_switch_screen/copy_code_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/enable_microphone_screen.dart';
+import 'package:wave/src/screens/foreground_switch_screen/main_screen.dart';
+import 'package:wave/src/screens/foreground_switch_screen/paste_code_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/start_connection_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/start_screen.dart';
-
-const prefsFirstTimeStartKey = 'got_started_first_time';
-const prefsMicAccessKey = 'got_mic_access';
 
 enum VisibleScreenType {
   startButton,
@@ -135,6 +136,16 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           child: CopyCodeScreen(),
         );
 
+      case VisibleScreenType.pasteCode:
+        // return AnimatedContainerWrapper(
+        //   key: ValueKey<String>('pasteCode$postfix'),
+        //   isAnimated: false,
+        //   child: PasteCodeScreen(),
+        // );
+        return DynamicContainerWrapper(
+          key: ValueKey<String>('pasteCode$postfix'),
+          child: MainScreen(),
+        );
       // case VisibleScreenType.selectAction:
       //   return CopyCodeScreen(
       //     key: ValueKey<String>('selectAction$postfix'),
@@ -144,6 +155,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       //   );
 
       // TODO: DO NOT REMOVE TO PREFENT FAILURE ON PROD
+      // TODO: создать красивый экран с ошибкой навигации
       default:
         return Container(
           key: const ValueKey<int>(-1),
@@ -239,8 +251,11 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
 
   Future<void> _onPasteCodePressed() async {
     // TODO remove, only for debugging
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(prefsFirstTimeStartKey, false);
-    await prefs.setBool(prefsMicAccessKey, false);
+    // final prefs = await SharedPreferences.getInstance();
+    // await prefs.setBool(prefsFirstTimeStartKey, false);
+    // await prefs.setBool(prefsMicAccessKey, false);
+    setState(() {
+      _stepper = VisibleScreenType.pasteCode;
+    });
   }
 }

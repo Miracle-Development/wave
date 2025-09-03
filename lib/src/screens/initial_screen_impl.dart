@@ -23,26 +23,6 @@ class _InitialScreenImplState extends State<InitialScreenImpl> {
   }
 
   Future<void> _checkFirstLaunch() async {
-    // final prefs = await SharedPreferences.getInstance();
-    // final alreadyShown = prefs.getBool('splash_shown') ?? false;
-
-    // if (alreadyShown) {
-    // setState(() {
-    // _showSplash = false;
-    // });
-    // return;
-    // }
-
-    // ставим флаг, что сплэш уже был
-    // await prefs.setBool('splash_shown', true);
-
-    // ждём и анимируем исчезновение
-    // Timer(const Duration(milliseconds: 5500), () {
-    //   setState(() {
-    //     _opacity = 0.0;
-    //   });
-    // });
-
     Timer(const Duration(milliseconds: 5500), () {
       setState(() {
         _showSplash = false;
@@ -52,41 +32,37 @@ class _InitialScreenImplState extends State<InitialScreenImpl> {
 
   @override
   void dispose() async {
-    // final prefs = await SharedPreferences.getInstance();
-    // await prefs.setBool('splash_shown', false);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return
-        // kDebugMode
-        //     ? HomeScreen(
-        //         key: ValueKey("home"),
-        //       )
-        //     :
-        AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
-      layoutBuilder: (currentChild, previousChildren) {
-        return DecoratedBox(
-          decoration: BoxDecoration(color: MdColors.backgroundColor),
-          child: Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              ...previousChildren,
-              if (currentChild != null) currentChild,
-            ],
-          ),
-        );
-      },
-      transitionBuilder: (child, animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
-      },
-      child: _buildChild(),
-    );
+    return kDebugMode
+        ? HomeScreen(
+            key: ValueKey("home"),
+          )
+        : AnimatedSwitcher(
+            duration: const Duration(milliseconds: 400),
+            layoutBuilder: (currentChild, previousChildren) {
+              return DecoratedBox(
+                decoration: BoxDecoration(color: MdColors.backgroundColor),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    ...previousChildren,
+                    if (currentChild != null) currentChild,
+                  ],
+                ),
+              );
+            },
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            child: _buildChild(),
+          );
   }
 
   _buildChild() {

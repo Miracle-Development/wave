@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
 
@@ -10,7 +11,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GradientScaffoldWrapper(
       showLogo: true,
-      iosTopPadding: 82,
+      iosTopPadding: kIsWeb ? 20 : 82,
       child: ForegroundSwitchScreen(),
     );
   }
