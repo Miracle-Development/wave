@@ -11,7 +11,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GradientScaffoldWrapper(
       showLogo: true,
-      iosTopPadding: kIsWeb ? 20 : 82,
+      iosTopPadding: kIsWeb ? 28 : 82,
       child: ForegroundSwitchScreen(),
     );
   }

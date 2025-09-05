@@ -7,12 +7,13 @@ class AnimatedContainerWrapper extends StatefulWidget {
     super.key,
     this.purpleTitle,
     required this.child,
-    required this.isAnimated,
+    required this.isAnimated, required this.topPadding,
   });
 
   final String? purpleTitle;
   final Widget child;
   final bool isAnimated;
+  final double topPadding;
 
   @override
   State<AnimatedContainerWrapper> createState() =>
@@ -62,7 +63,7 @@ class _AnimatedContainerWrapperState extends State<AnimatedContainerWrapper>
 
   @override
   Widget build(BuildContext context) {
-    const double topPadding = 40 + 28;
+    final topPadding = widget.topPadding;
 
     return LayoutBuilder(
       builder: (context, constraints) {

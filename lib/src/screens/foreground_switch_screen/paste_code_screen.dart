@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wave/src/core/keys.dart';
 
 class PasteCodeScreen extends StatefulWidget {
-  const PasteCodeScreen({super.key});
+  const PasteCodeScreen({
+    super.key,
+    required this.onConnectPressed,
+  });
+
+  final VoidCallback onConnectPressed;
 
   @override
   State<PasteCodeScreen> createState() => _PasteCodeScreenState();
@@ -35,9 +42,23 @@ class _PasteCodeScreenState extends State<PasteCodeScreen> {
         SizedBox(height: 135),
         WaveSimpleButton(
           label: 'Connect',
-          onPressed: () {},
+          onPressed: _onAcceptOfferPressed,
         ),
       ],
     );
+  }
+
+  Future<void> _onAcceptOfferPressed() async {
+    if (_codeController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Введите ID')),
+      );
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(currentPeerLocalIdKey, _codeController.text.trim());
+
+    widget.onConnectPressed();
   }
 }

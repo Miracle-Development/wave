@@ -8,7 +8,9 @@ import 'package:wave/src/core/keys.dart';
 import 'package:wave/src/core/webrtc_manager.dart';
 
 class CopyCodeScreen extends StatefulWidget {
-  const CopyCodeScreen({super.key});
+  const CopyCodeScreen({super.key, required this.onCheckPairPressed});
+
+  final VoidCallback onCheckPairPressed;
 
   @override
   State<CopyCodeScreen> createState() => _CopyCodeScreenState();
@@ -17,7 +19,6 @@ class CopyCodeScreen extends StatefulWidget {
 class _CopyCodeScreenState extends State<CopyCodeScreen> {
   String? _offerId;
   bool _creating = true;
-  bool _checking = false;
 
   @override
   void initState() {
@@ -60,8 +61,8 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
         const SizedBox(height: 135),
         // Check pair: enabled когда пришёл answer
         WaveSimpleButton(
-          label: _checking ? 'Checking...' : 'Check pair',
-          onPressed: answerReady && !_checking ? _onCheckPairPressed : null,
+          label: 'Check pair',
+          onPressed: answerReady ? _onButtonPressed : null,
         ),
         const SizedBox(height: 20),
         if (!answerReady)
@@ -83,6 +84,11 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
     try {
       final manager = context.read<WebRTCManager>();
       final id = await manager.createOfferLink();
+
+// сохраняем в памяти localId two-word code
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(currentPeerLocalIdKey, id);
+
       if (!mounted) return;
       setState(() {
         _offerId = id;
@@ -110,25 +116,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
     );
   }
 
-  Future<void> _onCheckPairPressed() async {
-    if (_offerId == null) return;
-    setState(() => _checking = true);
-    final manager = context.read<WebRTCManager>();
-    try {
-      // сохраняем в памяти localId two-word code
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString(currentPeerLocalIdKey, _offerId!);
-      // pull answer and apply it (this will throw if answer isn't ready)
-      await manager.acceptAnswer(_offerId!);
-
-      // сюда вы можете навигировать на экран звонка/показывать loading и т.д.
-      // Navigator.push(...);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to apply answer: $e')),
-      );
-    } finally {
-      if (mounted) setState(() => _checking = false);
-    }
+  void _onButtonPressed() {
+    widget.onCheckPairPressed();
   }
 }

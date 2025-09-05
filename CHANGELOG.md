@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Offer creation and answering implemented
+
 ## 1.0.1
 
 - Ios icons added

@@ -5,9 +5,17 @@ class DynamicContainerWrapper extends StatefulWidget {
   const DynamicContainerWrapper({
     super.key,
     required this.child,
+    this.isNavBarShowed = false,
+    this.isWaveShowed = false,
+    required this.topPadding, required this.navBarIndex, required this.onNavBarIndexChanged,
   });
 
   final Widget child;
+  final bool isNavBarShowed;
+  final bool isWaveShowed;
+  final double topPadding;
+  final int navBarIndex;
+  final ValueChanged<int> onNavBarIndexChanged;
 
   @override
   State<DynamicContainerWrapper> createState() =>
@@ -29,7 +37,7 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
 
   @override
   Widget build(BuildContext context) {
-    const double topPadding = 40 + 28;
+    final topPadding = widget.topPadding;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -62,8 +70,8 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
                 duration: Duration(milliseconds: 300),
                 opacity: _showContent ? 1.0 : 0.0,
                 child: Align(
-                  alignment: Alignment.center,
-                  child: widget.child,
+                  alignment: Alignment.topCenter,
+                  child: SingleChildScrollView(child: widget.child),
                 ),
               ),
             ),

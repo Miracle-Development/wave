@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wave/src/core/keys.dart';
 import 'package:wave/src/core/webrtc_manager.dart';
-import 'package:wave/src/screens/animated_container_wrapper.dart';
-import 'package:wave/src/screens/dynamic_container_wrapper.dart';
+import 'package:wave/src/widgets/animated_container_wrapper.dart';
+import 'package:wave/src/widgets/dynamic_container_wrapper.dart';
 import 'package:wave/src/screens/foreground_switch_screen/copy_code_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/enable_microphone_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/main_screen.dart';
@@ -20,6 +21,7 @@ enum VisibleScreenType {
   selectActionAnimated,
   createCode,
   pasteCode,
+  main,
 }
 
 class ForegroundSwitchScreen extends StatefulWidget {
@@ -30,10 +32,10 @@ class ForegroundSwitchScreen extends StatefulWidget {
 }
 
 class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
+  // TODO back to 0   if stable
   VisibleScreenType _stepper = VisibleScreenType.startButton;
-  // int _steper = 0; // TODO back to 0   if stable
 
-  // bool _isOfferingScreen = true;
+  bool _isPeerInitiator = true;
 
   @override
   void initState() {
@@ -72,6 +74,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
 // обязательно! разные ключи для разных виджетов
   Widget _buildStep(VisibleScreenType stepper) {
     const postfix = '_screen';
+    const double topPadding = 80;
     switch (stepper) {
       // Экран с кнопкой "Start", скрывается если нажался хотя бы раз
       case VisibleScreenType.startButton:
@@ -87,6 +90,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           purpleTitle: 'One more step',
           isAnimated: false,
           key: ValueKey<String>('micOn$postfix'),
+          topPadding: topPadding,
           child: EnableMicrophoneScreen(
             onNext: _onEnableMicPressed,
           ),
@@ -99,6 +103,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           purpleTitle: 'One more step',
           isAnimated: true,
           key: ValueKey<String>('minOnAnimated$postfix'),
+          topPadding: topPadding,
           child: EnableMicrophoneScreen(
             onNext: _onEnableMicPressed,
           ),
@@ -110,6 +115,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
         return AnimatedContainerWrapper(
           isAnimated: false,
           key: ValueKey<String>('selectAction$postfix'),
+          topPadding: topPadding,
           child: StartConnectionScreen(
             onCreateCode: _onCreateCodePressed,
             onPasteCode: _onPasteCodePressed,
@@ -121,6 +127,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       case VisibleScreenType.selectActionAnimated:
         return AnimatedContainerWrapper(
           key: ValueKey<String>('selectActionAnimated$postfix'),
+          topPadding: topPadding,
           isAnimated: true,
           child: StartConnectionScreen(
             onCreateCode: _onCreateCodePressed,
@@ -132,27 +139,37 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       case VisibleScreenType.createCode:
         return AnimatedContainerWrapper(
           key: ValueKey<String>('createCode$postfix'),
+          topPadding: topPadding,
           isAnimated: false,
-          child: CopyCodeScreen(),
+          child: CopyCodeScreen(
+            onCheckPairPressed: _onCheckPairPressed,
+          ),
         );
 
+      // Экран вставки кода
       case VisibleScreenType.pasteCode:
-        // return AnimatedContainerWrapper(
-        //   key: ValueKey<String>('pasteCode$postfix'),
-        //   isAnimated: false,
-        //   child: PasteCodeScreen(),
-        // );
-        return DynamicContainerWrapper(
+        return AnimatedContainerWrapper(
           key: ValueKey<String>('pasteCode$postfix'),
-          child: MainScreen(),
+          topPadding: topPadding,
+          isAnimated: false,
+          child: PasteCodeScreen(
+            onConnectPressed: _onCheckAnswerPressed,
+          ),
         );
-      // case VisibleScreenType.selectAction:
-      //   return CopyCodeScreen(
-      //     key: ValueKey<String>('selectAction$postfix'),
-      //     label: label,
-      //     onCopyCodePressed: (code) => _onCopyCodePressed(code),
-      //     // onPasteCode: _onPasteCodePressed,
-      //   );
+
+      // Основной экран с динамичным навбаром, скаффолдом с адаптивной высотой и волной
+      case VisibleScreenType.main:
+        return MainScreen(
+          key: ValueKey<String>('main$postfix'),
+          topPadding: topPadding,
+          isPeerInitiator: _isPeerInitiator,
+          onReturnPressed: () {
+            setState(() {
+              _stepper = VisibleScreenType.selectAction;
+            });
+          },
+          onClosePeerPressed: _onClosePeerPressed,
+        );
 
       // TODO: DO NOT REMOVE TO PREFENT FAILURE ON PROD
       // TODO: создать красивый экран с ошибкой навигации
@@ -170,6 +187,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     final gotStarted = prefs.getBool(prefsFirstTimeStartKey) ?? false;
 
     if (gotStarted) {
+      // if (!kDebugMode)
       setState(() {
         _stepper = VisibleScreenType.micOnAnimated;
       });
@@ -191,6 +209,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       if (hasAccess && hasAccessPref) {
         await webrtcManager.updateAudioDevices();
 
+        // if (!kDebugMode)
         setState(() {
           _stepper = VisibleScreenType.selectActionAnimated;
         });
@@ -246,16 +265,69 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   void _onCreateCodePressed() {
     setState(() {
       _stepper = VisibleScreenType.createCode;
+      _isPeerInitiator = true;
     });
   }
 
   Future<void> _onPasteCodePressed() async {
-    // TODO remove, only for debugging
-    // final prefs = await SharedPreferences.getInstance();
-    // await prefs.setBool(prefsFirstTimeStartKey, false);
-    // await prefs.setBool(prefsMicAccessKey, false);
     setState(() {
       _stepper = VisibleScreenType.pasteCode;
+      _isPeerInitiator = false;
+    });
+  }
+
+  Future<void> _onCheckPairPressed() async {
+    final manager = context.read<WebRTCManager>();
+    try {
+      // достаем из памяти localId two-word code
+      final offerId = await _getLocalOfferId();
+      // pull answer and apply it (this will throw if answer isn't ready)
+      await manager.acceptAnswer(offerId);
+
+      setState(() {
+        _stepper = VisibleScreenType.main;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to apply answer: $e')),
+      );
+    } finally {}
+  }
+
+  Future<void> _onCheckAnswerPressed() async {
+    final manager = context.read<WebRTCManager>();
+    try {
+      // достаем из памяти localId two-word code
+      final offerId = await _getLocalOfferId();
+      // pull answer and apply it (this will throw if answer isn't ready)
+      await manager.acceptOffer(offerId);
+
+      setState(() {
+        _stepper = VisibleScreenType.main;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to apply offer: $e')),
+      );
+    } finally {}
+  }
+
+  Future<String> _getLocalOfferId() async {
+    final prefs = await SharedPreferences.getInstance();
+    // TODO: обработать случай когда нет кода в локальной памяти
+    return prefs.getString(currentPeerLocalIdKey) ?? 'Invalid two-word code';
+  }
+
+  Future<void> _onClosePeerPressed() async {
+    // закрываем соединения
+    final manager = context.read<WebRTCManager>();
+    await manager.closeAll();
+    // очищаем локальный код
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(currentPeerLocalIdKey);
+    // возвращаемся к начальному экрану
+    setState(() {
+      _stepper = VisibleScreenType.selectAction;
     });
   }
 }
