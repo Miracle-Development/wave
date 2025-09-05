@@ -10,4 +10,9 @@ class LocalStorage {
   Future<List<ChatMessage>> loadMessages() async {
     return List.of(_messages);
   }
+
+  Future<List<ChatMessage>> clearMessages() async {
+    List<ChatMessage> _messages = [];
+    return _messages;
+  }
 }

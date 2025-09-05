@@ -1,11 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wave/src/core/keys.dart';
 import 'package:wave/src/core/webrtc_manager.dart';
 import 'package:wave/src/widgets/animated_container_wrapper.dart';
-import 'package:wave/src/widgets/dynamic_container_wrapper.dart';
 import 'package:wave/src/screens/foreground_switch_screen/copy_code_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/enable_microphone_screen.dart';
 import 'package:wave/src/screens/foreground_switch_screen/main_screen.dart';
@@ -37,11 +35,22 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
 
   bool _isPeerInitiator = true;
 
+  late WebRTCManager _disposableManager;
+
   @override
   void initState() {
     _checkHasStartButtonPressed();
     _checkMicPermission();
+    _disposableManager = Provider.of<WebRTCManager>(context, listen: false);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    final manager = _disposableManager;
+    // закрываем соединение при очистке виджета
+    manager.closeAll();
+    super.dispose();
   }
 
   @override
@@ -319,11 +328,8 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   }
 
   Future<void> _onClosePeerPressed() async {
-    // закрываем соединения
-    final manager = context.read<WebRTCManager>();
-    await manager.closeAll();
-    // очищаем локальный код
     final prefs = await SharedPreferences.getInstance();
+    // очищаем локальный код
     await prefs.remove(currentPeerLocalIdKey);
     // возвращаемся к начальному экрану
     setState(() {
