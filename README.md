@@ -56,6 +56,7 @@ rm -rf ios/Flutter/flutter_export_environment.sh`
 * `rm -rf Podfile.lock Pods`
 * `fvm flutter pub get`
 * `cd ios`
+* `fvm flutter precache --ios`
 * `pod install --repo-update`
 
 #### Global code (run from `lib` folder):

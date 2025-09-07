@@ -167,8 +167,8 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
                           padding: EdgeInsets.only(
                             top: 17,
                             bottom: 14,
-                            left: 26,
-                            right: 26,
+                            left: 32,
+                            right: 32,
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
