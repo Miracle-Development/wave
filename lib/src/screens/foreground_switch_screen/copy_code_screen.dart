@@ -94,7 +94,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
         _offerId = id;
         _creating = false;
       });
-    } catch (e, st) {
+    } catch (e) {
       // обработка ошибок - покажем SnackBar
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

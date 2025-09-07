@@ -40,7 +40,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   @override
   void initState() {
     // TODO: remove reconnect functionality
-    _checkActiveConnection();
+    // _checkActiveConnection();
 
     _checkHasStartButtonPressed();
     _checkMicPermission();
@@ -189,6 +189,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
 
       // TODO: DO NOT REMOVE TO PREFENT FAILURE ON PROD
       // TODO: создать красивый экран с ошибкой навигации
+      // ignore: unreachable_switch_default
       default:
         return Container(
           key: const ValueKey<int>(-1),
@@ -297,11 +298,13 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     final prefs = await SharedPreferences.getInstance();
     final bool? isInitiator = prefs.getBool(isPeerInitiatorKey);
 
-    if (isInitiator != null) {
-      setState(() {
-        _stepper = VisibleScreenType.main;
-      });
+    if (isInitiator == null) {
+      prefs.setBool(isPeerInitiatorKey, false);
     }
+
+    setState(() {
+      _stepper = VisibleScreenType.main;
+    });
 
     await _disposableManager.restoreConnection();
   }

@@ -85,6 +85,7 @@ class WebRTCManager extends ChangeNotifier {
 
   @override
   void dispose() {
+    _stopCallTimer();
     _incomingCtrl.close();
     _cancelAnswerWatch();
     try {
@@ -101,17 +102,20 @@ class WebRTCManager extends ChangeNotifier {
       switch (s) {
         case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
           callState = CallState.connected;
+          _startCallTimer();
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
           _pushSystemMessage('Peer has been terminated',
               type: SystemMessageType.event, severity: EventSeverity.negative);
           callState = CallState.failed;
+          _stopCallTimer();
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
         case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
           _pushSystemMessage('Peer has been disconnected',
               type: SystemMessageType.event, severity: EventSeverity.neutral);
           callState = CallState.disconnected;
+          _stopCallTimer();
           break;
         default:
           callState = CallState.connecting;
@@ -502,20 +506,6 @@ class WebRTCManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> toggleMicMuteLegacy(bool isMuted) async {
-    // Backward-compatible helper if some UI calls toggleMicrophone(bool).
-    await setMicrophoneEnabled(!isMuted);
-  }
-
-  Future<void> toggleMicMuteNew() async {
-    await toggleMicMute();
-  }
-
-  Future<void> toggleMicMuteIfNeeded() async {
-    // keep existing API from your code that used toggleMicMute()
-    await toggleMicMute();
-  }
-
   // TODO: remove reconnect functionality
   Future<void> restoreConnection() async {
     callState = CallState.connected;
@@ -591,5 +581,44 @@ class WebRTCManager extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  /// Таймер звонка
+  Timer? _callTimer;
+  int _callDurationSeconds = 0;
+  int get callDurationSeconds => _callDurationSeconds;
+
+  // Старт таймера
+  void _startCallTimer() {
+    _callTimer?.cancel();
+    _callDurationSeconds = 0;
+    _callTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      _callDurationSeconds++;
+      notifyListeners();
+    });
+  }
+
+  // Остановка таймера
+  void _stopCallTimer() {
+    _callTimer?.cancel();
+    _callTimer = null;
+    _callDurationSeconds = 0;
+    notifyListeners();
+  }
+
+  // Форматирование времени для отображения
+  String get formattedCallDuration {
+    if (_callDurationSeconds < 0) _callDurationSeconds = 0;
+
+    // Обрабатываем переполнение часов (больше 24 часов)
+    int totalSeconds = _callDurationSeconds % 86400; // 86400 секунд в сутках
+
+    int hours = totalSeconds ~/ 3600;
+    int minutes = (totalSeconds % 3600) ~/ 60;
+    int seconds = totalSeconds % 60;
+
+    String formatSegment(int segment) => segment.toString().padLeft(2, '0');
+
+    return '${formatSegment(hours)}:${formatSegment(minutes)}:${formatSegment(seconds)}';
   }
 }

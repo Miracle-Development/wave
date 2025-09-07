@@ -179,7 +179,12 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
                                   icon: NavBarIconType.planet,
                                   label: 'Connection',
                                   selected: widget.navBarIndex == 0,
-                                  onTap: () => widget.onNavBarIndexChanged(0),
+                                  onTap: () {
+                                    if (widget.navBarIndex == 1) {
+                                      manager.markChatRead();
+                                    }
+                                    widget.onNavBarIndexChanged(0);
+                                  },
                                 ),
                               ),
                               SizedBox(
@@ -192,7 +197,13 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
                                           widget.navBarIndex != 1
                                       ? manager.unread
                                       : null,
-                                  onTap: () => widget.onNavBarIndexChanged(1),
+                                  onTap: () {
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback(
+                                      (_) => manager.markChatRead(),
+                                    );
+                                    widget.onNavBarIndexChanged(1);
+                                  },
                                 ),
                               ),
                               SizedBox(
@@ -201,7 +212,12 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
                                   icon: NavBarIconType.phone,
                                   label: 'Call',
                                   selected: widget.navBarIndex == 2,
-                                  onTap: () => widget.onNavBarIndexChanged(2),
+                                  onTap: () {
+                                    if (widget.navBarIndex == 1) {
+                                      manager.markChatRead();
+                                    }
+                                    widget.onNavBarIndexChanged(2);
+                                  },
                                 ),
                               ),
                             ],

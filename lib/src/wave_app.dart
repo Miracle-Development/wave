@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:redux/redux.dart';
-import 'package:wave/redux/reducer.dart';
-import 'package:wave/redux/state.dart';
 import 'package:wave/src/core/storage.dart';
 import 'package:wave/src/core/webrtc_manager.dart';
+import 'package:wave/src/localization/app_localizations.dart';
 import 'package:wave/src/screens/initial_screen_impl.dart';
 
 // import 'sample_feature/sample_item_details_view.dart';
@@ -14,7 +11,6 @@ import 'package:wave/src/screens/initial_screen_impl.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 
-import 'package:flutter_redux/flutter_redux.dart';
 
 /// The Widget that configures your application.
 class WaveApp extends StatelessWidget {
@@ -32,10 +28,6 @@ class WaveApp extends StatelessWidget {
     // The ListenableBuilder Widget listens to the SettingsController for changes.
     // Whenever the user updates their settings, the MaterialApp is rebuilt.
     final storage = LocalStorage(); // in-memory session storage
-    final store = Store<AppState>(
-      appReducer,
-      initialState: AppState.initialState(),
-    );
 
     return MultiProvider(
       providers: [
@@ -45,9 +37,7 @@ class WaveApp extends StatelessWidget {
       child: ListenableBuilder(
         listenable: settingsController,
         builder: (BuildContext context, Widget? child) {
-          return StoreProvider<AppState>(
-            store: store,
-            child: MaterialApp(
+          return MaterialApp(
               debugShowCheckedModeBanner: false,
               // Providing a restorationScopeId allows the Navigator built by the
               // MaterialApp to restore the navigation stack when a user leaves and
@@ -101,7 +91,6 @@ class WaveApp extends StatelessWidget {
                   },
                 );
               },
-            ),
           );
         },
       ),

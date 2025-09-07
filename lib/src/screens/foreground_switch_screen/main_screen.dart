@@ -59,7 +59,7 @@ class _MainScreenState extends State<MainScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final manager = context.read<WebRTCManager>();
       // выключаем микрофон сразу после подключения
-      await manager.toggleMicMute();
+      // await manager.toggleMicMute();
       manager.addListener(_handleStateChange);
     });
 

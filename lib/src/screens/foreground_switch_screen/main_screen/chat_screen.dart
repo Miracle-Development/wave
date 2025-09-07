@@ -15,62 +15,93 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   StreamSubscription<ChatMessage>? _sub;
-  final _messages = <ChatMessage>[];
+  final List<ChatMessage> _messages = <ChatMessage>[];
   final ScrollController _scrollController = ScrollController();
   SharedPreferences? _prefs;
   Timer? _saveTimer;
   bool _isAtBottom = true;
 
-  static const double _bottomInset = 140.0; // совпадает с вашим bottom padding
+  static const double _bottomInset = 140.0;
+  static const double _bottomThreshold = 20.0;
 
   @override
   void initState() {
     super.initState();
 
-    // инициализация после первого фрейма
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final manager = context.read<WebRTCManager>();
-      // добавляем историю и подписываемся на новые сообщения
-      setState(() {
-        _messages.addAll(manager.history);
-      });
 
-      // подписка на входящие
+      // загружаем историю единожды
+      final hist = manager.history;
+      if (hist.isNotEmpty) {
+        _messages.addAll(hist);
+        if (mounted) setState(() {});
+      }
+
+      // подписываемся на новые сообщения
       _sub = manager.incomingMessages.listen((msg) {
         if (!mounted) return;
-        setState(() => _messages.add(msg));
-        // прокрутка после следующего layout pass
-        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+        _messages.add(msg);
+        // обновляем список однократно
+        setState(() {});
+        // автоскроллим только если пользователь уже был внизу
+        if (_isAtBottom) {
+          // scheduleMicrotask — быстрее и безопаснее, чем addPostFrameCallback здесь
+          scheduleMicrotask(() {
+            _scrollToBottom(animated: false);
+            try {
+              manager.markChatRead();
+            } catch (_) {}
+          });
+        }
       });
 
+      // mark read при входе на экран
       manager.markChatRead();
 
-      // подготовим prefs, listener и восстановим позицию
+      // prefs + listener + восстановление позиции
       await _initPrefsAndRestore();
     });
   }
 
   Future<void> _initPrefsAndRestore() async {
     _prefs = await SharedPreferences.getInstance();
-
-    // добавляем слушатель скролла (после создания prefs)
     _scrollController.addListener(_onScroll);
 
-    // восстанавливаем позицию (если есть)
-    final saved = _prefs?.getDouble(chatScrollOffsetKey);
-    if (saved != null && saved >= 0) {
-      // ждем следующий фрейм, чтобы ListView уже имел размеры
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!_scrollController.hasClients) return;
-        final max = _scrollController.position.maxScrollExtent;
-        final target = saved.clamp(0.0, max);
-        _scrollController.jumpTo(target);
-        _updateIsAtBottom();
-      });
+    // читаем сохранённое расстояние от низа (distanceFromBottom)
+    final savedDistance = _prefs?.getDouble(chatScrollOffsetKey);
+    if (savedDistance != null && savedDistance >= 0) {
+      await _restoreScrollDistance(savedDistance);
     } else {
-      // если нет сохранённой позиции, прокрутим в низ (если есть сообщения)
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+      // если нет сохранённой позиции — прокручиваем в низ
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom(animated: false));
     }
+  }
+
+  /// Восстанавливам позицию, где сохранена дистанция от низа.
+  /// Ждём пока `maxScrollExtent` стабилизируется.
+  Future<void> _restoreScrollDistance(double savedDistance) async {
+    // ждём пока ListView построится и появится maxScrollExtent
+    for (int i = 0; i < 20; i++) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      if (!mounted) return;
+      if (!_scrollController.hasClients) continue;
+      try {
+        final max = _scrollController.position.maxScrollExtent;
+        // target = max - savedDistance
+        double target = (max - savedDistance);
+        if (target.isNaN) target = 0.0;
+        target = target.clamp(0.0, max);
+        _scrollController.jumpTo(target);
+        _updateIsAtBottom(forceNotify: true);
+        return;
+      } catch (_) {
+        // пробуем ещё раз
+      }
+    }
+
+    // fallback — прокрутить в низ
+    if (mounted) _scrollToBottom(animated: false);
   }
 
   void _onScroll() {
@@ -79,25 +110,30 @@ class _ChatScreenState extends State<ChatScreen> {
     // обновляем флаг видимости кнопки
     _updateIsAtBottom();
 
-    // debounce сохранения: ждем 500ms после последнего скролла
+    // debounce сохранения — сохраняем distanceFromBottom
     _saveTimer?.cancel();
-    _saveTimer = Timer(const Duration(milliseconds: 500), () {
+    _saveTimer = Timer(const Duration(milliseconds: 500), () async {
       try {
-        final pixels = _scrollController.position.pixels;
-        _prefs?.setDouble(chatScrollOffsetKey, pixels);
-      } catch (_) {}
+        final pos = _scrollController.position;
+        final distanceFromBottom = (pos.maxScrollExtent - pos.pixels).clamp(0.0, double.infinity);
+        final prev = _prefs?.getDouble(chatScrollOffsetKey) ?? double.nan;
+        if (prev.isNaN || (prev - distanceFromBottom).abs() > 1.0) {
+          await _prefs?.setDouble(chatScrollOffsetKey, distanceFromBottom);
+        }
+      } catch (_) {
+        // ignore
+      }
     });
   }
 
-  void _updateIsAtBottom() {
+  void _updateIsAtBottom({bool forceNotify = false}) {
     if (!_scrollController.hasClients) {
       if (!_isAtBottom) setState(() => _isAtBottom = true);
       return;
     }
     final pos = _scrollController.position;
-    // считаем что внизу если расстояние до max <= 20 px
-    final atBottom = (pos.maxScrollExtent - pos.pixels) <= 20.0;
-    if (atBottom != _isAtBottom) {
+    final atBottom = (pos.maxScrollExtent - pos.pixels) <= _bottomThreshold;
+    if (atBottom != _isAtBottom || forceNotify) {
       setState(() => _isAtBottom = atBottom);
     }
   }
@@ -106,27 +142,27 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!_scrollController.hasClients) return;
     final pos = _scrollController.position;
     final target = pos.maxScrollExtent;
-    if (animated) {
-      _scrollController
-          .animateTo(
-        target,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-      )
-          .then((_) {
-        // сразу сохраняем после анимации
-        try {
-          _prefs?.setDouble(chatScrollOffsetKey, target);
-        } catch (_) {}
-        _updateIsAtBottom();
-      });
-    } else {
-      _scrollController.jumpTo(target);
+    final distance = (target - pos.pixels).abs();
+
+    if (!animated || distance < 100) {
       try {
-        _prefs?.setDouble(chatScrollOffsetKey, target);
+        _scrollController.jumpTo(target);
       } catch (_) {}
-      _updateIsAtBottom();
+      // обновим сохранённую дистанцию (равна 0 когда внизу)
+      try {
+        _prefs?.setDouble(chatScrollOffsetKey, 0.0);
+      } catch (_) {}
+      _updateIsAtBottom(forceNotify: true);
+      return;
     }
+
+    _scrollController.animateTo(target, duration: const Duration(milliseconds: 200), curve: Curves.easeOut)
+        .then((_) {
+      try {
+        _prefs?.setDouble(chatScrollOffsetKey, 0.0);
+      } catch (_) {}
+      _updateIsAtBottom(forceNotify: true);
+    }).catchError((_) {});
   }
 
   @override
@@ -140,89 +176,29 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final manager = context.watch<WebRTCManager>();
-    WidgetsBinding.instance.addPostFrameCallback((_) => manager.markChatRead());
-
+    // НЕ вызываем manager.markChatRead() здесь!
     return Column(
       children: [
         Expanded(
-          // Wrap ListView in Expanded
           child: Stack(
             children: [
               ListView.builder(
-                padding: const EdgeInsets.only(
-                  bottom: _bottomInset,
-                  top: 12,
-                ),
+                padding: const EdgeInsets.only(bottom: _bottomInset, top: 12),
                 itemCount: _messages.length,
                 controller: _scrollController,
-                itemBuilder: (_, i) {
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                itemBuilder: (ctx, i) {
                   final m = _messages[i];
-                  final isMe = m.author == 'You';
-                  // Рендер системных сообщений: автор == 'System'
-                  if (m.author == 'System') {
-                    // формат текста: [Event:positive] или [Info] ...
-                    final txt = m.text;
-
-                    if (txt.startsWith('[Event:')) {
-                      final severity =
-                          txt.split(']').first.replaceFirst('[Event:', '');
-                      final messageText =
-                          txt.replaceFirst(RegExp(r'^\[Event:.*?\]\s*'), '');
-                      if (severity.contains('positive')) {
-                        return WaveChatBubble(
-                          label: messageText,
-                          type: WaveChatBubbleType.bubbleMessageEvent,
-                          dividerType: WaveDividerType.positive,
-                        );
-                      } else if (severity.contains('negative')) {
-                        return WaveChatBubble(
-                          label: messageText,
-                          type: WaveChatBubbleType.bubbleMessageEvent,
-                          dividerType: WaveDividerType.negative,
-                        );
-                      } else {
-                        return WaveChatBubble(
-                          label: messageText,
-                          type: WaveChatBubbleType.bubbleMessageEvent,
-                          dividerType: WaveDividerType.disabled,
-                        );
-                      }
-                    } else {
-                      // Info
-                      final messageText =
-                          txt.replaceFirst(RegExp(r'^\[Info\]\s*'), '');
-                      return Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20.0,
-                          right: 20,
-                          bottom: 8,
-                        ),
-                        child: WaveChatBubble(
-                          label: messageText,
-                          type: WaveChatBubbleType.bubbleMessageInfo,
-                          dividerType: WaveDividerType.subtitle,
-                        ),
-                      );
-                    }
-                  }
-
-                  // Обычное сообщение - используем ваш WaveChatBubble
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: WaveChatBubble(
-                      type: isMe
-                          ? WaveChatBubbleType.bubbleMessageMe
-                          : WaveChatBubbleType.bubbleMessageOther,
-                      label: m.text,
-                    ),
+                  return MessageItem(
+                    key: ValueKey<String>(m.id),
+                    message: m,
                   );
                 },
               ),
+              // кнопка показывается/скрывается немедленно через _updateIsAtBottom
               if (!_isAtBottom)
                 Positioned(
                   right: 16,
-                  // размещаем над полем ввода (оставляем небольшой запас)
                   bottom: _bottomInset + 40,
                   child: FloatingActionButton.small(
                     heroTag: 'scroll_down_btn',
@@ -234,6 +210,67 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class MessageItem extends StatefulWidget {
+  const MessageItem({super.key, required this.message});
+  final ChatMessage message;
+
+  @override
+  State<MessageItem> createState() => _MessageItemState();
+}
+
+class _MessageItemState extends State<MessageItem> with AutomaticKeepAliveClientMixin<MessageItem> {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    final m = widget.message;
+    final isSystem = m.author == 'System';
+    final isMe = m.author == 'You';
+
+    if (isSystem) {
+      final txt = m.text;
+      if (txt.startsWith('[Event:')) {
+        final severity = txt.split(']').first.replaceFirst('[Event:', '').toLowerCase();
+        final messageText = txt.replaceFirst(RegExp(r'^\[Event:.*?\]\s*'), '');
+        final WaveDividerType divType = severity.contains('positive')
+            ? WaveDividerType.positive
+            : severity.contains('negative')
+                ? WaveDividerType.negative
+                : WaveDividerType.disabled;
+        return Padding(
+          padding: const EdgeInsets.only(left: 16.0, right: 16, bottom: 12),
+          child: WaveChatBubble(
+            type: WaveChatBubbleType.bubbleMessageEvent,
+            label: messageText,
+            dividerType: divType,
+          ),
+        );
+      } else {
+        final messageText = txt.replaceFirst(RegExp(r'^\[Info\]\s*'), '');
+        return Padding(
+          padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 8),
+          child: WaveChatBubble(
+            type: WaveChatBubbleType.bubbleMessageInfo,
+            label: messageText,
+            dividerType: WaveDividerType.subtitle,
+          ),
+        );
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: WaveChatBubble(
+        type: isMe ? WaveChatBubbleType.bubbleMessageMe : WaveChatBubbleType.bubbleMessageOther,
+        label: m.text,
+      ),
     );
   }
 }

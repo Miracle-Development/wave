@@ -19,6 +19,10 @@ class StartConnectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final orWidget = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: WaveDivider(type: WaveDividerType.disabled, label: 'OR'),
+    );
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -45,23 +49,21 @@ class StartConnectionScreen extends StatelessWidget {
         ),
         SizedBox(height: 80),
         // TODO: remove reconnect functionality
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: InkWell(
-            hoverColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            onTap: kDebugMode
-                ? () {
+        kDebugMode
+            ? MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: InkWell(
+                  hoverColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {
                     onOrPressed();
-                  }
-                : null,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: WaveDivider(type: WaveDividerType.disabled, label: 'OR'),
-            ),
-          ),
-        ),
+                  },
+                  child: orWidget,
+                ),
+              )
+            : orWidget,
+
         SizedBox(height: 80),
         WaveText(
           'Paste code from friend',
