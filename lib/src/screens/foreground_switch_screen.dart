@@ -39,6 +39,9 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
 
   @override
   void initState() {
+    // TODO: remove reconnect functionality
+    _checkActiveConnection();
+
     _checkHasStartButtonPressed();
     _checkMicPermission();
     _disposableManager = Provider.of<WebRTCManager>(context, listen: false);
@@ -80,7 +83,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     );
   }
 
-// обязательно! разные ключи для разных виджетов
+  // обязательно! разные ключи для разных виджетов
   Widget _buildStep(VisibleScreenType stepper) {
     const postfix = '_screen';
     const double topPadding = 80;
@@ -128,6 +131,8 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           child: StartConnectionScreen(
             onCreateCode: _onCreateCodePressed,
             onPasteCode: _onPasteCodePressed,
+            // TODO: remove reconnect functionality
+            onOrPressed: _onOrPressed,
           ),
         );
 
@@ -141,6 +146,8 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           child: StartConnectionScreen(
             onCreateCode: _onCreateCodePressed,
             onPasteCode: _onPasteCodePressed,
+            // TODO: remove reconnect functionality
+            onOrPressed: _onOrPressed,
           ),
         );
 
@@ -271,7 +278,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     });
   }
 
-  void _onCreateCodePressed() {
+  void _onCreateCodePressed() async {
     setState(() {
       _stepper = VisibleScreenType.createCode;
       _isPeerInitiator = true;
@@ -285,6 +292,20 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     });
   }
 
+  // TODO: remove reconnect functionality
+  Future<void> _onOrPressed() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool? isInitiator = prefs.getBool(isPeerInitiatorKey);
+
+    if (isInitiator != null) {
+      setState(() {
+        _stepper = VisibleScreenType.main;
+      });
+    }
+
+    await _disposableManager.restoreConnection();
+  }
+
   Future<void> _onCheckPairPressed() async {
     final manager = context.read<WebRTCManager>();
     try {
@@ -296,6 +317,10 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       setState(() {
         _stepper = VisibleScreenType.main;
       });
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(isPeerInitiatorKey, _isPeerInitiator);
+      await prefs.setBool(prefsHasActiveConnectionKey, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to apply answer: $e')),
@@ -314,6 +339,10 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       setState(() {
         _stepper = VisibleScreenType.main;
       });
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(isPeerInitiatorKey, _isPeerInitiator);
+      await prefs.setBool(prefsHasActiveConnectionKey, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to apply offer: $e')),
@@ -331,9 +360,26 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     final prefs = await SharedPreferences.getInstance();
     // очищаем локальный код
     await prefs.remove(currentPeerLocalIdKey);
+
+    await prefs.remove(currentPeerLocalIdKey);
+    await prefs.setBool(prefsHasActiveConnectionKey, false);
     // возвращаемся к начальному экрану
     setState(() {
       _stepper = VisibleScreenType.selectAction;
     });
+  }
+
+  Future<void> _checkActiveConnection() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasActiveConnection =
+        prefs.getBool(prefsHasActiveConnectionKey) ?? false;
+
+    if (hasActiveConnection) {
+      final isPeerInitiator = prefs.getBool(isPeerInitiatorKey) ?? true;
+      setState(() {
+        _stepper = VisibleScreenType.main;
+        _isPeerInitiator = isPeerInitiator;
+      });
+    }
   }
 }

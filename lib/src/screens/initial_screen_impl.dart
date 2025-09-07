@@ -37,32 +37,34 @@ class _InitialScreenImplState extends State<InitialScreenImpl> {
 
   @override
   Widget build(BuildContext context) {
-    return kDebugMode
-        ? HomeScreen(
-            key: ValueKey("home"),
-          )
-        : AnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
-            layoutBuilder: (currentChild, previousChildren) {
-              return DecoratedBox(
-                decoration: BoxDecoration(color: MdColors.backgroundColor),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    ...previousChildren,
-                    if (currentChild != null) currentChild,
-                  ],
-                ),
-              );
-            },
-            transitionBuilder: (child, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
-            child: _buildChild(),
-          );
+    return
+        kDebugMode
+            ? HomeScreen(
+                key: ValueKey("home"),
+              )
+            :
+        AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      layoutBuilder: (currentChild, previousChildren) {
+        return DecoratedBox(
+          decoration: BoxDecoration(color: MdColors.backgroundColor),
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              ...previousChildren,
+              if (currentChild != null) currentChild,
+            ],
+          ),
+        );
+      },
+      transitionBuilder: (child, animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      },
+      child: _buildChild(),
+    );
   }
 
   _buildChild() {

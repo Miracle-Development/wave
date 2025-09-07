@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
@@ -7,10 +8,14 @@ class StartConnectionScreen extends StatelessWidget {
     super.key,
     required this.onCreateCode,
     required this.onPasteCode,
+    required this.onOrPressed,
   });
 
   final VoidCallback onCreateCode;
   final VoidCallback onPasteCode;
+
+  // TODO: remove reconnect functionality
+  final VoidCallback onOrPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +44,23 @@ class StartConnectionScreen extends StatelessWidget {
           ),
         ),
         SizedBox(height: 80),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: WaveDivider(type: WaveDividerType.disabled, label: 'OR'),
+        // TODO: remove reconnect functionality
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: InkWell(
+            hoverColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: kDebugMode
+                ? () {
+                    onOrPressed();
+                  }
+                : null,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: WaveDivider(type: WaveDividerType.disabled, label: 'OR'),
+            ),
+          ),
         ),
         SizedBox(height: 80),
         WaveText(

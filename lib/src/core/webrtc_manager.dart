@@ -516,6 +516,11 @@ class WebRTCManager extends ChangeNotifier {
     await toggleMicMute();
   }
 
+  // TODO: remove reconnect functionality
+  Future<void> restoreConnection() async {
+    callState = CallState.connected;
+  }
+
   // ====== close / cleanup ======
   Future<void> closeAll() async {
     _cancelAnswerWatch();

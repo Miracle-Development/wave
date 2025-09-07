@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -31,7 +32,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   String localId = '';
 
-  bool _isNavBarShowed = false;
+  // TODO: remove reconnect functionality
+  bool _isNavBarShowed = kDebugMode ? true : false;
 
   int navBarIndex = 0;
 
@@ -54,8 +56,10 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _getLocalOfferId();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final manager = context.read<WebRTCManager>();
+      // выключаем микрофон сразу после подключения
+      await manager.toggleMicMute();
       manager.addListener(_handleStateChange);
     });
 
@@ -127,6 +131,8 @@ class _MainScreenState extends State<MainScreen> {
       case 2:
         return CallScreen(
           key: ValueKey<int>(2),
+          isInitialMuted: true,
+          disposableManager: _disposableManager,
         );
       default:
         return Placeholder(
