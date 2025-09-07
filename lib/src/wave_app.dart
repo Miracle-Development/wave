@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:redux/redux.dart';
+import 'package:wave/redux/reducer.dart';
+import 'package:wave/redux/state.dart';
 import 'package:wave/src/core/storage.dart';
 import 'package:wave/src/core/webrtc_manager.dart';
 import 'package:wave/src/screens/initial_screen_impl.dart';
@@ -10,6 +13,8 @@ import 'package:wave/src/screens/initial_screen_impl.dart';
 // import 'sample_feature/sample_item_list_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
+
+import 'package:flutter_redux/flutter_redux.dart';
 
 /// The Widget that configures your application.
 class WaveApp extends StatelessWidget {
@@ -27,6 +32,11 @@ class WaveApp extends StatelessWidget {
     // The ListenableBuilder Widget listens to the SettingsController for changes.
     // Whenever the user updates their settings, the MaterialApp is rebuilt.
     final storage = LocalStorage(); // in-memory session storage
+    final store = Store<AppState>(
+      appReducer,
+      initialState: AppState.initialState(),
+    );
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -35,60 +45,63 @@ class WaveApp extends StatelessWidget {
       child: ListenableBuilder(
         listenable: settingsController,
         builder: (BuildContext context, Widget? child) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            // Providing a restorationScopeId allows the Navigator built by the
-            // MaterialApp to restore the navigation stack when a user leaves and
-            // returns to the app after it has been killed while running in the
-            // background.
-            restorationScopeId: 'app',
+          return StoreProvider<AppState>(
+            store: store,
+            child: MaterialApp(
+              debugShowCheckedModeBanner: false,
+              // Providing a restorationScopeId allows the Navigator built by the
+              // MaterialApp to restore the navigation stack when a user leaves and
+              // returns to the app after it has been killed while running in the
+              // background.
+              restorationScopeId: 'app',
 
-            // Provide the generated AppLocalizations to the MaterialApp. This
-            // allows descendant Widgets to display the correct translations
-            // depending on the user's locale.
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [
-              Locale('ru', ''), // English, no country code
-            ],
+              // Provide the generated AppLocalizations to the MaterialApp. This
+              // allows descendant Widgets to display the correct translations
+              // depending on the user's locale.
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('ru', ''), // English, no country code
+              ],
 
-            // Use AppLocalizations to configure the correct application title
-            // depending on the user's locale.
-            //
-            // The appTitle is defined in .arb files found in the localization
-            // directory.
-            onGenerateTitle: (BuildContext context) =>
-                AppLocalizations.of(context)!.appTitle,
+              // Use AppLocalizations to configure the correct application title
+              // depending on the user's locale.
+              //
+              // The appTitle is defined in .arb files found in the localization
+              // directory.
+              onGenerateTitle: (BuildContext context) =>
+                  AppLocalizations.of(context)!.appTitle,
 
-            // Define a light and dark color theme. Then, read the user's
-            // preferred ThemeMode (light, dark, or system default) from the
-            // SettingsController to display the correct theme.
-            theme: ThemeData(),
-            darkTheme: ThemeData.dark(),
-            themeMode: settingsController.themeMode,
+              // Define a light and dark color theme. Then, read the user's
+              // preferred ThemeMode (light, dark, or system default) from the
+              // SettingsController to display the correct theme.
+              theme: ThemeData(),
+              darkTheme: ThemeData.dark(),
+              themeMode: settingsController.themeMode,
 
-            // Define a function to handle named routes in order to support
-            // Flutter web url navigation and deep linking.
-            onGenerateRoute: (RouteSettings routeSettings) {
-              return MaterialPageRoute<void>(
-                settings: routeSettings,
-                builder: (BuildContext context) {
-                  switch (routeSettings.name) {
-                    case SettingsView.routeName:
-                      return SettingsView(controller: settingsController);
-                    // case SampleItemDetailsView.routeName:
-                    //   return const SampleItemDetailsView();
-                    // case SampleItemListView.routeName:
-                    default:
-                      return const InitialScreenImpl();
-                  }
-                },
-              );
-            },
+              // Define a function to handle named routes in order to support
+              // Flutter web url navigation and deep linking.
+              onGenerateRoute: (RouteSettings routeSettings) {
+                return MaterialPageRoute<void>(
+                  settings: routeSettings,
+                  builder: (BuildContext context) {
+                    switch (routeSettings.name) {
+                      case SettingsView.routeName:
+                        return SettingsView(controller: settingsController);
+                      // case SampleItemDetailsView.routeName:
+                      //   return const SampleItemDetailsView();
+                      // case SampleItemListView.routeName:
+                      default:
+                        return const InitialScreenImpl();
+                    }
+                  },
+                );
+              },
+            ),
           );
         },
       ),
