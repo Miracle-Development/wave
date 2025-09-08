@@ -112,6 +112,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildCurrentPage(CallState state) {
+    final manager = context.read<WebRTCManager>();
+
     switch (navBarIndex) {
       case 0:
         return ConnectionScreen(
@@ -130,8 +132,9 @@ class _MainScreenState extends State<MainScreen> {
         );
       case 2:
         return CallScreen(
+          // peerId: manager.callKeepUUID!,
           key: ValueKey<int>(2),
-          isInitialMuted: true,
+          isInitialMuted: false,
         );
       default:
         return Placeholder(
