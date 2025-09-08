@@ -87,7 +87,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    WebRTCManager manager = Provider.of<WebRTCManager>(context);
+    final manager = context.read<WebRTCManager>();
 
     return ListenableBuilder(
       listenable: manager,
@@ -132,7 +132,6 @@ class _MainScreenState extends State<MainScreen> {
         return CallScreen(
           key: ValueKey<int>(2),
           isInitialMuted: true,
-          disposableManager: _disposableManager,
         );
       default:
         return Placeholder(

@@ -64,7 +64,7 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
         // final safeSize = Size(w, h);
 
         final isChatTab = widget.navBarIndex == 1;
-        WebRTCManager manager = Provider.of<WebRTCManager>(context);
+        final manager = context.read<WebRTCManager>();
 
         return Stack(
           children: [

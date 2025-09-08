@@ -6,26 +6,19 @@ import 'package:wave/models/call_state.dart';
 import 'package:wave/src/core/webrtc_manager.dart';
 
 class CallScreen extends StatelessWidget {
-  const CallScreen({
-    super.key,
-    required this.isInitialMuted,
-    required this.disposableManager,
-  });
-
+  const CallScreen({super.key, required this.isInitialMuted});
   final bool isInitialMuted;
-  final WebRTCManager disposableManager;
 
   @override
   Widget build(BuildContext context) {
-    final manager = Provider.of<WebRTCManager>(context);
+    final manager = context.watch<WebRTCManager>();
+    final mics = manager.devices.where((d) => d.kind == 'audioinput').toList();
+    final outs = manager.devices.where((d) => d.kind == 'audiooutput').toList();
 
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16.0,
-            vertical: 12.0,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: WaveDivider(
             type: _resolveDividerType(manager.callState),
             label: _resolveDividerText(manager.callState),
@@ -36,22 +29,130 @@ class CallScreen extends StatelessWidget {
           label:
               'Your call will be end-to-end encryped.\nAre you ready to start?',
         ),
-        SizedBox(height: 40),
-        Consumer<WebRTCManager>(
-          builder: (context, manager, child) {
-            return WaveText(
-              manager.formattedCallDuration,
-              type: WaveTextType.title,
-              weight: WaveTextWeight.regular,
-              textAlign: TextAlign.center,
-            );
+        SizedBox(height: 20),
+
+        // Секция: список участников (presence)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              WaveText('Participants', type: WaveTextType.subtitle),
+              SizedBox(height: 8),
+              Container(
+                constraints: BoxConstraints(maxHeight: 160),
+                child: ListView(
+                  shrinkWrap: true,
+                  children: manager.participants.values.map((p) {
+                    return ListTile(
+                      leading: Icon(
+                        p.inCall ? Icons.person : Icons.person_off,
+                        color: p.inCall ? Colors.green : Colors.grey,
+                      ),
+                      title: Text(
+                        p.id == manager.localId
+                            ? (p.name == null ? 'You' : '${p.name} (you)')
+                            : (p.name ?? 'Peer'),
+                      ),
+                      subtitle: Text(
+                        p.inCall ? 'In call' : 'Not in call',
+                      ),
+                      trailing: Icon(
+                        p.muted ? Icons.mic_off : Icons.mic,
+                        color: p.muted ? Colors.red : Colors.blue,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 20),
+        WaveText(
+          manager.formattedCallDuration,
+          type: WaveTextType.title,
+          weight: WaveTextWeight.regular,
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 20),
+
+        // Выбор микрофона и динамика как у вас было
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Row(children: [
+            WaveText('Microphone:', type: WaveTextType.subtitle),
+            SizedBox(width: 10),
+            Expanded(
+              child: DropdownButton<String?>(
+                value: manager.selectedMicId,
+                isExpanded: true,
+                items: [
+                  const DropdownMenuItem(
+                    value: null,
+                    child: Text('По умолчанию'),
+                  ),
+                  ...mics.map(
+                    (d) => DropdownMenuItem(
+                      value: d.deviceId,
+                      child: Text(d.label ?? 'Mic'),
+                    ),
+                  ),
+                ],
+                onChanged: (v) => context.read<WebRTCManager>().selectMic(v),
+              ),
+            ),
+          ]),
+        ),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Row(children: [
+            WaveText('Speaker:', type: WaveTextType.subtitle),
+            SizedBox(width: 10),
+            Expanded(
+              child: DropdownButton<String?>(
+                value: manager.selectedSpeakerId,
+                isExpanded: true,
+                items: [
+                  const DropdownMenuItem(
+                    value: null,
+                    child: Text('По умолчанию'),
+                  ),
+                  ...outs.map(
+                    (d) => DropdownMenuItem(
+                      value: d.deviceId,
+                      child: Text(d.label ?? 'Speaker'),
+                    ),
+                  ),
+                ],
+                onChanged: (v) =>
+                    context.read<WebRTCManager>().selectSpeaker(v),
+              ),
+            ),
+          ]),
+        ),
+
+        SizedBox(height: 20),
+        WaveMicButton(
+          isMuted: context.watch<WebRTCManager>().muted,
+          onTap: () async {
+            await context.read<WebRTCManager>().toggleMicMute();
           },
         ),
-        SizedBox(height: 40),
-        WaveMicButton(
-          isMuted: manager.muted,
-          onTap: () async {
-            await manager.toggleMicMute();
+        SizedBox(height: 20),
+        WaveSimpleButton(
+          label: 'Leave Call',
+          onPressed: () async {
+            await context.read<WebRTCManager>().leaveCall();
+          },
+        ),
+        SizedBox(height: 20),
+        WaveSimpleButton(
+          label: 'Start Call',
+          onPressed: () async {
+            await context.read<WebRTCManager>().startCall();
           },
         ),
       ],

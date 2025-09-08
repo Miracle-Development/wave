@@ -213,7 +213,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   }
 
   Future<void> _checkMicPermission() async {
-    final webrtcManager = context.read<WebRTCManager>();
+    final manager = context.read<WebRTCManager>();
     final prefs = await SharedPreferences.getInstance();
     final hasAccessPref = prefs.getBool(prefsMicAccessKey) ?? false;
 
@@ -221,10 +221,10 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     final gotStarted = prefs.getBool(prefsFirstTimeStartKey) ?? false;
 
     if (gotStarted) {
-      final hasAccess = await webrtcManager.checkMicrophonePermission();
+      final hasAccess = await manager.checkMicrophonePermission();
 
       if (hasAccess && hasAccessPref) {
-        await webrtcManager.updateAudioDevices();
+        await manager.updateAudioDevices();
 
         // if (!kDebugMode)
         setState(() {
@@ -239,9 +239,9 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   }
 
   Future<void> _onEnableMicPressed() async {
-    final webrtcManager = context.read<WebRTCManager>();
+    final manager = context.read<WebRTCManager>();
     final prefs = await SharedPreferences.getInstance();
-    final hasAccess = await webrtcManager.checkMicrophonePermission();
+    final hasAccess = await manager.checkMicrophonePermission();
 
     if (hasAccess) {
       // if (mounted) {
@@ -251,7 +251,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       // }
 
       // функция обновления списка устройств
-      await webrtcManager.updateAudioDevices();
+      await manager.updateAudioDevices();
 
       // запоминаем
       await prefs.setBool(prefsMicAccessKey, true);
