@@ -306,7 +306,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       _stepper = VisibleScreenType.main;
     });
 
-    await _disposableManager.restoreConnection();
+    // await _disposableManager.restoreConnection();
   }
 
   Future<void> _onCheckPairPressed() async {

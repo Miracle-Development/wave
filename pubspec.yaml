@@ -28,6 +28,7 @@ dependencies:
   provider: ^6.1.5+1
   shared_preferences: ^2.5.3
   uuid: ^4.5.1
+  callkeep: ^0.4.1
   # redux: ^5.0.0
   # flutter_redux: ^0.10.0
 
