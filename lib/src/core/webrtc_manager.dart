@@ -97,6 +97,8 @@ class WebRTCManager extends ChangeNotifier {
 
   // ---------------- lifecycle ----------------
   Future<void> init() async {
+    await Permission.microphone.request();
+    await Permission.camera.request();
     await _remoteRenderer.initialize();
     await localRenderer.initialize();
     await signaling.connectionFallbackInitIfNeeded();
@@ -168,6 +170,7 @@ class WebRTCManager extends ChangeNotifier {
               type: SystemMessageType.event, severity: EventSeverity.negative);
           callState = CallState.failed;
           _stopCallTimer();
+          leaveCall();
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
         case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
@@ -175,6 +178,7 @@ class WebRTCManager extends ChangeNotifier {
               type: SystemMessageType.event, severity: EventSeverity.neutral);
           callState = CallState.disconnected;
           _stopCallTimer();
+          leaveCall();
           break;
         default:
           callState = CallState.connecting;
@@ -805,49 +809,88 @@ class WebRTCManager extends ChangeNotifier {
   }
 
   Future<void> leaveCall() async {
-    if (localStream != null) {
-      final tracks = localStream!.getAudioTracks();
-      if (tracks.isNotEmpty) tracks.first.enabled = false;
-      _muted = true;
-
-      final pc = signaling.pc;
-      if (pc != null) {
-        try {
-          final senders = await pc.getSenders();
-          for (final s in senders) {
-            if (s.track != null && s.track!.kind == 'audio') {
-              try {
-                await s.replaceTrack(null);
-                _log('leaveCall: replaced audio sender track with null');
-              } catch (e) {
-                _log('leaveCall: replaceTrack(null) failed: $e');
-              }
-            }
-          }
-          await _requestRenegotiation();
-        } catch (e) {
-          _log('leaveCall: error during pc cleanup: $e');
-        }
+    try {
+      // Закрываем PeerConnection
+      if (signaling.pc != null) {
+        await signaling.pc!.close();
+        signaling.pc = null;
       }
-    }
 
-    if (localStream != null) {
-      try {
-        for (final t in localStream!.getTracks()) t.stop();
+      // Останавливаем и dispose все треки
+      if (localStream != null) {
+        for (final track in localStream!.getTracks()) {
+          track.stop();
+        }
         await localStream!.dispose();
-      } catch (_) {}
-      localStream = null;
+        localStream = null;
+      }
+
+      // Обновляем состояние
+      _inCall = false;
+      _muted = true;
       _localAudioActive = false;
+
+      participants[localId] = ParticipantState(
+        id: localId,
+        name: localName,
+        inCall: false,
+        muted: true,
+      );
+
+      // Отправляем финальный статус
+      await _sendPresenceOverDc(inCall: false, micOn: false);
+
+      notifyListeners();
+    } catch (e) {
+      _log('leaveCall error: $e');
     }
-
-    await _sendPresenceOverDc(inCall: false, micOn: false);
-
-    _inCall = false;
-    // Обновляем статус локального участника
-    participants[localId] = ParticipantState(
-        id: localId, name: localName, inCall: false, muted: true);
-    notifyListeners();
   }
+
+  // old muting leave call
+  // Future<void> leaveCall() async {
+  //   if (localStream != null) {
+  //     final tracks = localStream!.getAudioTracks();
+  //     if (tracks.isNotEmpty) tracks.first.enabled = false;
+  //     _muted = true;
+
+  //     final pc = signaling.pc;
+  //     if (pc != null) {
+  //       try {
+  //         final senders = await pc.getSenders();
+  //         for (final s in senders) {
+  //           if (s.track != null && s.track!.kind == 'audio') {
+  //             try {
+  //               await s.replaceTrack(null);
+  //               _log('leaveCall: replaced audio sender track with null');
+  //             } catch (e) {
+  //               _log('leaveCall: replaceTrack(null) failed: $e');
+  //             }
+  //           }
+  //         }
+  //         await _requestRenegotiation();
+  //       } catch (e) {
+  //         _log('leaveCall: error during pc cleanup: $e');
+  //       }
+  //     }
+  //   }
+
+  //   if (localStream != null) {
+  //     try {
+  //       for (final t in localStream!.getTracks()) t.stop();
+  //       await localStream!.dispose();
+  //     } catch (_) {}
+  //     localStream = null;
+  //     _localAudioActive = false;
+  //   }
+
+  //   await _sendPresenceOverDc(inCall: false, micOn: false);
+
+  //   _inCall = false;
+  //   // Обновляем статус локального участника
+  //   participants[localId] = ParticipantState(
+  //       id: localId, name: localName, inCall: false, muted: true);
+  //   notifyListeners();
+  // }
 
   /// Toggle mute/unmute during a call by toggling MediaStreamTrack.enabled.
   /// This does NOT use replaceTrack(null) or removeTrack — just disables/enables
@@ -862,6 +905,7 @@ class WebRTCManager extends ChangeNotifier {
       final pc = signaling.pc;
       if (pc == null) return;
 
+      // Получаем все audio senders
       final senders = await pc.getSenders();
       final audioSenders =
           senders.where((s) => s.track?.kind == 'audio').toList();
@@ -872,14 +916,14 @@ class WebRTCManager extends ChangeNotifier {
       }
 
       if (!_muted) {
-        // Mute: replace track with null
+        // Mute: заменяем трек на null для всех audio senders
         for (final sender in audioSenders) {
           await sender.replaceTrack(null);
         }
         _muted = true;
         _log('toggleMicMute: microphone muted by replacing track with null');
       } else {
-        // Unmute: create new track and replace
+        // Unmute: создаем новый трек и заменяем
         await _ensureLocalAudio(unmuted: true);
         final newTrack = localStream!.getAudioTracks().first;
 
@@ -890,14 +934,14 @@ class WebRTCManager extends ChangeNotifier {
         _log('toggleMicMute: microphone unmuted with new track');
       }
 
-      // Force renegotiation to ensure changes take effect
+      // Принудительная ренегоциация
       await _requestRenegotiation();
     } catch (e) {
       _log('toggleMicMute: error during mute/unmute operation: $e');
       return;
     }
 
-    // Update local state
+    // Обновляем состояние
     participants[localId] = ParticipantState(
       id: localId,
       name: localName,
@@ -905,7 +949,7 @@ class WebRTCManager extends ChangeNotifier {
       muted: _muted,
     );
 
-    // Send presence update
+    // Отправляем обновление статуса
     await _sendPresenceOverDc(inCall: _inCall, micOn: !_muted);
 
     notifyListeners();

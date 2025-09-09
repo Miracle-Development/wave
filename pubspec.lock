@@ -544,9 +544,11 @@ packages:
   md_ui_kit:
     dependency: "direct main"
     description:
-      path: "../md_ui_kit"
-      relative: true
-    source: path
+      path: "."
+      ref: main
+      resolved-ref: b0216d5f5d65341300ca6d592da6cce8f1022e93
+      url: "https://github.com/Miracle-Development/md_ui_kit.git"
+    source: git
     version: "2.8.4"
   meta:
     dependency: transitive
