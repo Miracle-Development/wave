@@ -117,11 +117,9 @@ class CallScreen extends StatelessWidget {
         ),
 
         SizedBox(height: 20),
-
-        // Controls
-        WaveMicButton(
-          isMuted: manager.muted,
-          onTap: () async {
+        WaveSimpleButton(
+          label: manager.muted ? 'Muted' : 'Mute',
+          onPressed: () async {
             await manager.toggleMicMute();
             try {
               final ck = FlutterCallkeep();
@@ -143,6 +141,31 @@ class CallScreen extends StatelessWidget {
             }
           },
         ),
+        // Controls
+        // WaveMicButton(
+        //   isMuted: manager.muted,
+        //   onTap: () async {
+        //     await manager.toggleMicMute();
+        //     try {
+        //       final ck = FlutterCallkeep();
+        //       if (manager.callKeepUUID != null) {
+        //         try {
+        //           await ck.setMutedCall(
+        //               uuid: manager.callKeepUUID!, shouldMute: manager.muted);
+        //         } catch (_) {
+        //           try {
+        //             await ck.setMutedCall(
+        //                 uuid: manager.callKeepUUID!, shouldMute: manager.muted);
+        //           } catch (e) {
+        //             // ignore if API mismatch
+        //           }
+        //         }
+        //       }
+        //     } catch (e) {
+        //       // ignore callkeep issues
+        //     }
+        //   },
+        // ),
 
         SizedBox(height: 16),
 

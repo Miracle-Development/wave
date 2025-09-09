@@ -847,113 +847,113 @@ class WebRTCManager extends ChangeNotifier {
   }
 
   // old muting leave call
-  // Future<void> leaveCall() async {
-  //   if (localStream != null) {
-  //     final tracks = localStream!.getAudioTracks();
-  //     if (tracks.isNotEmpty) tracks.first.enabled = false;
-  //     _muted = true;
+  Future<void> toggleMicMute() async {
+    if (localStream != null) {
+      final tracks = localStream!.getAudioTracks();
+      if (tracks.isNotEmpty) tracks.first.enabled = false;
+      _muted = true;
 
-  //     final pc = signaling.pc;
-  //     if (pc != null) {
-  //       try {
-  //         final senders = await pc.getSenders();
-  //         for (final s in senders) {
-  //           if (s.track != null && s.track!.kind == 'audio') {
-  //             try {
-  //               await s.replaceTrack(null);
-  //               _log('leaveCall: replaced audio sender track with null');
-  //             } catch (e) {
-  //               _log('leaveCall: replaceTrack(null) failed: $e');
-  //             }
-  //           }
-  //         }
-  //         await _requestRenegotiation();
-  //       } catch (e) {
-  //         _log('leaveCall: error during pc cleanup: $e');
-  //       }
-  //     }
-  //   }
+      final pc = signaling.pc;
+      if (pc != null) {
+        try {
+          final senders = await pc.getSenders();
+          for (final s in senders) {
+            if (s.track != null && s.track!.kind == 'audio') {
+              try {
+                await s.replaceTrack(null);
+                _log('leaveCall: replaced audio sender track with null');
+              } catch (e) {
+                _log('leaveCall: replaceTrack(null) failed: $e');
+              }
+            }
+          }
+          await _requestRenegotiation();
+        } catch (e) {
+          _log('leaveCall: error during pc cleanup: $e');
+        }
+      }
+    }
 
-  //   if (localStream != null) {
-  //     try {
-  //       for (final t in localStream!.getTracks()) t.stop();
-  //       await localStream!.dispose();
-  //     } catch (_) {}
-  //     localStream = null;
-  //     _localAudioActive = false;
-  //   }
+    if (localStream != null) {
+      try {
+        for (final t in localStream!.getTracks()) t.stop();
+        await localStream!.dispose();
+      } catch (_) {}
+      localStream = null;
+      _localAudioActive = false;
+    }
 
-  //   await _sendPresenceOverDc(inCall: false, micOn: false);
+    await _sendPresenceOverDc(inCall: true, micOn: false);
 
-  //   _inCall = false;
-  //   // Обновляем статус локального участника
-  //   participants[localId] = ParticipantState(
-  //       id: localId, name: localName, inCall: false, muted: true);
-  //   notifyListeners();
-  // }
+    _inCall = false;
+    // Обновляем статус локального участника
+    participants[localId] = ParticipantState(
+        id: localId, name: localName, inCall: true, muted: true);
+    notifyListeners();
+  }
 
   /// Toggle mute/unmute during a call by toggling MediaStreamTrack.enabled.
   /// This does NOT use replaceTrack(null) or removeTrack — just disables/enables
   /// the audio track so remote peer receives silence immediately.
-  Future<void> toggleMicMute() async {
-    if (!_inCall) {
-      _log('toggleMicMute: user is not in call; ignoring');
-      return;
-    }
+  // Future<void> toggleMicMute() async {
+  //   if (!_inCall) {
+  //     _log('toggleMicMute: user is not in call; ignoring');
+  //     return;
+  //   }
 
-    try {
-      final pc = signaling.pc;
-      if (pc == null) return;
+  //   try {
+  //     final pc = signaling.pc;
+  //     if (pc == null) return;
 
-      // Получаем все audio senders
-      final senders = await pc.getSenders();
-      final audioSenders =
-          senders.where((s) => s.track?.kind == 'audio').toList();
+  //     // Получаем все audio senders
+  //     final senders = await pc.getSenders();
+  //     final audioSenders =
+  //         senders.where((s) => s.track?.kind == 'audio').toList();
 
-      if (audioSenders.isEmpty) {
-        _log('toggleMicMute: no audio senders found');
-        return;
-      }
+  //     if (audioSenders.isEmpty) {
+  //       _log('toggleMicMute: no audio senders found');
+  //       return;
+  //     }
 
-      if (!_muted) {
-        // Mute: заменяем трек на null для всех audio senders
-        for (final sender in audioSenders) {
-          await sender.replaceTrack(null);
-        }
-        _muted = true;
-        _log('toggleMicMute: microphone muted by replacing track with null');
-      } else {
-        // Unmute: создаем новый трек и заменяем
-        await _ensureLocalAudio(unmuted: true);
-        final newTrack = localStream!.getAudioTracks().first;
+  //     if (!_muted) {
+  //       // Mute: заменяем трек на null для всех audio senders
+  //       for (final sender in audioSenders) {
+  //         await sender.replaceTrack(null);
+  //       }
+  //       _muted = true;
+  //       _log('toggleMicMute: microphone muted by replacing track with null');
+  //     } else {
+  //       // Unmute: создаем новый трек и заменяем
+  //       await _ensureLocalAudio(unmuted: true);
+  //       final newTrack = localStream!.getAudioTracks().first;
 
-        for (final sender in audioSenders) {
-          await sender.replaceTrack(newTrack);
-        }
-        _muted = false;
-        _log('toggleMicMute: microphone unmuted with new track');
-      }
+  //       for (final sender in audioSenders) {
+  //         await sender.replaceTrack(newTrack);
+  //       }
+  //       _muted = false;
+  //       _log('toggleMicMute: microphone unmuted with new track');
+  //     }
 
-      // Принудительная ренегоциация
-      await _requestRenegotiation();
-    } catch (e) {
-      _log('toggleMicMute: error during mute/unmute operation: $e');
-      return;
-    }
+  //     // Принудительная ренегоциация
+  //     await _requestRenegotiation();
+  //   } catch (e) {
+  //     _log('toggleMicMute: error during mute/unmute operation: $e');
+  //     return;
+  //   }
 
-    // Обновляем состояние
-    participants[localId] = ParticipantState(
-      id: localId,
-      name: localName,
-      inCall: _inCall,
-      muted: _muted,
-    );
+  //   // Обновляем состояние
+  //   participants[localId] = ParticipantState(
+  //     id: localId,
+  //     name: localName,
+  //     inCall: _inCall,
+  //     muted: _muted,
+  //   );
 
-    // Отправляем обновление статуса
-    await _sendPresenceOverDc(inCall: _inCall, micOn: !_muted);
+  //   // Отправляем обновление статуса
+  //   await _sendPresenceOverDc(inCall: _inCall, micOn: !_muted);
 
-    notifyListeners();
-  }
+  //   notifyListeners();
+  // }
 
   // ---------------- Presence via DC ----------------
   Future<void> _sendPresenceOverDc({bool? inCall, bool? micOn}) async {
