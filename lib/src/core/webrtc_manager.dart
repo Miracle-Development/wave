@@ -16,6 +16,7 @@ import 'package:wave/models/call_state.dart';
 import 'package:wave/models/chat_message.dart';
 
 enum SystemMessageType { event, info }
+
 enum EventSeverity { positive, negative, neutral }
 
 class ParticipantState {
@@ -24,7 +25,12 @@ class ParticipantState {
   bool inCall;
   bool muted;
   Timestamp? ts;
-  ParticipantState({required this.id, this.name, this.inCall = false, this.muted = true, this.ts});
+  ParticipantState(
+      {required this.id,
+      this.name,
+      this.inCall = false,
+      this.muted = true,
+      this.ts});
 }
 
 class WebRTCManager extends ChangeNotifier {
@@ -84,7 +90,8 @@ class WebRTCManager extends ChangeNotifier {
   final List<String> _presenceQueue = [];
 
   bool get isOfferCreated => offerId != null && offerId!.isNotEmpty;
-  bool get isAnswerAvailable => lastAnswerBlob != null && lastAnswerBlob!.isNotEmpty;
+  bool get isAnswerAvailable =>
+      lastAnswerBlob != null && lastAnswerBlob!.isNotEmpty;
 
   String? callKeepUUID; // UI side may use this for CallKeep
 
@@ -97,16 +104,23 @@ class WebRTCManager extends ChangeNotifier {
     await updateAudioDevices();
     chat = signaling.chat;
     if (chat != null) _wireDataChannel(chat!);
-    _pushSystemMessage('Peer has been connected', type: SystemMessageType.event, severity: EventSeverity.positive);
-    _pushSystemMessage('Attention! Conversation history will be cleared on new connection', type: SystemMessageType.info);
+    _pushSystemMessage('Peer has been connected',
+        type: SystemMessageType.event, severity: EventSeverity.positive);
+    _pushSystemMessage(
+        'Attention! Conversation history will be cleared on new connection',
+        type: SystemMessageType.info);
   }
 
   @override
   void dispose() {
     _incomingCtrl.close();
     _cancelAnswerWatch();
-    try { _remoteRenderer.dispose(); } catch(_) {}
-    try { localRenderer.dispose(); } catch(_) {}
+    try {
+      _remoteRenderer.dispose();
+    } catch (_) {}
+    try {
+      localRenderer.dispose();
+    } catch (_) {}
     _callDocSub?.cancel();
     _callDocSub = null;
     super.dispose();
@@ -114,10 +128,15 @@ class WebRTCManager extends ChangeNotifier {
 
   void _log(String msg) => print('[WebRTCManager][$localId] $msg');
 
-  void _pushSystemMessage(String text, {SystemMessageType type = SystemMessageType.info, EventSeverity severity = EventSeverity.neutral}) {
+  void _pushSystemMessage(String text,
+      {SystemMessageType type = SystemMessageType.info,
+      EventSeverity severity = EventSeverity.neutral}) {
     final id = DateTime.now().microsecondsSinceEpoch.toString();
-    final prefix = (type == SystemMessageType.event) ? '[Event:${severity.toString().split('.').last}] ' : '[Info] ';
-    final sys = ChatMessage(id: id, author: 'System', text: '$prefix$text', ts: DateTime.now());
+    final prefix = (type == SystemMessageType.event)
+        ? '[Event:${severity.toString().split('.').last}] '
+        : '[Info] ';
+    final sys = ChatMessage(
+        id: id, author: 'System', text: '$prefix$text', ts: DateTime.now());
     _history.add(sys);
     _incomingCtrl.add(sys);
     unawaited(storage.appendMessage(sys));
@@ -145,13 +164,15 @@ class WebRTCManager extends ChangeNotifier {
           _startCallTimer();
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
-          _pushSystemMessage('Peer has been terminated', type: SystemMessageType.event, severity: EventSeverity.negative);
+          _pushSystemMessage('Peer has been terminated',
+              type: SystemMessageType.event, severity: EventSeverity.negative);
           callState = CallState.failed;
           _stopCallTimer();
           break;
         case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
         case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
-          _pushSystemMessage('Peer has been disconnected', type: SystemMessageType.event, severity: EventSeverity.neutral);
+          _pushSystemMessage('Peer has been disconnected',
+              type: SystemMessageType.event, severity: EventSeverity.neutral);
           callState = CallState.disconnected;
           _stopCallTimer();
           break;
@@ -171,10 +192,12 @@ class WebRTCManager extends ChangeNotifier {
       _log('pc.onTrack: streams.length=${e.streams.length}');
       if (e.streams.isNotEmpty) {
         remoteStream = e.streams.first;
-        _log('pc.onTrack: got remoteStream id=${remoteStream?.id}, audioTracks=${remoteStream?.getAudioTracks().map((t) => t.id).toList()}');
+        _log(
+            'pc.onTrack: got remoteStream id=${remoteStream?.id}, audioTracks=${remoteStream?.getAudioTracks().map((t) => t.id).toList()}');
         try {
           _remoteRenderer.srcObject = remoteStream;
-          if (kIsWeb && selectedSpeakerId != null) _remoteRenderer.audioOutput(selectedSpeakerId!);
+          if (kIsWeb && selectedSpeakerId != null)
+            _remoteRenderer.audioOutput(selectedSpeakerId!);
         } catch (err) {
           _log('Error setting remoteRenderer.srcObject/audioOutput: $err');
         }
@@ -192,7 +215,8 @@ class WebRTCManager extends ChangeNotifier {
     signaling.onAnswer = (from, sdp) async {
       _log('Signaling.onAnswer from $from');
       try {
-        await signaling.safeSetRemoteDescription(RTCSessionDescription(sdp, 'answer'));
+        await signaling
+            .safeSetRemoteDescription(RTCSessionDescription(sdp, 'answer'));
       } catch (e) {
         _log('Failed to apply remote answer: $e');
       }
@@ -202,7 +226,8 @@ class WebRTCManager extends ChangeNotifier {
       final pc2 = signaling.pc;
       if (pc2 == null) return;
       try {
-        final c = RTCIceCandidate(cand['candidate'], cand['sdpMid'], cand['sdpMLineIndex']);
+        final c = RTCIceCandidate(
+            cand['candidate'], cand['sdpMid'], cand['sdpMLineIndex']);
         await pc2.addCandidate(c);
         _log('Applied remote candidate');
       } catch (e) {
@@ -224,7 +249,8 @@ class WebRTCManager extends ChangeNotifier {
               final inCall = payload['inCall'] as bool? ?? false;
               final micOn = payload['micOn'] as bool? ?? false;
               final name = payload['name'] as String? ?? id;
-              participants[id] = ParticipantState(id: id, name: name, inCall: inCall, muted: !micOn, ts: null);
+              participants[id] = ParticipantState(
+                  id: id, name: name, inCall: inCall, muted: !micOn, ts: null);
               _log('Received presence from $id (inCall=$inCall, micOn=$micOn)');
               notifyListeners();
               return;
@@ -241,8 +267,13 @@ class WebRTCManager extends ChangeNotifier {
         // not JSON -> chat text
       }
 
-      final text = m.isBinary ? '[binary ${m.binary?.length ?? 0} bytes]' : m.text;
-      final msg = ChatMessage(id: DateTime.now().microsecondsSinceEpoch.toString(), author: 'Peer', text: text, ts: DateTime.now());
+      final text =
+          m.isBinary ? '[binary ${m.binary?.length ?? 0} bytes]' : m.text;
+      final msg = ChatMessage(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          author: 'Peer',
+          text: text,
+          ts: DateTime.now());
       _history.add(msg);
       _incomingCtrl.add(msg);
       unawaited(storage.appendMessage(msg));
@@ -281,7 +312,8 @@ class WebRTCManager extends ChangeNotifier {
     if (makingLocalOffer) {
       _log('Glare detected (we are making local offer). polite=$polite');
       if (!polite) {
-        _log('Ignoring incoming offer because we are impolite and already making an offer');
+        _log(
+            'Ignoring incoming offer because we are impolite and already making an offer');
         return;
       } else {
         try {
@@ -289,7 +321,8 @@ class WebRTCManager extends ChangeNotifier {
           await pc.setLocalDescription(RTCSessionDescription('', 'rollback'));
           _log('Rollback succeeded');
         } catch (e) {
-          _log('Rollback failed or unsupported: $e - will try to continue anyway');
+          _log(
+              'Rollback failed or unsupported: $e - will try to continue anyway');
         }
       }
     }
@@ -299,7 +332,13 @@ class WebRTCManager extends ChangeNotifier {
       final answer = await pc.createAnswer({});
       await pc.setLocalDescription(answer);
 
-      final resp = jsonEncode({'type': 'renegotiation-answer', 'sdp': answer.sdp, 'to': from, 'from': localId, 'id': renId});
+      final resp = jsonEncode({
+        'type': 'renegotiation-answer',
+        'sdp': answer.sdp,
+        'to': from,
+        'from': localId,
+        'id': renId
+      });
       final dc = chat ?? signaling.chat;
       if (dc != null && dc.state == RTCDataChannelState.RTCDataChannelOpen) {
         dc.send(RTCDataChannelMessage(resp));
@@ -312,7 +351,8 @@ class WebRTCManager extends ChangeNotifier {
     }
   }
 
-  Future<void> _handleDcRenegotiationAnswer(Map<String, dynamic> payload) async {
+  Future<void> _handleDcRenegotiationAnswer(
+      Map<String, dynamic> payload) async {
     final sdp = payload['sdp'] as String?;
     final to = payload['to'] as String?;
     final id = payload['id'] as String?;
@@ -324,7 +364,8 @@ class WebRTCManager extends ChangeNotifier {
       _log('renegotiation-answer: missing sdp');
       return;
     }
-    _log('Received renegotiation-answer via DC id=$id, applying remote description');
+    _log(
+        'Received renegotiation-answer via DC id=$id, applying remote description');
     final pc = signaling.pc;
     if (pc != null) {
       try {
@@ -334,7 +375,9 @@ class WebRTCManager extends ChangeNotifier {
         _log('Failed to apply renegotiation answer from DC: $e');
       }
     }
-    if (id != null && _renegCompleters.containsKey(id) && !_renegCompleters[id]!.isCompleted) {
+    if (id != null &&
+        _renegCompleters.containsKey(id) &&
+        !_renegCompleters[id]!.isCompleted) {
       _renegCompleters[id]!.complete(sdp);
       _renegCompleters.remove(id);
     }
@@ -390,7 +433,8 @@ class WebRTCManager extends ChangeNotifier {
     localStream = s;
     _localAudioActive = true;
     _muted = !unmuted;
-    _log('ensureLocalAudio: created stream id=${s.id}, audioTracks=${audioTracks.map((t)=>t.id).toList()}');
+    _log(
+        'ensureLocalAudio: created stream id=${s.id}, audioTracks=${audioTracks.map((t) => t.id).toList()}');
 
     try {
       await signaling.attachLocal(s);
@@ -457,10 +501,14 @@ class WebRTCManager extends ChangeNotifier {
     final wasMuted = _muted;
     final currentMicId = selectedMicId;
     try {
-      final constraints = <String, dynamic>{ 'audio': currentMicId == null ? true : {'deviceId': currentMicId}, 'video': false };
+      final constraints = <String, dynamic>{
+        'audio': currentMicId == null ? true : {'deviceId': currentMicId},
+        'video': false
+      };
       final newStream = await navigator.mediaDevices.getUserMedia(constraints);
       final newAudioTracks = newStream.getAudioTracks();
-      if (newAudioTracks.isEmpty) throw Exception('No audio tracks in new stream');
+      if (newAudioTracks.isEmpty)
+        throw Exception('No audio tracks in new stream');
       final newAudioTrack = newAudioTracks.first;
       newAudioTrack.enabled = !wasMuted;
 
@@ -496,7 +544,8 @@ class WebRTCManager extends ChangeNotifier {
         } else {
           try {
             await pc.addTrack(newAudioTrack, newStream);
-            _log('addTrack succeeded (no previous audio sender). Initiating renegotiation.');
+            _log(
+                'addTrack succeeded (no previous audio sender). Initiating renegotiation.');
             await _requestRenegotiation();
           } catch (e) {
             _log('addTrack failed: $e');
@@ -505,8 +554,13 @@ class WebRTCManager extends ChangeNotifier {
         }
       }
 
-      for (final t in localStream!.getTracks()) try { t.stop(); } catch (_) {}
-      try { await localStream!.dispose(); } catch (_) {}
+      for (final t in localStream!.getTracks())
+        try {
+          t.stop();
+        } catch (_) {}
+      try {
+        await localStream!.dispose();
+      } catch (_) {}
       localStream = newStream;
       _muted = wasMuted;
 
@@ -521,7 +575,8 @@ class WebRTCManager extends ChangeNotifier {
   }
 
   // ---------------- Renegotiation ----------------
-  Future<void> _requestRenegotiation({Duration timeout = const Duration(seconds: 8)}) async {
+  Future<void> _requestRenegotiation(
+      {Duration timeout = const Duration(seconds: 8)}) async {
     if (_renegotiationInProgress) {
       _log('Renegotiation already in progress — queueing another request');
       _pendingRenegotiationRequested = true;
@@ -544,7 +599,13 @@ class WebRTCManager extends ChangeNotifier {
       if (dc != null && dc.state == RTCDataChannelState.RTCDataChannelOpen) {
         final completer = Completer<String?>();
         _renegCompleters[renegId] = completer;
-        final msg = jsonEncode({'type': 'renegotiation-offer', 'sdp': offerSdp, 'from': localId, 'id': renegId, 'ts': DateTime.now().toIso8601String()});
+        final msg = jsonEncode({
+          'type': 'renegotiation-offer',
+          'sdp': offerSdp,
+          'from': localId,
+          'id': renegId,
+          'ts': DateTime.now().toIso8601String()
+        });
         try {
           dc.send(RTCDataChannelMessage(msg));
           _log('Sent renegotiation-offer via DC id=$renegId');
@@ -562,7 +623,8 @@ class WebRTCManager extends ChangeNotifier {
           _renegCompleters.remove(renegId);
         }
         if (answer != null) {
-          await pc.setRemoteDescription(RTCSessionDescription(answer, 'answer'));
+          await pc
+              .setRemoteDescription(RTCSessionDescription(answer, 'answer'));
           _log('Applied renegotiation answer from DC id=$renegId');
         } else {
           _log('No answer received for renegotiation via DC id=$renegId');
@@ -636,7 +698,8 @@ class WebRTCManager extends ChangeNotifier {
         _log('Answer watch error: $e');
       });
 
-      participants[localId] = ParticipantState(id: localId, name: localName, inCall: false, muted: true);
+      participants[localId] = ParticipantState(
+          id: localId, name: localName, inCall: false, muted: true);
       notifyListeners();
 
       callKeepUUID = const Uuid().v4();
@@ -654,7 +717,8 @@ class WebRTCManager extends ChangeNotifier {
     final createdAt = data['createdAt'] as Timestamp?;
     if (_isExpired(createdAt)) throw Exception('ID "$id" expired');
     final offerBlob = data['offer'] as String?;
-    if (offerBlob == null || offerBlob.isEmpty) throw Exception('Offer missing in doc');
+    if (offerBlob == null || offerBlob.isEmpty)
+      throw Exception('Offer missing in doc');
 
     offerId = id;
     _watchCallDoc();
@@ -663,9 +727,11 @@ class WebRTCManager extends ChangeNotifier {
     await signaling.acceptOfferBlob(offerBlob);
     final answerBlob = await signaling.getAnswerBlob();
 
-    await ref.update({'answer': answerBlob, 'answeredAt': FieldValue.serverTimestamp()});
+    await ref.update(
+        {'answer': answerBlob, 'answeredAt': FieldValue.serverTimestamp()});
     lastAnswerBlob = answerBlob;
-    participants[localId] = ParticipantState(id: localId, name: localName, inCall: false, muted: true);
+    participants[localId] = ParticipantState(
+        id: localId, name: localName, inCall: false, muted: true);
     notifyListeners();
     callKeepUUID = const Uuid().v4();
     return id;
@@ -679,7 +745,8 @@ class WebRTCManager extends ChangeNotifier {
     final createdAt = data['createdAt'] as Timestamp?;
     if (_isExpired(createdAt)) throw Exception('ID "$id" expired');
     final answerBlob = data['answer'] as String?;
-    if (answerBlob == null || answerBlob.isEmpty) throw Exception('Answer for "$id" not ready');
+    if (answerBlob == null || answerBlob.isEmpty)
+      throw Exception('Answer for "$id" not ready');
     lastAnswerBlob = answerBlob;
     notifyListeners();
     await signaling.connectionFallbackInitIfNeeded();
@@ -695,7 +762,8 @@ class WebRTCManager extends ChangeNotifier {
 
     _inCall = true;
     // Обновляем статус локального участника
-    participants[localId] = ParticipantState(id: localId, name: localName, inCall: true, muted: _muted);
+    participants[localId] = ParticipantState(
+        id: localId, name: localName, inCall: true, muted: _muted);
     notifyListeners();
 
     if (offerId != null) {
@@ -706,7 +774,8 @@ class WebRTCManager extends ChangeNotifier {
     if (pc != null) {
       try {
         final senders = await pc.getSenders();
-        final hasAudioSender = senders.any((s) => s.track != null && s.track!.kind == 'audio');
+        final hasAudioSender =
+            senders.any((s) => s.track != null && s.track!.kind == 'audio');
         if (!hasAudioSender) {
           final audioTracks = localStream!.getAudioTracks();
           if (audioTracks.isNotEmpty) {
@@ -722,14 +791,16 @@ class WebRTCManager extends ChangeNotifier {
             _log('startCall: no audio tracks to add');
           }
         } else {
-          _log('startCall: audio sender already exists, initiating renegotiation');
+          _log(
+              'startCall: audio sender already exists, initiating renegotiation');
           await _requestRenegotiation();
         }
       } catch (e) {
         _log('startCall: error inspecting pc senders: $e');
       }
     } else {
-      _log('startCall: pc is null (local stream attached to signaling in _ensureLocalAudio if attachLocal implemented it)');
+      _log(
+          'startCall: pc is null (local stream attached to signaling in _ensureLocalAudio if attachLocal implemented it)');
     }
   }
 
@@ -773,47 +844,83 @@ class WebRTCManager extends ChangeNotifier {
 
     _inCall = false;
     // Обновляем статус локального участника
-    participants[localId] = ParticipantState(id: localId, name: localName, inCall: false, muted: true);
+    participants[localId] = ParticipantState(
+        id: localId, name: localName, inCall: false, muted: true);
     notifyListeners();
   }
 
+  /// Toggle mute/unmute during a call by toggling MediaStreamTrack.enabled.
+  /// This does NOT use replaceTrack(null) or removeTrack — just disables/enables
+  /// the audio track so remote peer receives silence immediately.
   Future<void> toggleMicMute() async {
     if (!_inCall) {
-      _log('toggleMicMute: user is not in call; ignoring (mic must not be used when not in call)');
+      _log('toggleMicMute: user is not in call; ignoring');
       return;
     }
 
-    if (localStream == null) {
-      await _ensureLocalAudio(unmuted: true);
-      _muted = false;
-      // Обновляем статус локального участника
-      participants[localId] = ParticipantState(id: localId, name: localName, inCall: _inCall, muted: _muted);
-      await _sendPresenceOverDc(inCall: _inCall, micOn: !_muted);
-      notifyListeners();
+    try {
+      final pc = signaling.pc;
+      if (pc == null) return;
+
+      final senders = await pc.getSenders();
+      final audioSenders =
+          senders.where((s) => s.track?.kind == 'audio').toList();
+
+      if (audioSenders.isEmpty) {
+        _log('toggleMicMute: no audio senders found');
+        return;
+      }
+
+      if (!_muted) {
+        // Mute: replace track with null
+        for (final sender in audioSenders) {
+          await sender.replaceTrack(null);
+        }
+        _muted = true;
+        _log('toggleMicMute: microphone muted by replacing track with null');
+      } else {
+        // Unmute: create new track and replace
+        await _ensureLocalAudio(unmuted: true);
+        final newTrack = localStream!.getAudioTracks().first;
+
+        for (final sender in audioSenders) {
+          await sender.replaceTrack(newTrack);
+        }
+        _muted = false;
+        _log('toggleMicMute: microphone unmuted with new track');
+      }
+
+      // Force renegotiation to ensure changes take effect
+      await _requestRenegotiation();
+    } catch (e) {
+      _log('toggleMicMute: error during mute/unmute operation: $e');
       return;
     }
 
-    final tracks = localStream!.getAudioTracks();
-    if (tracks.isEmpty) {
-      await _ensureLocalAudio(unmuted: true);
-      await _sendPresenceOverDc(inCall: _inCall, micOn: !_muted);
-      return;
-    }
+    // Update local state
+    participants[localId] = ParticipantState(
+      id: localId,
+      name: localName,
+      inCall: _inCall,
+      muted: _muted,
+    );
 
-    final t = tracks.first;
-    t.enabled = !t.enabled;
-    _muted = !t.enabled;
-    _log('toggleMicMute: new enabled=${t.enabled}');
-    // Обновляем статус локального участника
-    participants[localId] = ParticipantState(id: localId, name: localName, inCall: _inCall, muted: _muted);
-    if (_inCall) await _sendPresenceOverDc(inCall: true, micOn: !_muted);
+    // Send presence update
+    await _sendPresenceOverDc(inCall: _inCall, micOn: !_muted);
 
     notifyListeners();
   }
 
   // ---------------- Presence via DC ----------------
   Future<void> _sendPresenceOverDc({bool? inCall, bool? micOn}) async {
-    final payload = {'type': 'presence', 'id': localId, 'name': localName, 'inCall': inCall ?? _inCall, 'micOn': micOn ?? !_muted, 'ts': DateTime.now().toIso8601String()};
+    final payload = {
+      'type': 'presence',
+      'id': localId,
+      'name': localName,
+      'inCall': inCall ?? _inCall,
+      'micOn': micOn ?? !_muted,
+      'ts': DateTime.now().toIso8601String()
+    };
     final msg = jsonEncode(payload);
     final dc = chat ?? signaling.chat;
     if (dc != null && dc.state == RTCDataChannelState.RTCDataChannelOpen) {
@@ -832,7 +939,8 @@ class WebRTCManager extends ChangeNotifier {
 
   Future<void> _flushPresenceQueue() async {
     final dc = chat ?? signaling.chat;
-    if (dc == null || dc.state != RTCDataChannelState.RTCDataChannelOpen) return;
+    if (dc == null || dc.state != RTCDataChannelState.RTCDataChannelOpen)
+      return;
     while (_presenceQueue.isNotEmpty) {
       final m = _presenceQueue.removeAt(0);
       try {
@@ -850,8 +958,12 @@ class WebRTCManager extends ChangeNotifier {
   Future<void> closeAll() async {
     _cancelAnswerWatch();
     await signaling.close();
-    try { await _remoteRenderer.dispose(); } catch (_) {}
-    try { await localRenderer.dispose(); } catch (_) {}
+    try {
+      await _remoteRenderer.dispose();
+    } catch (_) {}
+    try {
+      await localRenderer.dispose();
+    } catch (_) {}
     chat = null;
     localStream = null;
     remoteStream = null;
@@ -869,8 +981,14 @@ class WebRTCManager extends ChangeNotifier {
   Future<void> clearChatHistory({bool emitIntro = true}) async {
     _history.clear();
     unread = 0;
-    try { await storage.clearMessages(); } catch (e) { _log('clearChatHistory: failed: $e'); }
-    if (emitIntro) _pushSystemMessage('Ready', type: SystemMessageType.event, severity: EventSeverity.positive);
+    try {
+      await storage.clearMessages();
+    } catch (e) {
+      _log('clearChatHistory: failed: $e');
+    }
+    if (emitIntro)
+      _pushSystemMessage('Ready',
+          type: SystemMessageType.event, severity: EventSeverity.positive);
     notifyListeners();
   }
 
@@ -882,10 +1000,13 @@ class WebRTCManager extends ChangeNotifier {
     try {
       final senders = await pc.getSenders();
       _log('dumpPcState $tag: senders count=${senders.length}');
-      for (var s in senders) _log(' sender: kind=${s.track?.kind}, id=${s.track?.id}, label=${s.track?.label}');
+      for (var s in senders)
+        _log(
+            ' sender: kind=${s.track?.kind}, id=${s.track?.id}, label=${s.track?.label}');
       final receivers = await pc.getReceivers();
       _log('dumpPcState $tag: receivers count=${receivers.length}');
-      for (var r in receivers) _log(' receiver: kind=${r.track?.kind}, id=${r.track?.id}');
+      for (var r in receivers)
+        _log(' receiver: kind=${r.track?.kind}, id=${r.track?.id}');
     } catch (e) {
       _log('dumpPcState $tag: error: $e');
     }
@@ -910,7 +1031,10 @@ class WebRTCManager extends ChangeNotifier {
   void _startCallTimer() {
     _callTimer?.cancel();
     _callDurationSeconds = 0;
-    _callTimer = Timer.periodic(Duration(seconds: 1), (timer) { _callDurationSeconds++; notifyListeners(); });
+    _callTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      _callDurationSeconds++;
+      notifyListeners();
+    });
   }
 
   void _stopCallTimer() {
@@ -934,7 +1058,11 @@ class WebRTCManager extends ChangeNotifier {
   Future<void> sendText(String text) async {
     final c = chat ?? signaling.chat;
     if (c == null) {
-      final sys = ChatMessage(id: DateTime.now().microsecondsSinceEpoch.toString(), author: 'System', text: 'Channel unavailible', ts: DateTime.now());
+      final sys = ChatMessage(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          author: 'System',
+          text: 'Channel unavailible',
+          ts: DateTime.now());
       _history.add(sys);
       _incomingCtrl.add(sys);
       return;
@@ -942,20 +1070,28 @@ class WebRTCManager extends ChangeNotifier {
     if (c.state != RTCDataChannelState.RTCDataChannelOpen) {
       final comp = Completer<void>();
       void sub(RTCDataChannelState s) {
-        if (s == RTCDataChannelState.RTCDataChannelOpen && !comp.isCompleted) comp.complete();
+        if (s == RTCDataChannelState.RTCDataChannelOpen && !comp.isCompleted)
+          comp.complete();
       }
+
       c.onDataChannelState = sub;
-      await Future.any([comp.future, Future.delayed(const Duration(seconds: 5))]);
+      await Future.any(
+          [comp.future, Future.delayed(const Duration(seconds: 5))]);
       c.onDataChannelState = null;
     }
     try {
       c.send(RTCDataChannelMessage(text));
-      final m = ChatMessage(id: const Uuid().v4(), author: 'You', text: text, ts: DateTime.now());
+      final m = ChatMessage(
+          id: const Uuid().v4(), author: 'You', text: text, ts: DateTime.now());
       _history.add(m);
       _incomingCtrl.add(m);
       await storage.appendMessage(m);
     } catch (e) {
-      final sys = ChatMessage(id: DateTime.now().microsecondsSinceEpoch.toString(), author: 'System', text: 'Failed to send message: $e', ts: DateTime.now());
+      final sys = ChatMessage(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          author: 'System',
+          text: 'Failed to send message: $e',
+          ts: DateTime.now());
       _history.add(sys);
       _incomingCtrl.add(sys);
     }
@@ -971,7 +1107,8 @@ class WebRTCManager extends ChangeNotifier {
   }
 
   Future<void> _updatePresence(bool inCall) async {
-    _log('_updatePresence: forwarding to DC (inCall=$inCall, micOn=${!_muted})');
+    _log(
+        '_updatePresence: forwarding to DC (inCall=$inCall, micOn=${!_muted})');
     await _sendPresenceOverDc(inCall: inCall, micOn: !_muted);
   }
 
@@ -998,14 +1135,18 @@ class WebRTCManager extends ChangeNotifier {
   }
 
   // Wait for renegotiation answers by watching collection
-  Future<String?> _waitForRenegotiationAnswerDocByCollection(String renegId, {Duration timeout = const Duration(seconds: 10)}) async {
+  Future<String?> _waitForRenegotiationAnswerDocByCollection(String renegId,
+      {Duration timeout = const Duration(seconds: 10)}) async {
     if (offerId == null) return null;
-    final coll = firestore.collection('calls').doc(offerId).collection('renegotiations');
+    final coll =
+        firestore.collection('calls').doc(offerId).collection('renegotiations');
     final completer = Completer<String?>();
     final sub = coll.snapshots().listen((snapshots) {
       for (final doc in snapshots.docs) {
         final d = doc.data();
-        if (d['type'] == 'answer' && d['renegId'] == renegId && d['sdp'] != null) {
+        if (d['type'] == 'answer' &&
+            d['renegId'] == renegId &&
+            d['sdp'] != null) {
           if (!completer.isCompleted) completer.complete(d['sdp'] as String);
           break;
         }
@@ -1044,12 +1185,22 @@ class WebRTCManager extends ChangeNotifier {
     if (_localVideoStream != null) return;
     final ok = await _checkCameraPermission();
     if (!ok) throw Exception('Camera permission denied');
-    final constraints = <String, dynamic>{ 'audio': false, 'video': {'facingMode': 'user', 'width': 640, 'height': 480} };
+    final constraints = <String, dynamic>{
+      'audio': false,
+      'video': {'facingMode': 'user', 'width': 640, 'height': 480}
+    };
     final s = await navigator.mediaDevices.getUserMedia(constraints);
     final tracks = s.getVideoTracks();
-    if (tracks.isEmpty) { await s.dispose(); throw Exception('No video tracks'); }
+    if (tracks.isEmpty) {
+      await s.dispose();
+      throw Exception('No video tracks');
+    }
     _localVideoStream = s;
-    try { localRenderer.srcObject = _localVideoStream; } catch (e) { _log('localRenderer set failed: $e'); }
+    try {
+      localRenderer.srcObject = _localVideoStream;
+    } catch (e) {
+      _log('localRenderer set failed: $e');
+    }
 
     final pc = signaling.pc;
     if (pc != null) {
@@ -1058,7 +1209,10 @@ class WebRTCManager extends ChangeNotifier {
         final senders = await pc.getSenders();
         RTCRtpSender? existed;
         for (final sdr in senders) {
-          if (sdr.track != null && sdr.track!.kind == 'video') { existed = sdr; break; }
+          if (sdr.track != null && sdr.track!.kind == 'video') {
+            existed = sdr;
+            break;
+          }
         }
         if (existed != null) {
           try {
@@ -1077,7 +1231,10 @@ class WebRTCManager extends ChangeNotifier {
         }
       } catch (e) {
         _log('enableVideo: adding video track failed: $e');
-        try { for (final t in _localVideoStream!.getTracks()) t.stop(); await _localVideoStream!.dispose(); } catch(_) {}
+        try {
+          for (final t in _localVideoStream!.getTracks()) t.stop();
+          await _localVideoStream!.dispose();
+        } catch (_) {}
         _localVideoStream = null;
         rethrow;
       }
@@ -1096,17 +1253,33 @@ class WebRTCManager extends ChangeNotifier {
         final senders = await pc.getSenders();
         for (final s in senders) {
           if (s.track != null && s.track!.kind == 'video') {
-            try { await s.replaceTrack(null); _log('disableVideo: replaced video sender with null'); } catch (e) { _log('disableVideo replaceTrack failed: $e'); }
+            try {
+              await s.replaceTrack(null);
+              _log('disableVideo: replaced video sender with null');
+            } catch (e) {
+              _log('disableVideo replaceTrack failed: $e');
+            }
           }
         }
       } catch (e) {
         _log('disableVideo pc operation failed: $e');
       }
     }
-    try { for (final t in _localVideoStream!.getTracks()) t.stop(); await _localVideoStream!.dispose(); } catch (e) { _log('disableVideo cleanup failed: $e'); }
+    try {
+      for (final t in _localVideoStream!.getTracks()) t.stop();
+      await _localVideoStream!.dispose();
+    } catch (e) {
+      _log('disableVideo cleanup failed: $e');
+    }
     _localVideoStream = null;
-    try { localRenderer.srcObject = null; } catch (_) {}
-    try { await _requestRenegotiation(); } catch (e) { _log('disableVideo renegotiation failed: $e'); }
+    try {
+      localRenderer.srcObject = null;
+    } catch (_) {}
+    try {
+      await _requestRenegotiation();
+    } catch (e) {
+      _log('disableVideo renegotiation failed: $e');
+    }
     notifyListeners();
   }
 
@@ -1126,12 +1299,17 @@ class WebRTCManager extends ChangeNotifier {
     final pc2 = signaling.pc!;
     pc2.onIceCandidate = (candidate) {
       if (candidate != null) {
-        try { signaling.sendCandidate(from, candidate); } catch (e) { _log('sendCandidate error: $e'); }
+        try {
+          signaling.sendCandidate(from, candidate);
+        } catch (e) {
+          _log('sendCandidate error: $e');
+        }
       }
     };
 
     try {
-      await signaling.safeSetRemoteDescription(RTCSessionDescription(sdp, 'offer'));
+      await signaling
+          .safeSetRemoteDescription(RTCSessionDescription(sdp, 'offer'));
       final answer = await pc2.createAnswer({});
       await pc2.setLocalDescription(answer);
       signaling.sendAnswer(from, answer.sdp ?? '');
