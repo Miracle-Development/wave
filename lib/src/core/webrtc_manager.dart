@@ -95,6 +95,9 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
   final Map<String, Completer<String?>> _renegCompleters = {};
   final List<String> _presenceQueue = [];
 
+  // Dedup map for renegotiation answers (prevents double-apply)
+  final Set<String> _handledRenegotiationIds = {};
+
   bool get isOfferCreated => offerId != null && offerId!.isNotEmpty;
   bool get isAnswerAvailable =>
       lastAnswerBlob != null && lastAnswerBlob!.isNotEmpty;
@@ -245,6 +248,7 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
         remoteStream = e.streams.first;
         _log(
             'pc.onTrack: got remoteStream id=${remoteStream?.id}, audioTracks=${remoteStream?.getAudioTracks().map((t) => t.id).toList()}');
+        // Ensure remote tracks start/stop according to current inCall & participants state
         _updateRemoteAudioPlayback();
         notifyListeners();
       } else {
@@ -447,6 +451,28 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
       _log('renegotiation-answer: missing sdp');
       return;
     }
+
+    // Deduplicate answers by id to avoid applying same answer twice
+    if (id != null) {
+      if (_handledRenegotiationIds.contains(id)) {
+        _log('Renegotiation answer $id already handled — ignoring');
+        // still complete completer if present
+        if (_renegCompleters.containsKey(id) &&
+            !_renegCompleters[id]!.isCompleted) {
+          _renegCompleters[id]!.complete(sdp);
+          _renegCompleters.remove(id);
+        }
+        return;
+      }
+      _handledRenegotiationIds.add(id);
+      // keep set bounded
+      if (_handledRenegotiationIds.length > 500) {
+        // quick prune: clear half
+        final toRemove = _handledRenegotiationIds.take(250).toList();
+        for (final r in toRemove) _handledRenegotiationIds.remove(r);
+      }
+    }
+
     _log(
         'Received renegotiation-answer via DC id=$id, applying remote description');
     final pc = signaling.pc;
@@ -465,9 +491,13 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
           _log(
               'Ignoring incoming renegotiation-answer: pc.signalingState=$state, _makingOffer=$_makingOffer');
         } else {
-          await signaling
-              .safeSetRemoteDescription(RTCSessionDescription(sdp, 'answer'));
-          _log('Applied renegotiation answer from DC id=$id');
+          try {
+            await signaling
+                .safeSetRemoteDescription(RTCSessionDescription(sdp, 'answer'));
+            _log('Applied renegotiation answer from DC id=$id');
+          } catch (e) {
+            _log('Failed to apply renegotiation answer from DC: $e');
+          }
         }
       } catch (e) {
         _log('Failed to apply renegotiation answer from DC: $e');
@@ -813,9 +843,15 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
           _renegCompleters.remove(renegId);
         }
         if (answer != null) {
-          await signaling.safeSetRemoteDescription(
-              RTCSessionDescription(answer, 'answer'));
-          _log('Applied renegotiation answer from DC id=$renegId');
+          try {
+            await signaling.safeSetRemoteDescription(
+                RTCSessionDescription(answer, 'answer'));
+            _log('Applied renegotiation answer from DC id=$renegId');
+          } catch (e) {
+            // Не пробрасываем ошибку наружу — логируем и завершаем.
+            _log('Failed to apply renegotiation answer (caught): $e');
+            // (Опционально) можно пометить состояние и попытаться повторно renegotiate позже.
+          }
         } else {
           _log('No answer received for renegotiation via DC id=$renegId');
         }
@@ -823,8 +859,8 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
         _log('Data channel not open, cannot renegotiate via DC');
       }
     } catch (e) {
-      _log('Renegotiation failed: $e');
-      rethrow;
+      // Логируем проблему, но не rethrow — чтобы не приводить к Unhandled Exception.
+      _log('Renegotiation failed (caught): $e');
     } finally {
       _makingOffer = false;
       _renegotiationInProgress = false;
@@ -1015,7 +1051,7 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
       _log('startCall: pc is null (will attach when pc becomes available)');
     }
 
-    // Update remote playback policy
+    // Update remote playback policy. Also re-enable remote tracks if needed.
     _updateRemoteAudioPlayback();
   }
 
@@ -1051,6 +1087,27 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
           _log('leaveCall: error during pc cleanup: $e');
         }
       }
+
+      // Additionally: ensure remote audio is muted for local user while keeping remoteStream reference
+      if (remoteStream != null) {
+        try {
+          for (final t in remoteStream!.getAudioTracks()) {
+            try {
+              // disable playback of remote tracks locally — we will re-enable on rejoin
+              t.enabled = false;
+            } catch (e) {
+              _log('leaveCall: disabling remote track failed: $e');
+            }
+          }
+        } catch (e) {
+          _log('leaveCall: error while muting remoteStream: $e');
+        }
+      }
+
+      // Also clear renderer to be safe
+      try {
+        _remoteRenderer.srcObject = null;
+      } catch (_) {}
 
       // Do NOT stop or dispose localStream here — keep it for quick rejoin and preserve mute state.
       _inCall = false;
@@ -1211,8 +1268,17 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
         } catch (_) {}
         return;
       }
-      if (_shouldPlayRemoteAudio()) {
+
+      final shouldPlay = _shouldPlayRemoteAudio();
+
+      if (shouldPlay) {
         try {
+          // enable remote tracks so renderer will output audio
+          for (final t in remoteStream!.getAudioTracks()) {
+            try {
+              t.enabled = true;
+            } catch (_) {}
+          }
           _remoteRenderer.srcObject = remoteStream;
           if (kIsWeb && selectedSpeakerId != null) {
             try {
@@ -1226,6 +1292,12 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
         }
       } else {
         try {
+          // disable remote tracks to guarantee playback stops
+          for (final t in remoteStream!.getAudioTracks()) {
+            try {
+              t.enabled = false;
+            } catch (_) {}
+          }
           _remoteRenderer.srcObject = null;
         } catch (_) {}
       }
