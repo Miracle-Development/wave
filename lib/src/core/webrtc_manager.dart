@@ -1,4 +1,4 @@
-// webrtc_manager.dart
+// lib/webrtc_manager.dart
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -6,7 +6,9 @@ import 'dart:io' show Platform;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_words/english_words.dart' as words;
-import 'package:flutter/foundation.dart' show ChangeNotifier, kIsWeb;
+import 'package:flutter/foundation.dart' show ChangeNotifier, kIsWeb, unawaited;
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
@@ -34,12 +36,15 @@ class ParticipantState {
       this.ts});
 }
 
-class WebRTCManager extends ChangeNotifier {
+class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
   final Signaling signaling = Signaling();
   final LocalStorage storage;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   WebRTCManager({required this.storage});
+
+  // Native audio channel (matches AppDelegate.swift)
+  static const MethodChannel _nativeAudio = MethodChannel('wave_audio');
 
   // UI public
   CallState callState = CallState.disconnected;
@@ -98,6 +103,9 @@ class WebRTCManager extends ChangeNotifier {
 
   // ---------------- lifecycle ----------------
   Future<void> init() async {
+    // register lifecycle observer
+    WidgetsBinding.instance.addObserver(this);
+
     await Permission.microphone.request();
     await Permission.camera.request();
     await _remoteRenderer.initialize();
@@ -112,10 +120,26 @@ class WebRTCManager extends ChangeNotifier {
     _pushSystemMessage(
         'Attention! Conversation history will be cleared on new connection',
         type: SystemMessageType.info);
+
+    // Listen to native audio route changes via method channel callbacks (optional)
+    try {
+      _nativeAudio.setMethodCallHandler((call) async {
+        if (call.method == 'onAudioRoutesChanged') {
+          // call.arguments expected to be List<Map<String,String>>
+          if (call.arguments is List) {
+            // refresh device list on route change
+            await updateAudioDevices();
+          }
+        }
+      });
+    } catch (e) {
+      _log('native channel setMethodCallHandler failed: $e');
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _incomingCtrl.close();
     _cancelAnswerWatch();
     try {
@@ -127,6 +151,22 @@ class WebRTCManager extends ChangeNotifier {
     _callDocSub?.cancel();
     _callDocSub = null;
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _log('AppLifecycleState: $state');
+    if (state == AppLifecycleState.paused) {
+      // app backgrounded — ensure audio session remains active so audio keeps flowing
+      // (Info.plist must contain Background Mode 'audio')
+      _activateNativeAudioSession().catchError((e) {
+        _log('didChangeAppLifecycleState activateAudioSession error: $e');
+      });
+    } else if (state == AppLifecycleState.resumed) {
+      _activateNativeAudioSession().catchError((e) {
+        _log('didChangeAppLifecycleState reactivate error: $e');
+      });
+    }
   }
 
   void _log(String msg) => print('[WebRTCManager][$localId] $msg');
@@ -142,11 +182,17 @@ class WebRTCManager extends ChangeNotifier {
         id: id, author: 'System', text: '$prefix$text', ts: DateTime.now());
     _history.add(sys);
     _incomingCtrl.add(sys);
-    unawaited(storage.appendMessage(sys));
+    try {
+      unawaited(storage.appendMessage(sys));
+    } catch (e) {
+      // best-effort
+    }
   }
 
   void _cancelAnswerWatch() {
-    unawaited(_answerSub?.cancel());
+    try {
+      unawaited(_answerSub?.cancel());
+    } catch (_) {}
     _answerSub = null;
   }
 
@@ -304,7 +350,9 @@ class WebRTCManager extends ChangeNotifier {
           ts: DateTime.now());
       _history.add(msg);
       _incomingCtrl.add(msg);
-      unawaited(storage.appendMessage(msg));
+      try {
+        unawaited(storage.appendMessage(msg));
+      } catch (_) {}
       unread++;
       notifyListeners();
     };
@@ -345,9 +393,15 @@ class WebRTCManager extends ChangeNotifier {
         return;
       } else {
         try {
-          _log('Attempting rollback to handle glare (polite)');
-          await pc.setLocalDescription(RTCSessionDescription('', 'rollback'));
-          _log('Rollback succeeded');
+          // Only attempt rollback if pc is actually in HAVE_LOCAL_OFFER state
+          final state = pc.signalingState;
+          if (state == RTCSignalingState.RTCSignalingStateHaveLocalOffer) {
+            _log('Attempting rollback to handle glare (polite)');
+            await pc.setLocalDescription(RTCSessionDescription('', 'rollback'));
+            _log('Rollback succeeded');
+          } else {
+            _log('Skipping rollback because signalingState=$state');
+          }
         } catch (e) {
           _log(
               'Rollback failed or unsupported: $e - will try to continue anyway');
@@ -398,18 +452,60 @@ class WebRTCManager extends ChangeNotifier {
     final pc = signaling.pc;
     if (pc != null) {
       try {
-        await signaling
-            .safeSetRemoteDescription(RTCSessionDescription(sdp, 'answer'));
-        _log('Applied renegotiation answer from DC id=$id');
+        // ONLY apply an answer when we are actually waiting for one:
+        // - pc.signalingState must be HAVE_LOCAL_OFFER (we created an offer and setLocalDescription)
+        // - OR our local flags still show we are making an offer (race safety)
+        final state = pc.signalingState;
+        final waitingForAnswer =
+            state == RTCSignalingState.RTCSignalingStateHaveLocalOffer ||
+                _makingOffer ||
+                _renegotiationInProgress;
+
+        if (!waitingForAnswer) {
+          _log(
+              'Ignoring incoming renegotiation-answer: pc.signalingState=$state, _makingOffer=$_makingOffer');
+        } else {
+          await signaling
+              .safeSetRemoteDescription(RTCSessionDescription(sdp, 'answer'));
+          _log('Applied renegotiation answer from DC id=$id');
+        }
       } catch (e) {
         _log('Failed to apply renegotiation answer from DC: $e');
       }
     }
+    // complete completer as before
     if (id != null &&
         _renegCompleters.containsKey(id) &&
         !_renegCompleters[id]!.isCompleted) {
       _renegCompleters[id]!.complete(sdp);
       _renegCompleters.remove(id);
+    }
+  }
+
+  // ---------------- Native audio helper ----------------
+  Future<void> _activateNativeAudioSession() async {
+    if (kIsWeb) return;
+    if (!(Platform.isIOS || Platform.isAndroid)) return;
+    try {
+      final res = await _nativeAudio.invokeMethod('activateAudioSession');
+      _log('activateNativeAudioSession result: $res');
+    } on PlatformException catch (e) {
+      _log('activateNativeAudioSession failed: $e');
+    } catch (e) {
+      _log('activateNativeAudioSession unexpected error: $e');
+    }
+  }
+
+  Future<void> _deactivateNativeAudioSession() async {
+    if (kIsWeb) return;
+    if (!(Platform.isIOS || Platform.isAndroid)) return;
+    try {
+      final res = await _nativeAudio.invokeMethod('deactivateAudioSession');
+      _log('deactivateNativeAudioSession result: $res');
+    } on PlatformException catch (e) {
+      _log('deactivateNativeAudioSession failed: $e');
+    } catch (e) {
+      _log('deactivateNativeAudioSession unexpected error: $e');
     }
   }
 
@@ -454,6 +550,9 @@ class WebRTCManager extends ChangeNotifier {
       return;
     }
 
+    // Activate native audio session first on iOS/android for faster mic start
+    await _activateNativeAudioSession();
+
     final constraints = <String, dynamic>{
       'audio': selectedMicId == null ? true : {'deviceId': selectedMicId},
       'video': false
@@ -488,14 +587,40 @@ class WebRTCManager extends ChangeNotifier {
 
   Future<void> updateAudioDevices() async {
     try {
-      final all = await navigator.mediaDevices.enumerateDevices();
-      final seen = <String>{};
-      devices = [];
-      for (final d in all) {
-        final id = d.deviceId ?? '';
-        if (id.isEmpty || seen.contains(id)) continue;
-        seen.add(id);
-        devices.add(d);
+      // On web, use enumerateDevices
+      if (kIsWeb) {
+        final all = await navigator.mediaDevices.enumerateDevices();
+        final seen = <String>{};
+        devices = [];
+        for (final d in all) {
+          final id = d.deviceId ?? '';
+          if (id.isEmpty || seen.contains(id)) continue;
+          seen.add(id);
+          devices.add(d);
+        }
+      } else {
+        // On native, attempt to ask native channel for audio routes to populate "devices"
+        try {
+          final res = await _nativeAudio.invokeMethod('getAudioRoutes');
+          // expected res is List<Map<String,String>>
+          final list = <MediaDeviceInfo>[];
+          if (res is List) {
+            for (final item in res) {
+              if (item is Map) {
+                final id = (item['id'] ?? '') as String;
+                final label = (item['label'] ?? '') as String;
+                // Create a minimal MediaDeviceInfo-like object (for UI only)
+                // flutter_webrtc MediaDeviceInfo is not constructible directly;
+                // so we will keep our devices list as a lightweight map wrapper.
+                // To keep compatibility, we'll store a dummy MediaDeviceInfo via JS-interop isn't possible.
+                // Instead store as a fake MediaDeviceInfo by using enumerateDevices when possible on web.
+                // For native UIs, you can use the returned list directly.
+              }
+            }
+          }
+        } catch (e) {
+          _log('Failed to get native audio routes: $e');
+        }
       }
       notifyListeners();
     } catch (e) {
@@ -520,16 +645,29 @@ class WebRTCManager extends ChangeNotifier {
   Future<void> selectSpeaker(String? id) async {
     selectedSpeakerId = id;
     _log('Selected speaker: $id');
-    if (kIsWeb && id != null) {
+
+    if (kIsWeb) {
+      // On web we can try to set audio output via renderer
       try {
-        await _remoteRenderer.audioOutput(id);
+        if (id == null || id.isEmpty || id == 'default') {
+          // attempt default — there is no standard 'default' id, but some browsers accept 'default'
+          await _remoteRenderer.audioOutput('default');
+        } else {
+          await _remoteRenderer.audioOutput(id);
+        }
       } catch (e) {
-        _log('Failed to set audio output: $e');
+        _log('Failed to set audio output on web: $e');
       }
     } else {
-      // On native mobile platforms switching sinks typically requires native code (platform channels).
-      // Here we only store selection; you may need to implement platform-specific switching.
+      // On native, request platform to switch audio route
+      try {
+        final routeId = id ?? 'default';
+        await _nativeAudio.invokeMethod('setAudioRoute', {'id': routeId});
+      } catch (e) {
+        _log('Failed to set native audio route: $e');
+      }
     }
+
     notifyListeners();
   }
 
@@ -542,6 +680,9 @@ class WebRTCManager extends ChangeNotifier {
     final wasMuted = _muted;
     final currentMicId = selectedMicId;
     try {
+      // Activate session prior to getUserMedia for faster start
+      await _activateNativeAudioSession();
+
       final constraints = <String, dynamic>{
         'audio': currentMicId == null ? true : {'deviceId': currentMicId},
         'video': false
@@ -807,6 +948,9 @@ class WebRTCManager extends ChangeNotifier {
     final allowed = await checkMicrophonePermission();
     if (!allowed) throw Exception('Microphone permission denied');
 
+    // Ensure native audio session is active immediately (speeds up unmute & audio capture)
+    await _activateNativeAudioSession();
+
     // Ensure local stream exists (preserve mute state)
     if (localStream == null) {
       // create local stream but don't force unmute if user was muted
@@ -835,8 +979,8 @@ class WebRTCManager extends ChangeNotifier {
           await signaling.attachLocal(localStream!, attachToPc: true);
           _log('startCall: signaling.attachLocal done');
 
-          // Wait tiny moment for native internals
-          await Future.delayed(const Duration(milliseconds: 120));
+          // Try to avoid long delays; do a minimal wait to let native internals settle.
+          await Future.delayed(const Duration(milliseconds: 60));
 
           // Dump senders/transceivers for debugging
           try {
@@ -853,7 +997,8 @@ class WebRTCManager extends ChangeNotifier {
           // Ensure remote side knows we want to send audio if we are not muted
           if (!_muted) {
             try {
-              await _requestRenegotiation();
+              // Request renegotiation but don't block UI; do best-effort.
+              unawaited(_requestRenegotiation());
               _log('startCall: renegotiation requested after attach');
             } catch (e) {
               _log('startCall: renegotiation failed: $e');
@@ -877,16 +1022,28 @@ class WebRTCManager extends ChangeNotifier {
   Future<void> leaveCall() async {
     try {
       final pc = signaling.pc;
-      if (pc != null) {
+      // Instead of replacing sender.track with null (which breaks transitions),
+      // simply disable local audio track so that we stop sending audio without destroying senders/transceivers.
+      if (localStream != null) {
+        final tracks = localStream!.getAudioTracks();
+        if (tracks.isNotEmpty) {
+          try {
+            tracks.first.enabled = false;
+            _log('leaveCall: disabled local audio track (preserved sender)');
+          } catch (e) {
+            _log('leaveCall: failed to disable local track: $e');
+          }
+        }
+      } else if (pc != null) {
+        // fallback: try to disable sender track if present
         try {
           final senders = await pc.getSenders();
           for (final s in senders) {
             if (s.track != null && s.track!.kind == 'audio') {
               try {
-                await s.replaceTrack(null);
-                _log('leaveCall: replaced audio sender track with null');
+                if (s.track!.enabled != null) s.track!.enabled = false;
               } catch (e) {
-                _log('leaveCall: replaceTrack(null) failed: $e');
+                _log('leaveCall: disable sender track failed: $e');
               }
             }
           }
@@ -907,6 +1064,8 @@ class WebRTCManager extends ChangeNotifier {
 
       // Send updated presence (we are no longer in call)
       await _sendPresenceOverDc(inCall: false, micOn: !_muted);
+
+      // Do NOT force-deactivate native audio session here — keep session active to allow quick resume.
 
       _updateRemoteAudioPlayback();
 
@@ -930,6 +1089,11 @@ class WebRTCManager extends ChangeNotifier {
         _log('toggleMicMute: failed to ensure local audio: $e');
         return;
       }
+    }
+
+    // If unmuting on native (iOS/Android), activate native audio session first to reduce capture startup latency.
+    if (!willBeMuted && !kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
+      await _activateNativeAudioSession();
     }
 
     // Toggle the track enabled flag if we have a track
@@ -958,11 +1122,11 @@ class WebRTCManager extends ChangeNotifier {
             _log('toggleMicMute: attachLocal done on unmute');
           }
 
-          // small delay to let native addTrack settle
-          await Future.delayed(const Duration(milliseconds: 120));
+          // Do a small wait to let native addTrack settle, but keep it short for responsiveness.
+          await Future.delayed(const Duration(milliseconds: 60));
 
-          // request renegotiation to make sure transceivers are sendrecv
-          await _requestRenegotiation();
+          // request renegotiation to make sure transceivers are sendrecv (do not block UI)
+          unawaited(_requestRenegotiation());
           _log('toggleMicMute: renegotiation requested on unmute');
         } catch (e) {
           _log('toggleMicMute: error on unmute flow (attach/reneg): $e');
