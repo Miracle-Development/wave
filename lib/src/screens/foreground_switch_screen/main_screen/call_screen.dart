@@ -43,36 +43,44 @@ class CallScreen extends StatelessWidget {
         // Participants list (presence)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 36.0),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            WaveText('Participants', type: WaveTextType.subtitle),
-            SizedBox(height: 8),
-            Container(
-              constraints: BoxConstraints(maxHeight: 160),
-              child: ListView(
-                shrinkWrap: true,
-                children: manager.participantsList.map((p) {
-                  return ListTile(
-                    leading: Icon(p.inCall ? Icons.person : Icons.person_off,
-                        color: p.inCall ? Colors.green : Colors.grey),
-                    title: Text(p.id == manager.localId
-                        ? (p.name == null ? 'You' : '${p.name} (you)')
-                        : (p.name ?? 'Peer')),
-                    subtitle: Text(p.inCall ? 'In call' : 'Not in call'),
-                    trailing: Icon(p.muted ? Icons.mic_off : Icons.mic,
-                        color: p.muted ? Colors.red : Colors.blue),
-                  );
-                }).toList(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              WaveText('Participants', type: WaveTextType.subtitle),
+              SizedBox(height: 8),
+              Container(
+                constraints: BoxConstraints(maxHeight: 160),
+                child: ListView(
+                  shrinkWrap: true,
+                  children: manager.participantsList.map(
+                    (p) {
+                      return ListTile(
+                        leading: Icon(
+                            p.inCall ? Icons.person : Icons.person_off,
+                            color: p.inCall ? Colors.green : Colors.grey),
+                        title: Text(p.id == manager.localId
+                            //'${p.name} (you)')
+                            ? 'You'
+                            : 'Peer'),
+                        subtitle: Text(p.inCall ? 'In call' : 'Not in call'),
+                        trailing: Icon(p.muted ? Icons.mic_off : Icons.mic,
+                            color: p.muted ? Colors.red : Colors.blue),
+                      );
+                    },
+                  ).toList(),
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
 
         SizedBox(height: 20),
-        WaveText(manager.formattedCallDuration,
-            type: WaveTextType.title,
-            weight: WaveTextWeight.regular,
-            textAlign: TextAlign.center),
+        WaveText(
+          manager.formattedCallDuration,
+          type: WaveTextType.title,
+          weight: WaveTextWeight.regular,
+          textAlign: TextAlign.center,
+        ),
         SizedBox(height: 20),
 
         // Device selection
@@ -86,9 +94,16 @@ class CallScreen extends StatelessWidget {
                 value: manager.selectedMicId,
                 isExpanded: true,
                 items: [
-                  const DropdownMenuItem(value: null, child: Text('Default')),
-                  ...mics.map((d) => DropdownMenuItem(
-                      value: d.deviceId, child: Text(d.label ?? 'Mic'))),
+                  const DropdownMenuItem(
+                    value: null,
+                    child: Text('Default'),
+                  ),
+                  ...mics.map(
+                    (d) => DropdownMenuItem(
+                      value: d.deviceId,
+                      child: Text(d.label ?? 'Mic'),
+                    ),
+                  ),
                 ],
                 onChanged: (v) => manager.selectMic(v),
               ),
@@ -106,9 +121,16 @@ class CallScreen extends StatelessWidget {
                 value: manager.selectedSpeakerId,
                 isExpanded: true,
                 items: [
-                  const DropdownMenuItem(value: null, child: Text('Default')),
-                  ...outs.map((d) => DropdownMenuItem(
-                      value: d.deviceId, child: Text(d.label ?? 'Speaker'))),
+                  const DropdownMenuItem(
+                    value: null,
+                    child: Text('Default'),
+                  ),
+                  ...outs.map(
+                    (d) => DropdownMenuItem(
+                      value: d.deviceId,
+                      child: Text(d.label ?? 'Speaker'),
+                    ),
+                  ),
                 ],
                 onChanged: (v) => manager.selectSpeaker(v),
               ),
@@ -182,7 +204,10 @@ class CallScreen extends StatelessWidget {
                     await manager.startCall();
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Start call failed: $e')));
+                      SnackBar(
+                        content: Text('Start call failed: $e'),
+                      ),
+                    );
                   }
                 }
               },
@@ -197,7 +222,10 @@ class CallScreen extends StatelessWidget {
                     await manager.enableVideo();
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Camera error: $e')));
+                      SnackBar(
+                        content: Text('Camera error: $e'),
+                      ),
+                    );
                   }
                 }
               },

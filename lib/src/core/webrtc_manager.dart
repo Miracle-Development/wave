@@ -1,4 +1,3 @@
-// lib/webrtc_manager.dart
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -96,7 +95,8 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
   final List<String> _presenceQueue = [];
 
   // Dedup map for renegotiation answers (prevents double-apply)
-  final Set<String> _handledRenegotiationIds = {};
+  final Set<String> _handledRenegotiationIds = <String>{};
+  bool _pcInitializing = false;
 
   bool get isOfferCreated => offerId != null && offerId!.isNotEmpty;
   bool get isAnswerAvailable =>
@@ -285,6 +285,63 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     };
   }
 
+  /// Ensure peer connection exists and appears usable.
+  /// If existing pc is broken/throws on basic ops — close and recreate.
+  Future<void> _ensurePcReady() async {
+    if (_pcInitializing) {
+      // another init in progress — wait a bit and return
+      await Future.delayed(const Duration(milliseconds: 150));
+      if (signaling.pc != null) return;
+    }
+
+    try {
+      _pcInitializing = true;
+      // If there's no pc -> init
+      if (signaling.pc == null) {
+        _log('_ensurePcReady: pc==null -> init');
+        await signaling.connectionFallbackInitIfNeeded();
+        _wirePc();
+        return;
+      }
+
+      // If pc exists, run a lightweight check: getSenders() should not throw
+      try {
+        await signaling.pc!.getSenders();
+        // pc seems healthy
+        return;
+      } catch (e) {
+        _log(
+            '_ensurePcReady: pc appears broken (getSenders failed): $e — recreating');
+        // tear down existing pc (best-effort)
+        try {
+          await signaling.close();
+        } catch (e2) {
+          _log('_ensurePcReady: signaling.close failed: $e2');
+        }
+        // recreate
+        await signaling.connectionFallbackInitIfNeeded();
+        _wirePc();
+        return;
+      }
+    } finally {
+      _pcInitializing = false;
+    }
+  }
+
+  Future<void> _setLocalParticipant(
+      {required bool inCall, required bool muted}) async {
+    participants[localId] = ParticipantState(
+      id: localId,
+      name: localName,
+      inCall: inCall,
+      muted: muted,
+      ts: Timestamp.fromDate(DateTime.now()),
+    );
+    notifyListeners();
+    // attempt to send presence (queueing handled inside)
+    await _sendPresenceOverDc(inCall: inCall, micOn: !muted);
+  }
+
   Future<void> _softLeaveOnPcFailure() async {
     try {
       final pc = signaling.pc;
@@ -451,26 +508,9 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
       _log('renegotiation-answer: missing sdp');
       return;
     }
-
-    // Deduplicate answers by id to avoid applying same answer twice
-    if (id != null) {
-      if (_handledRenegotiationIds.contains(id)) {
-        _log('Renegotiation answer $id already handled — ignoring');
-        // still complete completer if present
-        if (_renegCompleters.containsKey(id) &&
-            !_renegCompleters[id]!.isCompleted) {
-          _renegCompleters[id]!.complete(sdp);
-          _renegCompleters.remove(id);
-        }
-        return;
-      }
-      _handledRenegotiationIds.add(id);
-      // keep set bounded
-      if (_handledRenegotiationIds.length > 500) {
-        // quick prune: clear half
-        final toRemove = _handledRenegotiationIds.take(250).toList();
-        for (final r in toRemove) _handledRenegotiationIds.remove(r);
-      }
+    if (id != null && _handledRenegotiationIds.contains(id)) {
+      _log('Ignoring duplicate renegotiation-answer id=$id');
+      return;
     }
 
     _log(
@@ -479,8 +519,6 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     if (pc != null) {
       try {
         // ONLY apply an answer when we are actually waiting for one:
-        // - pc.signalingState must be HAVE_LOCAL_OFFER (we created an offer and setLocalDescription)
-        // - OR our local flags still show we are making an offer (race safety)
         final state = pc.signalingState;
         final waitingForAnswer =
             state == RTCSignalingState.RTCSignalingStateHaveLocalOffer ||
@@ -491,13 +529,10 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
           _log(
               'Ignoring incoming renegotiation-answer: pc.signalingState=$state, _makingOffer=$_makingOffer');
         } else {
-          try {
-            await signaling
-                .safeSetRemoteDescription(RTCSessionDescription(sdp, 'answer'));
-            _log('Applied renegotiation answer from DC id=$id');
-          } catch (e) {
-            _log('Failed to apply renegotiation answer from DC: $e');
-          }
+          await signaling
+              .safeSetRemoteDescription(RTCSessionDescription(sdp, 'answer'));
+          _log('Applied renegotiation answer from DC id=$id');
+          if (id != null) _handledRenegotiationIds.add(id);
         }
       } catch (e) {
         _log('Failed to apply renegotiation answer from DC: $e');
@@ -881,7 +916,9 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
   Future<String> createOfferLink() async {
     _makingOffer = true;
     try {
-      await signaling.connectionFallbackInitIfNeeded();
+      // Ensure PC is fresh/usable
+      await _ensurePcReady();
+
       final dc = await signaling.createLocalDataChannel();
       chat = dc;
       _wireDataChannel(dc);
@@ -949,15 +986,17 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     offerId = id;
     _watchCallDoc();
 
-    await signaling.connectionFallbackInitIfNeeded();
+    // Ensure pc exists and wired
+    await _ensurePcReady();
+
     await signaling.acceptOfferBlob(offerBlob);
     final answerBlob = await signaling.getAnswerBlob();
 
     await ref.update(
         {'answer': answerBlob, 'answeredAt': FieldValue.serverTimestamp()});
     lastAnswerBlob = answerBlob;
-    participants[localId] = ParticipantState(
-        id: localId, name: localName, inCall: false, muted: true);
+    // keep local participant consistent (not in call yet)
+    await _setLocalParticipant(inCall: false, muted: true);
     notifyListeners();
     callKeepUUID = const Uuid().v4();
     return id;
@@ -975,7 +1014,9 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
       throw Exception('Answer for "$id" not ready');
     lastAnswerBlob = answerBlob;
     notifyListeners();
-    await signaling.connectionFallbackInitIfNeeded();
+
+    // Ensure pc before applying remote answer
+    await _ensurePcReady();
     await signaling.acceptAnswerBlob(answerBlob);
   }
 
@@ -986,6 +1027,9 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
 
     // Ensure native audio session is active immediately (speeds up unmute & audio capture)
     await _activateNativeAudioSession();
+
+    // Ensure pc ready before attaching local / asking for renegotiation
+    await _ensurePcReady();
 
     // Ensure local stream exists (preserve mute state)
     if (localStream == null) {
@@ -998,8 +1042,8 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     }
 
     _inCall = true;
-    participants[localId] = ParticipantState(
-        id: localId, name: localName, inCall: true, muted: _muted);
+    // update participant state via helper
+    await _setLocalParticipant(inCall: true, muted: _muted);
     notifyListeners();
 
     // Inform others
@@ -1111,13 +1155,7 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
 
       // Do NOT stop or dispose localStream here — keep it for quick rejoin and preserve mute state.
       _inCall = false;
-
-      participants[localId] = ParticipantState(
-        id: localId,
-        name: localName,
-        inCall: false,
-        muted: _muted,
-      );
+      await _setLocalParticipant(inCall: false, muted: _muted);
 
       // Send updated presence (we are no longer in call)
       await _sendPresenceOverDc(inCall: false, micOn: !_muted);
@@ -1194,6 +1232,14 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
             'toggleMicMute: muted locally; track.enabled=false (no replaceTrack) to avoid renegotiation');
       }
     }
+
+    participants[localId] = ParticipantState(
+      id: localId,
+      name: localName,
+      inCall: inCall,
+      muted: muted,
+      ts: Timestamp.fromDate(DateTime.now()),
+    );
 
     // Notify others of mic state; keep inCall unchanged.
     await _sendPresenceOverDc(inCall: _inCall, micOn: !_muted);
@@ -1307,26 +1353,172 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   // ---------------- Cleanup ----------------
+
+  /// Полный сброс внутреннего состояния менеджера до "как при старте приложения".
+  Future<void> _resetStateForFreshStart() async {
+    // cancel timers & subs
+    _callTimer?.cancel();
+    _callTimer = null;
+    _callDurationSeconds = 0;
+    try {
+      await _answerSub?.cancel();
+    } catch (_) {}
+    _answerSub = null;
+    try {
+      await _callDocSub?.cancel();
+    } catch (_) {}
+    _callDocSub = null;
+
+    // complete & clear pending renegotiation completers
+    for (final c in _renegCompleters.values) {
+      try {
+        if (!c.isCompleted) c.complete(null);
+      } catch (_) {}
+    }
+    _renegCompleters.clear();
+
+    // clear helper collections
+    _handledRenegotiationIds.clear();
+    _presenceQueue.clear();
+
+    // reset flags
+    _renegotiationInProgress = false;
+    _pendingRenegotiationRequested = false;
+    _makingOffer = false;
+
+    // reset participant-related state
+    participants.clear();
+
+    // reset counters/ids/state
+    unread = 0;
+    lastOfferBlob = null;
+    lastAnswerBlob = null;
+    offerId = null;
+    callKeepUUID = null;
+
+    // reset booleans
+    _muted = false;
+    _inCall = false;
+    _localAudioActive = false;
+
+    // reset callState
+    callState = CallState.disconnected;
+
+    notifyListeners();
+  }
+
   Future<void> closeAll() async {
+    _log('closeAll: full cleanup starting');
+
+    // stop timers & cancel watchers
+    _stopCallTimer();
     _cancelAnswerWatch();
-    await signaling.close();
+    try {
+      await _callDocSub?.cancel();
+    } catch (_) {}
+    _callDocSub = null;
+
+    // Close data channel (best-effort)
+    try {
+      await chat?.close();
+    } catch (e) {
+      _log('closeAll: chat.close failed: $e');
+    }
+    chat = null;
+
+    // Ask signaling to close (this will close pc and socket)
+    try {
+      await signaling.close();
+    } catch (e) {
+      _log('closeAll: signaling.close failed: $e');
+    }
+
+    // Stop and dispose streams (local, remote, video)
+    try {
+      if (localStream != null) {
+        for (final t in localStream!.getTracks()) {
+          try {
+            t.stop();
+          } catch (_) {}
+        }
+        try {
+          await localStream!.dispose();
+        } catch (_) {}
+      }
+    } catch (e) {
+      _log('closeAll: localStream cleanup failed: $e');
+    }
+    localStream = null;
+
+    try {
+      if (remoteStream != null) {
+        for (final t in remoteStream!.getTracks()) {
+          try {
+            t.stop();
+          } catch (_) {}
+        }
+        try {
+          await remoteStream!.dispose();
+        } catch (_) {}
+      }
+    } catch (e) {
+      _log('closeAll: remoteStream cleanup failed: $e');
+    }
+    remoteStream = null;
+
+    try {
+      if (_localVideoStream != null) {
+        for (final t in _localVideoStream!.getTracks()) {
+          try {
+            t.stop();
+          } catch (_) {}
+        }
+        try {
+          await _localVideoStream!.dispose();
+        } catch (_) {}
+      }
+    } catch (e) {
+      _log('closeAll: localVideoStream cleanup failed: $e');
+    }
+    _localVideoStream = null;
+
+    // Dispose and re-initialize renderers so they are in a fresh state
     try {
       await _remoteRenderer.dispose();
     } catch (_) {}
     try {
       await localRenderer.dispose();
     } catch (_) {}
-    chat = null;
-    localStream = null;
-    remoteStream = null;
-    callState = CallState.disconnected;
-    _muted = false;
-    _inCall = false;
-    lastOfferBlob = null;
-    lastAnswerBlob = null;
-    offerId = null;
-    participants.clear();
-    await clearChatHistory(emitIntro: true);
+
+    try {
+      await _remoteRenderer.initialize();
+    } catch (e) {
+      _log('closeAll: remoteRenderer.initialize failed: $e');
+    }
+    try {
+      await localRenderer.initialize();
+    } catch (e) {
+      _log('closeAll: localRenderer.initialize failed: $e');
+    }
+
+    // Ensure native audio session deactivated (best-effort) so device audio returns to default
+    try {
+      await _deactivateNativeAudioSession();
+    } catch (e) {
+      _log('closeAll: deactivateNativeAudioSession failed: $e');
+    }
+
+    // Reset internal state/collections/flags etc.
+    await _resetStateForFreshStart();
+
+    // Clear chat history and storage (fresh start)
+    try {
+      await clearChatHistory(emitIntro: true);
+    } catch (e) {
+      _log('closeAll: clearChatHistory failed: $e');
+    }
+
+    _log('closeAll: full cleanup finished');
     notifyListeners();
   }
 

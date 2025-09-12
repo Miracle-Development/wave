@@ -38,11 +38,11 @@ class _InitialScreenImplState extends State<InitialScreenImpl> {
   @override
   Widget build(BuildContext context) {
     return
-        kDebugMode
-            ? HomeScreen(
-                key: ValueKey("home"),
-              )
-            :
+        // kDebugMode
+        //     ? HomeScreen(
+        //         key: ValueKey("home"),
+        //       )
+        //     :
         AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
       layoutBuilder: (currentChild, previousChildren) {
