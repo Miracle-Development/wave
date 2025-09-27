@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wave/src/core/keys.dart';
-import 'package:wave/src/core/webrtc_manager.dart';
-import 'package:wave/src/widgets/animated_container_wrapper.dart';
-import 'package:wave/src/screens/foreground_switch_screen/copy_code_screen.dart';
-import 'package:wave/src/screens/foreground_switch_screen/enable_microphone_screen.dart';
-import 'package:wave/src/screens/foreground_switch_screen/main_screen.dart';
-import 'package:wave/src/screens/foreground_switch_screen/paste_code_screen.dart';
-import 'package:wave/src/screens/foreground_switch_screen/start_connection_screen.dart';
-import 'package:wave/src/screens/foreground_switch_screen/start_screen.dart';
+import 'package:wave_p2p/src/core/keys.dart';
+import 'package:wave_p2p/src/core/webrtc_manager.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/copy_code_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/enable_microphone_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/main_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/paste_code_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/start_connection_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/start_screen.dart';
+import 'package:wave_p2p/src/widgets/animated_container_wrapper.dart';
 
 enum VisibleScreenType {
   startButton,
@@ -360,29 +360,34 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   }
 
   Future<void> _onClosePeerPressed() async {
+    final manager = context.read<WebRTCManager>();
     final prefs = await SharedPreferences.getInstance();
+
+    await manager.closeAll();
+
     // очищаем локальный код
     await prefs.remove(currentPeerLocalIdKey);
 
     await prefs.remove(currentPeerLocalIdKey);
     await prefs.setBool(prefsHasActiveConnectionKey, false);
+
     // возвращаемся к начальному экрану
     setState(() {
       _stepper = VisibleScreenType.selectAction;
     });
   }
 
-  Future<void> _checkActiveConnection() async {
-    final prefs = await SharedPreferences.getInstance();
-    final hasActiveConnection =
-        prefs.getBool(prefsHasActiveConnectionKey) ?? false;
+  // Future<void> _checkActiveConnection() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final hasActiveConnection =
+  //       prefs.getBool(prefsHasActiveConnectionKey) ?? false;
 
-    if (hasActiveConnection) {
-      final isPeerInitiator = prefs.getBool(isPeerInitiatorKey) ?? true;
-      setState(() {
-        _stepper = VisibleScreenType.main;
-        _isPeerInitiator = isPeerInitiator;
-      });
-    }
-  }
+  //   if (hasActiveConnection) {
+  //     final isPeerInitiator = prefs.getBool(isPeerInitiatorKey) ?? true;
+  //     setState(() {
+  //       _stepper = VisibleScreenType.main;
+  //       _isPeerInitiator = isPeerInitiator;
+  //     });
+  //   }
+  // }
 }

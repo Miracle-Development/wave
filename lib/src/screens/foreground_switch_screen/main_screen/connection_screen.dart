@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
-import 'package:wave/models/call_state.dart';
-import 'package:wave/src/widgets/animated_status_line.dart';
 // TODO: fix
 import 'package:md_ui_kit/widgets/wave_hint_text.dart'
     hide WaveTextType, WaveTextWeight;
+import 'package:wave_p2p/models/call_state.dart';
+import 'package:wave_p2p/src/widgets/animated_status_line.dart';
 
 class ConnectionScreen extends StatelessWidget {
   const ConnectionScreen({

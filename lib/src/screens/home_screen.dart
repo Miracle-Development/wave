@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
 
-import 'package:wave/src/screens/foreground_switch_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

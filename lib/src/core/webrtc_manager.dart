@@ -11,11 +11,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wave_p2p/models/call_state.dart';
+import 'package:wave_p2p/models/chat_message.dart';
 
 import 'signaling.dart';
 import 'storage.dart';
-import 'package:wave/models/call_state.dart';
-import 'package:wave/models/chat_message.dart';
 
 enum SystemMessageType { event, info }
 
@@ -109,8 +109,8 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     // register lifecycle observer
     WidgetsBinding.instance.addObserver(this);
 
-    await Permission.microphone.request();
-    await Permission.camera.request();
+    // await Permission.microphone.request();
+    // await Permission.camera.request();
     await _remoteRenderer.initialize();
     await localRenderer.initialize();
     await signaling.connectionFallbackInitIfNeeded();
@@ -1466,21 +1466,22 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     }
     remoteStream = null;
 
-    try {
-      if (_localVideoStream != null) {
-        for (final t in _localVideoStream!.getTracks()) {
-          try {
-            t.stop();
-          } catch (_) {}
-        }
-        try {
-          await _localVideoStream!.dispose();
-        } catch (_) {}
-      }
-    } catch (e) {
-      _log('closeAll: localVideoStream cleanup failed: $e');
-    }
-    _localVideoStream = null;
+    // TODO: видеозвонки
+    // try {
+    //   if (_localVideoStream != null) {
+    //     for (final t in _localVideoStream!.getTracks()) {
+    //       try {
+    //         t.stop();
+    //       } catch (_) {}
+    //     }
+    //     try {
+    //       await _localVideoStream!.dispose();
+    //     } catch (_) {}
+    //   }
+    // } catch (e) {
+    //   _log('closeAll: localVideoStream cleanup failed: $e');
+    // }
+    // _localVideoStream = null;
 
     // Dispose and re-initialize renderers so they are in a fresh state
     try {
@@ -1709,123 +1710,124 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   // ---------------- Video ----------------
-  MediaStream? _localVideoStream;
+  // TODO: видеозвонки
+  // MediaStream? _localVideoStream;
 
-  Future<bool> _checkCameraPermission() async {
-    if (kIsWeb) return true;
-    if (Platform.isAndroid || Platform.isIOS) {
-      try {
-        final status = await Permission.camera.request();
-        return status.isGranted;
-      } catch (e) {
-        _log('Camera permission request failed: $e');
-        return false;
-      }
-    }
-    return false;
-  }
+  // Future<bool> _checkCameraPermission() async {
+  //   if (kIsWeb) return true;
+  //   if (Platform.isAndroid || Platform.isIOS) {
+  //     try {
+  //       final status = await Permission.camera.request();
+  //       return status.isGranted;
+  //     } catch (e) {
+  //       _log('Camera permission request failed: $e');
+  //       return false;
+  //     }
+  //   }
+  //   return false;
+  // }
 
-  Future<void> enableVideo() async {
-    if (_localVideoStream != null) return;
-    final ok = await _checkCameraPermission();
-    if (!ok) throw Exception('Camera permission denied');
-    final constraints = <String, dynamic>{
-      'audio': false,
-      'video': {'facingMode': 'user', 'width': 640, 'height': 480}
-    };
-    final s = await navigator.mediaDevices.getUserMedia(constraints);
-    final tracks = s.getVideoTracks();
-    if (tracks.isEmpty) {
-      await s.dispose();
-      throw Exception('No video tracks');
-    }
-    _localVideoStream = s;
-    try {
-      localRenderer.srcObject = _localVideoStream;
-    } catch (e) {
-      _log('localRenderer set failed: $e');
-    }
+  // Future<void> enableVideo() async {
+  //   if (_localVideoStream != null) return;
+  //   final ok = await _checkCameraPermission();
+  //   if (!ok) throw Exception('Camera permission denied');
+  //   final constraints = <String, dynamic>{
+  //     'audio': false,
+  //     'video': {'facingMode': 'user', 'width': 640, 'height': 480}
+  //   };
+  //   final s = await navigator.mediaDevices.getUserMedia(constraints);
+  //   final tracks = s.getVideoTracks();
+  //   if (tracks.isEmpty) {
+  //     await s.dispose();
+  //     throw Exception('No video tracks');
+  //   }
+  //   _localVideoStream = s;
+  //   try {
+  //     localRenderer.srcObject = _localVideoStream;
+  //   } catch (e) {
+  //     _log('localRenderer set failed: $e');
+  //   }
 
-    final pc = signaling.pc;
-    if (pc != null) {
-      try {
-        final track = tracks.first;
-        final senders = await pc.getSenders();
-        RTCRtpSender? existed;
-        for (final sdr in senders) {
-          if (sdr.track != null && sdr.track!.kind == 'video') {
-            existed = sdr;
-            break;
-          }
-        }
-        if (existed != null) {
-          try {
-            await existed.replaceTrack(track);
-            _log('Replaced existing video sender track');
-          } catch (e) {
-            _log('replaceTrack video failed: $e — will addTrack');
-            await pc.addTrack(track, _localVideoStream!);
-            _log('Added video track via addTrack');
-            await _requestRenegotiation();
-          }
-        } else {
-          await pc.addTrack(track, _localVideoStream!);
-          _log('Added video track via addTrack');
-          await _requestRenegotiation();
-        }
-      } catch (e) {
-        _log('enableVideo: adding video track failed: $e');
-        try {
-          for (final t in _localVideoStream!.getTracks()) t.stop();
-          await _localVideoStream!.dispose();
-        } catch (_) {}
-        _localVideoStream = null;
-        rethrow;
-      }
-    } else {
-      _log('enableVideo: pc==null, will attach when pc becomes available');
-    }
+  //   final pc = signaling.pc;
+  //   if (pc != null) {
+  //     try {
+  //       final track = tracks.first;
+  //       final senders = await pc.getSenders();
+  //       RTCRtpSender? existed;
+  //       for (final sdr in senders) {
+  //         if (sdr.track != null && sdr.track!.kind == 'video') {
+  //           existed = sdr;
+  //           break;
+  //         }
+  //       }
+  //       if (existed != null) {
+  //         try {
+  //           await existed.replaceTrack(track);
+  //           _log('Replaced existing video sender track');
+  //         } catch (e) {
+  //           _log('replaceTrack video failed: $e — will addTrack');
+  //           await pc.addTrack(track, _localVideoStream!);
+  //           _log('Added video track via addTrack');
+  //           await _requestRenegotiation();
+  //         }
+  //       } else {
+  //         await pc.addTrack(track, _localVideoStream!);
+  //         _log('Added video track via addTrack');
+  //         await _requestRenegotiation();
+  //       }
+  //     } catch (e) {
+  //       _log('enableVideo: adding video track failed: $e');
+  //       try {
+  //         for (final t in _localVideoStream!.getTracks()) t.stop();
+  //         await _localVideoStream!.dispose();
+  //       } catch (_) {}
+  //       _localVideoStream = null;
+  //       rethrow;
+  //     }
+  //   } else {
+  //     _log('enableVideo: pc==null, will attach when pc becomes available');
+  //   }
 
-    notifyListeners();
-  }
+  //   notifyListeners();
+  // }
 
-  Future<void> disableVideo() async {
-    if (_localVideoStream == null) return;
-    final pc = signaling.pc;
-    if (pc != null) {
-      try {
-        final senders = await pc.getSenders();
-        for (final s in senders) {
-          if (s.track != null && s.track!.kind == 'video') {
-            try {
-              await s.replaceTrack(null);
-              _log('disableVideo: replaced video sender with null');
-            } catch (e) {
-              _log('disableVideo replaceTrack failed: $e');
-            }
-          }
-        }
-      } catch (e) {
-        _log('disableVideo pc operation failed: $e');
-      }
-    }
-    try {
-      for (final t in _localVideoStream!.getTracks()) t.stop();
-      await _localVideoStream!.dispose();
-    } catch (e) {
-      _log('disableVideo cleanup failed: $e');
-    }
-    _localVideoStream = null;
-    try {
-      localRenderer.srcObject = null;
-    } catch (_) {}
-    try {
-      await _requestRenegotiation();
-    } catch (e) {
-      _log('disableVideo renegotiation failed: $e');
-    }
-    notifyListeners();
-  }
+  // Future<void> disableVideo() async {
+  //   if (_localVideoStream == null) return;
+  //   final pc = signaling.pc;
+  //   if (pc != null) {
+  //     try {
+  //       final senders = await pc.getSenders();
+  //       for (final s in senders) {
+  //         if (s.track != null && s.track!.kind == 'video') {
+  //           try {
+  //             await s.replaceTrack(null);
+  //             _log('disableVideo: replaced video sender with null');
+  //           } catch (e) {
+  //             _log('disableVideo replaceTrack failed: $e');
+  //           }
+  //         }
+  //       }
+  //     } catch (e) {
+  //       _log('disableVideo pc operation failed: $e');
+  //     }
+  //   }
+  //   try {
+  //     for (final t in _localVideoStream!.getTracks()) t.stop();
+  //     await _localVideoStream!.dispose();
+  //   } catch (e) {
+  //     _log('disableVideo cleanup failed: $e');
+  //   }
+  //   _localVideoStream = null;
+  //   try {
+  //     localRenderer.srcObject = null;
+  //   } catch (_) {}
+  //   try {
+  //     await _requestRenegotiation();
+  //   } catch (e) {
+  //     _log('disableVideo renegotiation failed: $e');
+  //   }
+  //   notifyListeners();
+  // }
 
   // ---------------- Misc helpers ----------------
   List<ParticipantState> get participantsList => participants.values.toList();

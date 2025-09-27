@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wave/models/call_state.dart';
-import 'package:wave/src/core/keys.dart';
-import 'package:wave/src/core/webrtc_manager.dart';
-import 'package:wave/src/screens/foreground_switch_screen/main_screen/call_screen.dart';
-import 'package:wave/src/screens/foreground_switch_screen/main_screen/chat_screen.dart';
-import 'package:wave/src/screens/foreground_switch_screen/main_screen/connection_screen.dart';
-import 'package:wave/src/widgets/dynamic_container_wrapper.dart';
+import 'package:wave_p2p/models/call_state.dart';
+import 'package:wave_p2p/src/core/keys.dart';
+import 'package:wave_p2p/src/core/webrtc_manager.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/main_screen/call_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/main_screen/chat_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/main_screen/connection_screen.dart';
+import 'package:wave_p2p/src/widgets/dynamic_container_wrapper.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({
@@ -112,7 +112,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildCurrentPage(CallState state) {
-    final manager = context.read<WebRTCManager>();
+    // final manager = context.read<WebRTCManager>();
 
     switch (navBarIndex) {
       case 0:

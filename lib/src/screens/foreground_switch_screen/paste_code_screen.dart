@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wave/src/core/keys.dart';
+import 'package:wave_p2p/src/core/keys.dart';
 
 class PasteCodeScreen extends StatefulWidget {
   const PasteCodeScreen({

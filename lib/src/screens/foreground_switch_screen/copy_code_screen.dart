@@ -4,8 +4,8 @@ import 'package:md_ui_kit/_core/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wave/src/core/keys.dart';
-import 'package:wave/src/core/webrtc_manager.dart';
+import 'package:wave_p2p/src/core/keys.dart';
+import 'package:wave_p2p/src/core/webrtc_manager.dart';
 
 class CopyCodeScreen extends StatefulWidget {
   const CopyCodeScreen({super.key, required this.onCheckPairPressed});

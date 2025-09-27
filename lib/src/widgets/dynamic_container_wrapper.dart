@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:provider/provider.dart';
-import 'package:wave/src/core/webrtc_manager.dart';
+import 'package:wave_p2p/src/core/webrtc_manager.dart';
 
 class DynamicContainerWrapper extends StatefulWidget {
   const DynamicContainerWrapper({

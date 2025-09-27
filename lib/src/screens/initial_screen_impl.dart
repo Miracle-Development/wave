@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/screens/initial_screen.dart';
-import 'package:wave/src/screens/home_screen.dart';
+import 'package:wave_p2p/src/screens/home_screen.dart';
 
 class InitialScreenImpl extends StatefulWidget {
   const InitialScreenImpl({super.key});
@@ -37,34 +37,34 @@ class _InitialScreenImplState extends State<InitialScreenImpl> {
 
   @override
   Widget build(BuildContext context) {
-    return
-        // kDebugMode
-        //     ? HomeScreen(
-        //         key: ValueKey("home"),
-        //       )
-        //     :
+    return 
+    kDebugMode
+        ? HomeScreen(
+            key: ValueKey("home"),
+          )
+        : 
         AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
-      layoutBuilder: (currentChild, previousChildren) {
-        return DecoratedBox(
-          decoration: BoxDecoration(color: MdColors.backgroundColor),
-          child: Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              ...previousChildren,
-              if (currentChild != null) currentChild,
-            ],
-          ),
-        );
-      },
-      transitionBuilder: (child, animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
-      },
-      child: _buildChild(),
-    );
+            duration: const Duration(milliseconds: 400),
+            layoutBuilder: (currentChild, previousChildren) {
+              return DecoratedBox(
+                decoration: BoxDecoration(color: MdColors.backgroundColor),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    ...previousChildren,
+                    if (currentChild != null) currentChild,
+                  ],
+                ),
+              );
+            },
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            child: _buildChild(),
+          );
   }
 
   _buildChild() {

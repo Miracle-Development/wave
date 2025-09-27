@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:provider/provider.dart';
-import 'package:wave/models/call_state.dart';
-import 'package:wave/src/core/webrtc_manager.dart';
+import 'package:wave_p2p/models/call_state.dart';
+import 'package:wave_p2p/src/core/webrtc_manager.dart';
 
 class AnimatedStatusLine extends StatefulWidget {
   const AnimatedStatusLine({super.key});

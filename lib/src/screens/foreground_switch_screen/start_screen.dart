@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
-import 'package:wave/src/widgets/quad_painter.dart';
+import 'package:wave_p2p/src/widgets/quad_painter.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key, required this.onNext});

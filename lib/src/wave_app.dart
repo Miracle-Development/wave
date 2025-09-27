@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:wave/src/core/storage.dart';
-import 'package:wave/src/core/webrtc_manager.dart';
-import 'package:wave/src/localization/app_localizations.dart';
-import 'package:wave/src/screens/initial_screen_impl.dart';
+import 'package:wave_p2p/src/core/storage.dart';
+import 'package:wave_p2p/src/core/webrtc_manager.dart';
+import 'package:wave_p2p/src/localization/app_localizations.dart';
+import 'package:wave_p2p/src/screens/initial_screen_impl.dart';
 
 // import 'sample_feature/sample_item_details_view.dart';
 // import 'sample_feature/sample_item_list_view.dart';

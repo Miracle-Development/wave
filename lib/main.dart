@@ -1,7 +1,7 @@
 import 'package:callkeep/callkeep.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:wave/firebase_options.dart';
+import 'package:wave_p2p/firebase_options.dart';
 
 import 'src/wave_app.dart';
 import 'src/settings/settings_controller.dart';
