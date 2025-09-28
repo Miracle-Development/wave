@@ -23,9 +23,9 @@ void main() async {
       },
       'android': {
         'alertTitle': 'Permissions required',
-        'alertDescription': 'This app needs to access your phone accounts',
+        'alertDescription': 'This app needs to access your microphone',
         'cancelButton': 'Cancel',
-        'okButton': 'ok',
+        'okButton': 'Ok',
       },
     };
     // Some packages expose setup(options) or setup(). Use try/catch to allow variety.

@@ -80,7 +80,7 @@ cd ../
 `
 
 #### To update package:
-* `pod update <Firebase/Messaging>`
+* `pod update <...>`
 
 #### To update gems/pods:
 * `gem install cocoapods`
