@@ -84,3 +84,7 @@ cd ../
 
 #### To update gems/pods:
 * `gem install cocoapods`
+
+#### To update pods dependencies
+* `pod repo update`
+* `pod install --repo-update`
