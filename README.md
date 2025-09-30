@@ -88,3 +88,6 @@ cd ../
 #### To update pods dependencies
 * `pod repo update`
 * `pod install --repo-update`
+
+#### To repair cache
+* `fvm flutter pub cache repair`
