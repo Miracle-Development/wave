@@ -1,0 +1,148 @@
+{
+  "" : {
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FirebaseCoreInternal-master.dia",
+    "emit-module-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FirebaseCoreInternal-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FirebaseCoreInternal-master-emit-module.dia",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FirebaseCoreInternal-master.swiftdeps"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/_ObjC_HeartbeatController.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatController.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatController.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatController.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatController.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatController.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatController.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatController.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatController~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/_ObjC_HeartbeatsPayload.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatsPayload.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatsPayload.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatsPayload.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatsPayload.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatsPayload.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatsPayload.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatsPayload.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/_ObjC_HeartbeatsPayload~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/Heartbeat.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Heartbeat.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Heartbeat.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Heartbeat.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Heartbeat.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Heartbeat.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Heartbeat.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Heartbeat.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Heartbeat~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatController.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatController.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatController.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatController.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatController.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatController.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatController.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatController.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatController~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatLoggingTestUtils.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatLoggingTestUtils.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatLoggingTestUtils.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatLoggingTestUtils.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatLoggingTestUtils.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatLoggingTestUtils.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatLoggingTestUtils.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatLoggingTestUtils.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatLoggingTestUtils~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatsBundle.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsBundle.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsBundle.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsBundle.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsBundle.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsBundle.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsBundle.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsBundle.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsBundle~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatsPayload.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsPayload.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsPayload.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsPayload.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsPayload.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsPayload.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsPayload.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsPayload.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatsPayload~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatStorage.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatStorage.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatStorage.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatStorage.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatStorage.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatStorage.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatStorage.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatStorage.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/HeartbeatStorage~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/RingBuffer.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/RingBuffer.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/RingBuffer.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/RingBuffer.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/RingBuffer.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/RingBuffer.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/RingBuffer.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/RingBuffer.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/RingBuffer~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/Storage.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Storage.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Storage.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Storage.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Storage.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Storage.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Storage.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Storage.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/Storage~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/StorageFactory.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/StorageFactory.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/StorageFactory.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/StorageFactory.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/StorageFactory.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/StorageFactory.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/StorageFactory.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/StorageFactory.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/StorageFactory~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/WeakContainer.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/WeakContainer.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/WeakContainer.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/WeakContainer.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/WeakContainer.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/WeakContainer.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/WeakContainer.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/WeakContainer.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/WeakContainer~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/Utilities/AtomicBox.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/AtomicBox.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/AtomicBox.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/AtomicBox.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/AtomicBox.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/AtomicBox.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/AtomicBox.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/AtomicBox.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/AtomicBox~partial.swiftmodule"
+  },
+  "/Users/anisimov/Documents/GitHub/wave/ios/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/Utilities/FIRAllocatedUnfairLock.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FIRAllocatedUnfairLock.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FIRAllocatedUnfairLock.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FIRAllocatedUnfairLock.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FIRAllocatedUnfairLock.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FIRAllocatedUnfairLock.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FIRAllocatedUnfairLock.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FIRAllocatedUnfairLock.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FIRAllocatedUnfairLock~partial.swiftmodule"
+  }
+}

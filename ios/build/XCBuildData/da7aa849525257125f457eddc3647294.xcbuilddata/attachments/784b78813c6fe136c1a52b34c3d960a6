@@ -1,0 +1,28 @@
+{
+  "" : {
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/path_provider_foundation-master.dia",
+    "emit-module-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/path_provider_foundation-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/path_provider_foundation-master-emit-module.dia",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/path_provider_foundation-master.swiftdeps"
+  },
+  "/Users/anisimov/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.2/darwin/path_provider_foundation/Sources/path_provider_foundation/messages.g.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/messages.g.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/messages.g.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/messages.g.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/messages.g.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/messages.g.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/messages.g.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/messages.g.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/messages.g~partial.swiftmodule"
+  },
+  "/Users/anisimov/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.2/darwin/path_provider_foundation/Sources/path_provider_foundation/PathProviderPlugin.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/PathProviderPlugin.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/PathProviderPlugin.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/PathProviderPlugin.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/PathProviderPlugin.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/PathProviderPlugin.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/PathProviderPlugin.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/PathProviderPlugin.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/path_provider_foundation.build/Objects-normal/arm64/PathProviderPlugin~partial.swiftmodule"
+  }
+}

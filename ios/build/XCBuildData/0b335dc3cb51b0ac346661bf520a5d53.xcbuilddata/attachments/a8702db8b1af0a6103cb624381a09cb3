@@ -1,0 +1,24 @@
+/Users/anisimov/Documents/GitHub/wave/ios/Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/BoringSSL-GRPC/openssl_grpc.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/FirebaseAppCheckInterop/FirebaseAppCheckInterop.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/FirebaseCore/FirebaseCore.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/FirebaseCoreExtension/FirebaseCoreExtension.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/FirebaseCoreInternal/FirebaseCoreInternal.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/FirebaseFirestore/FirebaseFirestore.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/FirebaseFirestoreInternal/FirebaseFirestoreInternal.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/FirebaseInstallations/FirebaseInstallations.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/FirebaseMessaging/FirebaseMessaging.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/FirebaseSharedSwift/FirebaseSharedSwift.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/GoogleUtilities/GoogleUtilities.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/PromisesObjC/FBLPromises.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/callkeep/callkeep.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/gRPC-C++/grpcpp.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/gRPC-Core/grpc.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/leveldb-library/leveldb.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/nanopb/nanopb.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/path_provider_foundation/path_provider_foundation.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/record_ios/record_ios.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/shared_preferences_foundation/shared_preferences_foundation.framework
+/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/XCFrameworkIntermediates/WebRTC-SDK/WebRTC.framework/WebRTC

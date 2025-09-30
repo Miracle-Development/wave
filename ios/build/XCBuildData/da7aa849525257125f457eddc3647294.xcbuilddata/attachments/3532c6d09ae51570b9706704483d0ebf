@@ -1,0 +1,10 @@
+framework module record_ios {
+  umbrella header "record_ios-umbrella.h"
+
+  export *
+  module * { export * }
+}
+
+module record_ios.__Swift {
+  exclude header "record_ios-Swift.h"
+}

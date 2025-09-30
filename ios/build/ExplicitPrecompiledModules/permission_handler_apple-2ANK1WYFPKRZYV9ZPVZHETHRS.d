@@ -1,0 +1,28 @@
+moduledependenciestarget: \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/permission_handler_apple-umbrella.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk/System/Library/Frameworks/UIKit.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk/System/Library/Frameworks/Foundation.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/PermissionHandlerEnums.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/PermissionHandlerPlugin.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/Flutter.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/PermissionManager.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/AudioVideoPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/PermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/UnknownPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/AppTrackingTransparencyPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/BackgroundRefreshStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/BluetoothPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/ContactPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/EventPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/LocationPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/MediaLibraryPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/PhonePermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/PhotoPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/SensorPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/SpeechPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/StoragePermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/NotificationPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/CriticalAlertsPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/AssistantPermissionStrategy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/Codec.h

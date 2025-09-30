@@ -1,0 +1,38 @@
+{
+  "main_library": {
+    "exported_symbols": [
+      {
+        "data": {
+          "global": [
+            "_callkeepVersionString",
+            "_callkeepVersionNumber"
+          ],
+          "objc_class": [
+            "PodsDummy_callkeep",
+            "CallKeep",
+            "FlutterCallkeepPlugin"
+          ]
+        }
+      }
+    ],
+    "flags": [
+      {
+        "attributes": [
+          "not_app_extension_safe"
+        ]
+      }
+    ],
+    "install_names": [
+      {
+        "name": "@rpath/callkeep.framework/callkeep"
+      }
+    ],
+    "target_info": [
+      {
+        "min_deployment": "13",
+        "target": "arm64-ios"
+      }
+    ]
+  },
+  "tapi_tbd_version": 5
+}

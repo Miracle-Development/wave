@@ -1,0 +1,98 @@
+{
+  "" : {
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/record_ios-master.dia",
+    "emit-module-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/record_ios-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/record_ios-master-emit-module.dia",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/record_ios-master.swiftdeps"
+  },
+  "/Users/anisimov/.pub-cache/hosted/pub.dev/record_ios-1.1.2/ios/record_ios/Sources/record_ios/delegate/RecorderDelegateProtocols.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderDelegateProtocols.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderDelegateProtocols.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderDelegateProtocols.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderDelegateProtocols.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderDelegateProtocols.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderDelegateProtocols.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderDelegateProtocols.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderDelegateProtocols~partial.swiftmodule"
+  },
+  "/Users/anisimov/.pub-cache/hosted/pub.dev/record_ios-1.1.2/ios/record_ios/Sources/record_ios/delegate/RecorderFileDelegate.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFileDelegate.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFileDelegate.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFileDelegate.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFileDelegate.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFileDelegate.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFileDelegate.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFileDelegate.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFileDelegate~partial.swiftmodule"
+  },
+  "/Users/anisimov/.pub-cache/hosted/pub.dev/record_ios-1.1.2/ios/record_ios/Sources/record_ios/delegate/RecorderStreamDelegate.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderStreamDelegate.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderStreamDelegate.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderStreamDelegate.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderStreamDelegate.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderStreamDelegate.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderStreamDelegate.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderStreamDelegate.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderStreamDelegate~partial.swiftmodule"
+  },
+  "/Users/anisimov/.pub-cache/hosted/pub.dev/record_ios-1.1.2/ios/record_ios/Sources/record_ios/extension/RecorderFormatExtension.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFormatExtension.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFormatExtension.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFormatExtension.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFormatExtension.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFormatExtension.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFormatExtension.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFormatExtension.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderFormatExtension~partial.swiftmodule"
+  },
+  "/Users/anisimov/.pub-cache/hosted/pub.dev/record_ios-1.1.2/ios/record_ios/Sources/record_ios/extension/RecorderSessionExtension.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderSessionExtension.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderSessionExtension.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderSessionExtension.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderSessionExtension.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderSessionExtension.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderSessionExtension.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderSessionExtension.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecorderSessionExtension~partial.swiftmodule"
+  },
+  "/Users/anisimov/.pub-cache/hosted/pub.dev/record_ios-1.1.2/ios/record_ios/Sources/record_ios/InputHelper.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/InputHelper.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/InputHelper.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/InputHelper.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/InputHelper.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/InputHelper.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/InputHelper.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/InputHelper.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/InputHelper~partial.swiftmodule"
+  },
+  "/Users/anisimov/.pub-cache/hosted/pub.dev/record_ios-1.1.2/ios/record_ios/Sources/record_ios/RecordConfig.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordConfig.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordConfig.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordConfig.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordConfig.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordConfig.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordConfig.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordConfig.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordConfig~partial.swiftmodule"
+  },
+  "/Users/anisimov/.pub-cache/hosted/pub.dev/record_ios-1.1.2/ios/record_ios/Sources/record_ios/Recorder.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/Recorder.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/Recorder.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/Recorder.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/Recorder.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/Recorder.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/Recorder.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/Recorder.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/Recorder~partial.swiftmodule"
+  },
+  "/Users/anisimov/.pub-cache/hosted/pub.dev/record_ios-1.1.2/ios/record_ios/Sources/record_ios/RecordIosPlugin.swift" : {
+    "const-values" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordIosPlugin.swiftconstvalues",
+    "dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordIosPlugin.d",
+    "diagnostics" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordIosPlugin.dia",
+    "index-unit-output-path" : "/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordIosPlugin.o",
+    "llvm-bc" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordIosPlugin.bc",
+    "object" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordIosPlugin.o",
+    "swift-dependencies" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordIosPlugin.swiftdeps",
+    "swiftmodule" : "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/Objects-normal/arm64/RecordIosPlugin~partial.swiftmodule"
+  }
+}

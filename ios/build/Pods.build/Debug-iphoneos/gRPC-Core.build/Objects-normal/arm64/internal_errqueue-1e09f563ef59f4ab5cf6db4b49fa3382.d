@@ -1,0 +1,44 @@
+dependencies: \
+  /Users/anisimov/Documents/GitHub/wave/ios/Pods/gRPC-Core/src/core/lib/event_engine/posix_engine/internal_errqueue.cc \
+  /Users/anisimov/Documents/GitHub/wave/ios/Pods/Target\ Support\ Files/gRPC-Core/gRPC-Core-prefix.pch \
+  /Users/anisimov/Documents/GitHub/wave/ios/Pods/gRPC-Core/src/core/lib/event_engine/posix_engine/internal_errqueue.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/Pods/gRPC-Core/include/grpc/support/port_platform.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/Pods/gRPC-Core/src/core/lib/iomgr/port.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/log.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/internal/log_impl.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/absl_vlog_is_on.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/attributes.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/config.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/options.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/policy_checks.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/internal/vlog_config.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/optimization.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/thread_annotations.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/strings/string_view.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/nullability.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/internal/nullability_impl.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/meta/type_traits.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/internal/throw_delegate.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/macros.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/port.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/internal/conditions.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/internal/voidify.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/internal/log_message.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/internal/errno_saver.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/base/log_severity.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/internal/nullguard.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/log_entry.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/internal/config.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/time/time.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/time/civil_time.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/time/internal/cctz/include/cctz/civil_time.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/time/internal/cctz/include/cctz/civil_time_detail.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/time/internal/cctz/include/cctz/time_zone.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/types/span.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/types/internal/span.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/algorithm/algorithm.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/log_sink.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/strings/has_absl_stringify.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/internal/strip.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/abseil/absl.framework/Headers/log/internal/nullstream.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/Pods/gRPC-Core/src/core/util/strerror.h
