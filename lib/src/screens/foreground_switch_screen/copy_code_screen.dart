@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:md_ui_kit/_core/colors.dart';
+import 'package:md_ui_kit/widgets/wave_flower_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,7 +49,10 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
         const SizedBox(height: 27),
         if (_creating) ...[
           // TODO change
-          const CircularProgressIndicator(),
+          const SizedBox(
+            height: 200,
+            child: WaveFlowerLoader(),
+          ),
         ] else if (_offerId != null) ...[
           WaveTextButton(
             label: _offerId!,
@@ -58,7 +62,9 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
           // TODO change
           const Text('Failed to create code'),
         ],
-        const SizedBox(height: 135),
+        if (!_creating) ...[
+          const SizedBox(height: 135),
+        ],
         // Check pair: enabled когда пришёл answer
         WaveSimpleButton(
           label: 'Check pair',
