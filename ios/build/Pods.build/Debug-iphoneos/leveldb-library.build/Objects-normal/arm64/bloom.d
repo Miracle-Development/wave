@@ -1,0 +1,7 @@
+dependencies: \
+  /Users/anisimov/Documents/GitHub/wave/ios/Pods/leveldb-library/util/bloom.cc \
+  /Users/anisimov/Documents/GitHub/wave/ios/Pods/Target\ Support\ Files/leveldb-library/leveldb-library-prefix.pch \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/leveldb-library/leveldb.framework/Headers/filter_policy.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/leveldb-library/leveldb.framework/Headers/export.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/leveldb-library/leveldb.framework/Headers/slice.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/Pods/leveldb-library/util/hash.h

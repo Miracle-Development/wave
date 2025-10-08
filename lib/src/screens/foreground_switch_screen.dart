@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wave/src/core/webrtc_manager.dart';
-import 'package:wave/src/screens/animated_container_wrapper.dart';
-import 'package:wave/src/screens/foreground_switch_screen/copy_code_screen.dart';
-import 'package:wave/src/screens/foreground_switch_screen/enable_microphone_screen.dart';
-import 'package:wave/src/screens/foreground_switch_screen/start_connection_screen.dart';
-import 'package:wave/src/screens/foreground_switch_screen/start_screen.dart';
-
-const prefsFirstTimeStartKey = 'got_started_first_time';
-const prefsMicAccessKey = 'got_mic_access';
+import 'package:wave_p2p/src/core/keys.dart';
+import 'package:wave_p2p/src/core/webrtc_manager.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/copy_code_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/enable_microphone_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/main_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/paste_code_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/start_connection_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/start_screen.dart';
+import 'package:wave_p2p/src/widgets/animated_container_wrapper.dart';
 
 enum VisibleScreenType {
   startButton,
@@ -19,6 +19,7 @@ enum VisibleScreenType {
   selectActionAnimated,
   createCode,
   pasteCode,
+  main,
 }
 
 class ForegroundSwitchScreen extends StatefulWidget {
@@ -29,16 +30,30 @@ class ForegroundSwitchScreen extends StatefulWidget {
 }
 
 class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
+  // TODO back to 0   if stable
   VisibleScreenType _stepper = VisibleScreenType.startButton;
-  // int _steper = 0; // TODO back to 0   if stable
 
-  // bool _isOfferingScreen = true;
+  bool _isPeerInitiator = true;
+
+  late WebRTCManager _disposableManager;
 
   @override
   void initState() {
+    // TODO: remove reconnect functionality
+    // _checkActiveConnection();
+
     _checkHasStartButtonPressed();
     _checkMicPermission();
+    _disposableManager = Provider.of<WebRTCManager>(context, listen: false);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    final manager = _disposableManager;
+    // закрываем соединение при очистке виджета
+    manager.closeAll();
+    super.dispose();
   }
 
   @override
@@ -68,9 +83,10 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     );
   }
 
-// обязательно! разные ключи для разных виджетов
+  // обязательно! разные ключи для разных виджетов
   Widget _buildStep(VisibleScreenType stepper) {
     const postfix = '_screen';
+    const double topPadding = 80;
     switch (stepper) {
       // Экран с кнопкой "Start", скрывается если нажался хотя бы раз
       case VisibleScreenType.startButton:
@@ -86,6 +102,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           purpleTitle: 'One more step',
           isAnimated: false,
           key: ValueKey<String>('micOn$postfix'),
+          topPadding: topPadding,
           child: EnableMicrophoneScreen(
             onNext: _onEnableMicPressed,
           ),
@@ -98,6 +115,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           purpleTitle: 'One more step',
           isAnimated: true,
           key: ValueKey<String>('minOnAnimated$postfix'),
+          topPadding: topPadding,
           child: EnableMicrophoneScreen(
             onNext: _onEnableMicPressed,
           ),
@@ -109,9 +127,12 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
         return AnimatedContainerWrapper(
           isAnimated: false,
           key: ValueKey<String>('selectAction$postfix'),
+          topPadding: topPadding,
           child: StartConnectionScreen(
             onCreateCode: _onCreateCodePressed,
             onPasteCode: _onPasteCodePressed,
+            // TODO: remove reconnect functionality
+            onOrPressed: _onOrPressed,
           ),
         );
 
@@ -120,10 +141,13 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       case VisibleScreenType.selectActionAnimated:
         return AnimatedContainerWrapper(
           key: ValueKey<String>('selectActionAnimated$postfix'),
+          topPadding: topPadding,
           isAnimated: true,
           child: StartConnectionScreen(
             onCreateCode: _onCreateCodePressed,
             onPasteCode: _onPasteCodePressed,
+            // TODO: remove reconnect functionality
+            onOrPressed: _onOrPressed,
           ),
         );
 
@@ -131,20 +155,41 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       case VisibleScreenType.createCode:
         return AnimatedContainerWrapper(
           key: ValueKey<String>('createCode$postfix'),
+          topPadding: topPadding,
           isAnimated: false,
           child: CopyCodeScreen(
+            onCheckPairPressed: _onCheckPairPressed,
           ),
         );
 
-      // case VisibleScreenType.selectAction:
-      //   return CopyCodeScreen(
-      //     key: ValueKey<String>('selectAction$postfix'),
-      //     label: label,
-      //     onCopyCodePressed: (code) => _onCopyCodePressed(code),
-      //     // onPasteCode: _onPasteCodePressed,
-      //   );
+      // Экран вставки кода
+      case VisibleScreenType.pasteCode:
+        return AnimatedContainerWrapper(
+          key: ValueKey<String>('pasteCode$postfix'),
+          topPadding: topPadding,
+          isAnimated: false,
+          child: PasteCodeScreen(
+            onConnectPressed: _onCheckAnswerPressed,
+          ),
+        );
+
+      // Основной экран с динамичным навбаром, скаффолдом с адаптивной высотой и волной
+      case VisibleScreenType.main:
+        return MainScreen(
+          key: ValueKey<String>('main$postfix'),
+          topPadding: topPadding,
+          isPeerInitiator: _isPeerInitiator,
+          onReturnPressed: () {
+            setState(() {
+              _stepper = VisibleScreenType.selectAction;
+            });
+          },
+          onClosePeerPressed: _onClosePeerPressed,
+        );
 
       // TODO: DO NOT REMOVE TO PREFENT FAILURE ON PROD
+      // TODO: создать красивый экран с ошибкой навигации
+      // ignore: unreachable_switch_default
       default:
         return Container(
           key: const ValueKey<int>(-1),
@@ -159,6 +204,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     final gotStarted = prefs.getBool(prefsFirstTimeStartKey) ?? false;
 
     if (gotStarted) {
+      // if (!kDebugMode)
       setState(() {
         _stepper = VisibleScreenType.micOnAnimated;
       });
@@ -167,30 +213,35 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   }
 
   Future<void> _checkMicPermission() async {
-    final webrtcManager = context.read<WebRTCManager>();
+    final manager = context.read<WebRTCManager>();
     final prefs = await SharedPreferences.getInstance();
-
     final hasAccessPref = prefs.getBool(prefsMicAccessKey) ?? false;
 
-    final hasAccess = await webrtcManager.checkMicrophonePermission();
+    // предпроверка, чтобы не было заранее запроса доступа на веб
+    final gotStarted = prefs.getBool(prefsFirstTimeStartKey) ?? false;
 
-    if (hasAccess && hasAccessPref) {
-      await webrtcManager.updateAudioDevices();
+    if (gotStarted) {
+      final hasAccess = await manager.checkMicrophonePermission();
 
-      setState(() {
-        _stepper = VisibleScreenType.selectActionAnimated;
-      });
-      return;
-    } else {
-      await prefs.setBool(prefsMicAccessKey, false);
-      return;
+      if (hasAccess && hasAccessPref) {
+        await manager.updateAudioDevices();
+
+        // if (!kDebugMode)
+        setState(() {
+          _stepper = VisibleScreenType.selectActionAnimated;
+        });
+        return;
+      } else {
+        await prefs.setBool(prefsMicAccessKey, false);
+        return;
+      }
     }
   }
 
   Future<void> _onEnableMicPressed() async {
-    final webrtcManager = context.read<WebRTCManager>();
+    final manager = context.read<WebRTCManager>();
     final prefs = await SharedPreferences.getInstance();
-    final hasAccess = await webrtcManager.checkMicrophonePermission();
+    final hasAccess = await manager.checkMicrophonePermission();
 
     if (hasAccess) {
       // if (mounted) {
@@ -200,7 +251,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       // }
 
       // функция обновления списка устройств
-      await webrtcManager.updateAudioDevices();
+      await manager.updateAudioDevices();
 
       // запоминаем
       await prefs.setBool(prefsMicAccessKey, true);
@@ -228,18 +279,115 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     });
   }
 
-  void _onCreateCodePressed() {
+  void _onCreateCodePressed() async {
     setState(() {
       _stepper = VisibleScreenType.createCode;
+      _isPeerInitiator = true;
     });
   }
 
-
-
   Future<void> _onPasteCodePressed() async {
-    // TODO remove, only for debugging
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(prefsFirstTimeStartKey, false);
-    await prefs.setBool(prefsMicAccessKey, false);
+    setState(() {
+      _stepper = VisibleScreenType.pasteCode;
+      _isPeerInitiator = false;
+    });
   }
+
+  // TODO: remove reconnect functionality
+  Future<void> _onOrPressed() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool? isInitiator = prefs.getBool(isPeerInitiatorKey);
+
+    if (isInitiator == null) {
+      prefs.setBool(isPeerInitiatorKey, false);
+    }
+
+    setState(() {
+      _stepper = VisibleScreenType.main;
+    });
+
+    // await _disposableManager.restoreConnection();
+  }
+
+  Future<void> _onCheckPairPressed() async {
+    final manager = context.read<WebRTCManager>();
+    try {
+      // достаем из памяти localId two-word code
+      final offerId = await _getLocalOfferId();
+      // pull answer and apply it (this will throw if answer isn't ready)
+      await manager.acceptAnswer(offerId);
+
+      setState(() {
+        _stepper = VisibleScreenType.main;
+      });
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(isPeerInitiatorKey, _isPeerInitiator);
+      await prefs.setBool(prefsHasActiveConnectionKey, true);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to apply answer: $e')),
+      );
+    } finally {}
+  }
+
+  Future<void> _onCheckAnswerPressed() async {
+    final manager = context.read<WebRTCManager>();
+    try {
+      // достаем из памяти localId two-word code
+      final offerId = await _getLocalOfferId();
+      // pull answer and apply it (this will throw if answer isn't ready)
+      await manager.acceptOffer(offerId);
+
+      setState(() {
+        _stepper = VisibleScreenType.main;
+      });
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(isPeerInitiatorKey, _isPeerInitiator);
+      await prefs.setBool(prefsHasActiveConnectionKey, true);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to apply offer: $e')),
+      );
+    } finally {}
+  }
+
+  Future<String> _getLocalOfferId() async {
+    final prefs = await SharedPreferences.getInstance();
+    // TODO: обработать случай когда нет кода в локальной памяти
+    return prefs.getString(currentPeerLocalIdKey) ?? 'Invalid two-word code';
+  }
+
+  Future<void> _onClosePeerPressed() async {
+    final manager = context.read<WebRTCManager>();
+    final prefs = await SharedPreferences.getInstance();
+
+    await manager.closeAll();
+
+    // очищаем локальный код
+    await prefs.remove(currentPeerLocalIdKey);
+
+    await prefs.remove(currentPeerLocalIdKey);
+    await prefs.setBool(prefsHasActiveConnectionKey, false);
+
+    // возвращаемся к начальному экрану
+    setState(() {
+      _stepper = VisibleScreenType.selectAction;
+    });
+  }
+
+  // Future<void> _checkActiveConnection() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final hasActiveConnection =
+  //       prefs.getBool(prefsHasActiveConnectionKey) ?? false;
+
+  //   if (hasActiveConnection) {
+  //     final isPeerInitiator = prefs.getBool(isPeerInitiatorKey) ?? true;
+  //     setState(() {
+  //       _stepper = VisibleScreenType.main;
+  //       _isPeerInitiator = isPeerInitiator;
+  //     });
+  //   }
+  // }
 }

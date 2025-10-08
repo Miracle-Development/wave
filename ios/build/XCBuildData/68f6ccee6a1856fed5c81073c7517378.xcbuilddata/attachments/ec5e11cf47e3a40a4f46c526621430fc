@@ -1,0 +1,23 @@
+{
+  'version': 0,
+  'use-external-names': 'false',
+  'case-sensitive': 'false',
+  'roots': [{
+    'type': 'directory',
+    'name': "/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/record_ios/record_ios.framework/Modules"
+    'contents': [{
+      'type': 'file',
+      'name': "module.modulemap",
+      'external-contents': "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/unextended-module.modulemap",
+    }]
+    },
+    {
+    'type': 'directory',
+    'name': "/Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/record_ios/record_ios.framework/Headers"
+    'contents': [{
+      'type': 'file',
+      'name': "record_ios-Swift.h",
+      'external-contents': "/Users/anisimov/Documents/GitHub/wave/ios/build/Pods.build/Debug-iphoneos/record_ios.build/unextended-interface-header.h",
+    }]
+    }]
+}

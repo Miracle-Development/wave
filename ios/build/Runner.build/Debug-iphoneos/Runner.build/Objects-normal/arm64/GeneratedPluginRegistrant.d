@@ -1,0 +1,19 @@
+dependencies: \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/path_provider_foundation/path_provider_foundation.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/record_ios/record_ios.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/shared_preferences_foundation/shared_preferences_foundation.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/Runner/GeneratedPluginRegistrant.m \
+  /Users/anisimov/Documents/GitHub/wave/ios/Runner/GeneratedPluginRegistrant.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/Flutter.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/callkeep/callkeep.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/callkeep/callkeep.framework/Headers/FlutterCallkeepPlugin.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/cloud_firestore/cloud_firestore.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/cloud_firestore/cloud_firestore.framework/Headers/FLTFirebaseFirestorePlugin.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/firebase_core/firebase_core.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/firebase_core/firebase_core.framework/Headers/FLTFirebaseCorePlugin.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/firebase_messaging/firebase_messaging.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/firebase_messaging/firebase_messaging.framework/Headers/FLTFirebaseMessagingPlugin.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/flutter_webrtc/flutter_webrtc.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/flutter_webrtc/flutter_webrtc.framework/Headers/FlutterWebRTCPlugin.h \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Modules/module.modulemap \
+  /Users/anisimov/Documents/GitHub/wave/ios/build/Debug-iphoneos/permission_handler_apple/permission_handler_apple.framework/Headers/PermissionHandlerPlugin.h

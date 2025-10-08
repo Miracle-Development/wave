@@ -1,10 +1,10 @@
-name: wave
+name: wave_p2p
 description: "Peer-to-peer calls and chat application"
 
 # Prevent accidental publishing to pub.dev.
 publish_to: "none"
 
-version: 1.0.0
+version: 1.0.2
 
 environment:
   sdk: ^3.6.2
@@ -23,11 +23,15 @@ dependencies:
     # path: ../md_ui_kit
     git:
       url: https://github.com/Miracle-Development/md_ui_kit.git
-      ref: main
+      ref: master
   permission_handler: ^12.0.1
   provider: ^6.1.5+1
   shared_preferences: ^2.5.3
   uuid: ^4.5.1
+  callkeep: ^0.4.1
+  wave: ^0.2.2
+  # redux: ^5.0.0
+  # flutter_redux: ^0.10.0
 
 dev_dependencies:
   flutter_test:
@@ -50,6 +54,12 @@ flutter:
     - assets/icons/initial_wave/
     - assets/icons/copy/
     - assets/icons/nav_bar/
+    - assets/icons/chat_input/
+    - assets/icons/menu/
+    - assets/icons/input/
+    - assets/icons/mic/
+    - assets/icons/circle_button/
+    - assets/icons/participants/
 
   fonts:
     - family: Play

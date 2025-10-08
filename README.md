@@ -56,6 +56,7 @@ rm -rf ios/Flutter/flutter_export_environment.sh`
 * `rm -rf Podfile.lock Pods`
 * `fvm flutter pub get`
 * `cd ios`
+* `fvm flutter precache --ios`
 * `pod install --repo-update`
 
 #### Global code (run from `lib` folder):
@@ -74,12 +75,20 @@ rm -rf ios/Flutter/flutter_export_environment.sh
 rm -rf Podfile.lock Pods
 fvm flutter pub get
 cd ios
-pod install --repo-update
+fvm flutter precache --ios
+arch -x86_64 pod install --repo-update
 cd ../
 `
 
 #### To update package:
-* `pod update <Firebase/Messaging>`
+* `pod update <...>`
 
 #### To update gems/pods:
 * `gem install cocoapods`
+
+#### To update pods dependencies
+* `pod repo update`
+* `pod install --repo-update`
+
+#### To repair cache
+* `fvm flutter pub cache repair`
