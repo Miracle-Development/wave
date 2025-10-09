@@ -21,13 +21,14 @@ class _PasteCodeScreenState extends State<PasteCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 57.0),
           child: WaveText(
-            context.l10n.t("paste_code_screen.paste_code"),
+            locale.translate("paste_code_screen.paste_code"),
             type: WaveTextType.caption,
             maxLines: 3,
             textAlign: TextAlign.center,
@@ -42,7 +43,7 @@ class _PasteCodeScreenState extends State<PasteCodeScreen> {
         ),
         SizedBox(height: 135),
         WaveSimpleButton(
-          label: context.l10n.t("paste_code_screen.connect"),
+          label: locale.translate("paste_code_screen.connect"),
           onPressed: _onAcceptOfferPressed,
         ),
       ],

@@ -20,30 +20,31 @@ class StartConnectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
     final orWidget = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: WaveDivider(
         type: WaveDividerType.disabled,
-        label: context.l10n.t('start_connection_screen.or'),
+        label: locale.translate('start_connection_screen.or'),
       ),
     );
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         WaveText(
-          context.l10n.t('start_connection_screen.create_code'),
+          locale.translate('start_connection_screen.create_code'),
           type: WaveTextType.title,
           weight: WaveTextWeight.bold,
         ),
         SizedBox(height: 10),
         WaveText(
-          context.l10n.t('start_connection_screen.initiate'),
+          locale.translate('start_connection_screen.initiate'),
           type: WaveTextType.caption,
           color: MdColors.disabledColor,
         ),
         SizedBox(height: 24),
         WaveSimpleButton(
-          label: context.l10n.t('start_connection_screen.create'),
+          label: locale.translate('start_connection_screen.create'),
           onPressed: onCreateCode,
           type: WaveButtonType.main,
           padding: EdgeInsets.symmetric(
@@ -70,19 +71,19 @@ class StartConnectionScreen extends StatelessWidget {
 
         SizedBox(height: 80),
         WaveText(
-          context.l10n.t('start_connection_screen.paste_code'),
+          locale.translate('start_connection_screen.paste_code'),
           type: WaveTextType.title,
           weight: WaveTextWeight.bold,
         ),
         SizedBox(height: 10),
         WaveText(
-          context.l10n.t('start_connection_screen.connect'),
+          locale.translate('start_connection_screen.connect'),
           type: WaveTextType.caption,
           color: MdColors.disabledColor,
         ),
         SizedBox(height: 24),
         WaveSimpleButton(
-          label: context.l10n.t('start_connection_screen.paste'),
+          label: locale.translate('start_connection_screen.paste'),
           onPressed: onPasteCode,
           type: WaveButtonType.main,
           padding: EdgeInsets.symmetric(

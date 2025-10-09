@@ -48,5 +48,26 @@
     "device_to_answer": "Waiting your friend’s device to answer...",
     "failed": "Failed!",
     "connection_lost": "Connection lost!"
+  },
+
+  "main_screen": {
+    "invalid": "Invalid two-word code"
+  },
+
+  "call_screen": {
+    "you": "You",
+    "peer": "Peer",
+    "encrypted": "Your call is end-to-end encrypted",
+    "current_input_device": "Current Input Device",
+    "current_output_device": "Current Output Device",
+    "dfl_mic": "Default Microphone",
+    "dfl_speaker": "Default Speaker",
+    "settings": "Settings",
+    "leave": "Leave Call",
+    "join": "Join Call",
+    "connected": "Connected",
+    "call_failed": "Call Failed",
+    "connecting": "Connecting...",
+    "ready": "Ready to call"
   }
 }

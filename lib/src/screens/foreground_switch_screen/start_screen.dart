@@ -121,6 +121,7 @@ class _StartScreenState extends State<StartScreen>
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
     const double topPadding = 40 + 28;
 
     return LayoutBuilder(
@@ -190,7 +191,7 @@ class _StartScreenState extends State<StartScreen>
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: WaveText(
-                          context.l10n.t('start_screen.welcome'),
+                          locale.translate('start_screen.welcome'),
                           type: WaveTextType.subtitle,
                           weight: WaveTextWeight.bold,
                           color: MdColors.brandColor,
@@ -238,7 +239,7 @@ class _StartScreenState extends State<StartScreen>
                     child: Padding(
                       padding: EdgeInsets.only(top: screenH / 3 - 68),
                       child: WaveSimpleButton(
-                        label: context.l10n.t('start_screen.start'),
+                        label: locale.translate('start_screen.start'),
                         onPressed: _onStartPressed,
                         type: WaveButtonType.alternative,
                         showShadow: true,

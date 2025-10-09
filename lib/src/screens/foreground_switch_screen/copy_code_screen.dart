@@ -29,6 +29,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
     // следим за наличием ответа в менеджере — при изменении UI перестроится автоматически
     final manager = context.watch<WebRTCManager>();
     final answerReady = manager.isAnswerAvailable;
@@ -40,7 +41,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 57.0),
           child: WaveText(
-            context.l10n.t("copy_code_screen.your_code"),
+            locale.translate("copy_code_screen.your_code"),
             type: WaveTextType.caption,
             maxLines: 3,
             textAlign: TextAlign.center,
@@ -57,12 +58,12 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
           ),
         ] else ...[
           // TODO change
-          Text(context.l10n.t("copy_code_screen.fail")),
+          Text(locale.translate("copy_code_screen.fail")),
         ],
         const SizedBox(height: 135),
         // Check pair: enabled когда пришёл answer
         WaveSimpleButton(
-          label: context.l10n.t("copy_code_screen.check"),
+          label: locale.translate("copy_code_screen.check"),
           onPressed: answerReady ? _onButtonPressed : null,
         ),
         const SizedBox(height: 20),
@@ -70,7 +71,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 57.0),
             child: WaveText(
-              context.l10n.t("copy_code_screen.wait"),
+              locale.translate("copy_code_screen.wait"),
               type: WaveTextType.caption,
               maxLines: 3,
               textAlign: TextAlign.center,

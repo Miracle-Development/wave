@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:callkeep/callkeep.dart' show FlutterCallkeep;
 import 'package:wave_p2p/models/call_state.dart';
 import 'package:wave_p2p/src/core/webrtc_manager.dart';
+import 'package:wave_p2p/src/i18n/localizations.dart';
 import 'package:wave_p2p/src/widgets/swipe_switcher.dart';
 
 class CallScreen extends StatefulWidget {
@@ -31,6 +32,7 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
     final manager =
         widget.disposableManager ?? Provider.of<WebRTCManager>(context);
 
@@ -43,16 +45,37 @@ class _CallScreenState extends State<CallScreen> {
     // Находим локального участника (you)
     final localParticipant = participants.firstWhere(
       (p) => p.id == manager.localId,
-      orElse: () =>
-          ParticipantState(id: '1', inCall: false, muted: true, name: 'You'),
+      orElse: () => ParticipantState(
+        id: '1',
+        inCall: false,
+        muted: true,
+        name: locale.translate("call_screen.you"),
+      ),
     );
 
     // Находим удаленного участника (peer) - первого из оставшихся
     final remoteParticipant = participants.firstWhere(
       (p) => p.id != manager.localId,
-      orElse: () =>
-          ParticipantState(id: '2', inCall: false, muted: true, name: 'Peer'),
+      orElse: () => ParticipantState(
+        id: '2',
+        inCall: false,
+        muted: true,
+        name: locale.translate("call_screen.peer"),
+      ),
     );
+
+    String resolveDividerText(CallState state) {
+      switch (state) {
+        case CallState.connected:
+          return locale.translate("call_screen.connected");
+        case CallState.failed:
+          return locale.translate("call_screen.call_failed");
+        case CallState.connecting:
+          return locale.translate("call_screen.connecting");
+        default:
+          return locale.translate("call_screen.ready");
+      }
+    }
 
     return Column(
       children: [
@@ -60,12 +83,12 @@ class _CallScreenState extends State<CallScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
           child: WaveDivider(
             type: _resolveDividerType(manager.callState),
-            label: _resolveDividerText(manager.callState),
+            label: resolveDividerText(manager.callState),
           ),
         ),
         WaveChatBubble(
           type: WaveChatBubbleType.bubbleMessageInfo,
-          label: 'Your call is end-to-end encrypted',
+          label: locale.translate("call_screen.encrypted"),
         ),
 
         SizedBox(height: 40),
@@ -84,8 +107,9 @@ class _CallScreenState extends State<CallScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 36.0),
               child: WaveDeviceMenu(
                 items: mics,
-                subtitle: 'Current Input Device',
-                labelBuilder: (item) => item.label ?? 'Default Microphone',
+                subtitle: locale.translate("call_screen.current_input_device"),
+                labelBuilder: (item) =>
+                    item.label ?? locale.translate("call_screen.dfl_mic"),
                 onChanged: (v) => manager.selectMic(v.deviceId),
               ),
             ),
@@ -94,8 +118,9 @@ class _CallScreenState extends State<CallScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 36.0),
               child: WaveDeviceMenu(
                 items: outs,
-                subtitle: 'Current Output Device',
-                labelBuilder: (item) => item.label ?? 'Default Speaker',
+                subtitle: locale.translate("call_screen.current_output_device"),
+                labelBuilder: (item) =>
+                    item.label ?? locale.translate("call_screen.dfl_speaker"),
                 onChanged: (v) => manager.selectSpeaker(v.deviceId),
               ),
             ),
@@ -108,7 +133,7 @@ class _CallScreenState extends State<CallScreen> {
                 children: [
                   if (localParticipant != null)
                     WaveParticipant(
-                      label: 'You',
+                      label: locale.translate("call_screen.you"),
                       inCall: localParticipant.inCall,
                       muted: localParticipant.muted,
                     ),
@@ -117,7 +142,7 @@ class _CallScreenState extends State<CallScreen> {
                   SizedBox(width: 16),
                   if (remoteParticipant != null)
                     WaveParticipant(
-                      label: 'Peer',
+                      label: locale.translate("call_screen.peer"),
                       inCall: remoteParticipant.inCall,
                       muted: remoteParticipant.muted,
                     ),
@@ -141,7 +166,7 @@ class _CallScreenState extends State<CallScreen> {
                 ),
                 child: WaveCircleButton(
                   type: WaveCircleButtonType.setting,
-                  subtitle: 'Settings',
+                  subtitle: locale.translate("call_screen.settings"),
                   onTap: () => setState(() => isSettingsOpen = !isSettingsOpen),
                 ),
               ),
@@ -183,7 +208,9 @@ class _CallScreenState extends State<CallScreen> {
                   type: manager.inCall
                       ? WaveCircleButtonType.leaveCall
                       : WaveCircleButtonType.startCall,
-                  subtitle: manager.inCall ? 'Leave Call' : 'Join Call',
+                  subtitle: manager.inCall
+                      ? locale.translate("call_screen.leave")
+                      : locale.translate("call_screen.join"),
                   onTap: () async {
                     if (manager.inCall) {
                       await manager.leaveCall();
@@ -264,19 +291,6 @@ class _CallScreenState extends State<CallScreen> {
         return WaveDividerType.brand;
       default:
         return WaveDividerType.disabled;
-    }
-  }
-
-  String _resolveDividerText(CallState state) {
-    switch (state) {
-      case CallState.connected:
-        return 'Connected';
-      case CallState.failed:
-        return 'Call Failed';
-      case CallState.connecting:
-        return 'Connecting...';
-      default:
-        return 'Ready to call';
     }
   }
 }
