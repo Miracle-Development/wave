@@ -13,16 +13,17 @@ class EnableMicrophoneScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         WaveText(
-          context.l10n.t('enable_microphone_screen.allow'),
+          locale.translate('enable_microphone_screen.allow'),
           type: WaveTextType.subtitle,
         ),
         SizedBox(height: 20),
         WaveSimpleButton(
-          label: context.l10n.t('enable_microphone_screen.mic_on'),
+          label: locale.translate('enable_microphone_screen.mic_on'),
           onPressed: onNext,
           showShadow: true,
           type: WaveButtonType.alternative,
