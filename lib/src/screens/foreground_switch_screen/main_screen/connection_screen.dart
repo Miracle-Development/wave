@@ -5,6 +5,7 @@ import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:md_ui_kit/widgets/wave_hint_text.dart'
     hide WaveTextType, WaveTextWeight;
 import 'package:wave_p2p/models/call_state.dart';
+import 'package:wave_p2p/src/i18n/localizations.dart';
 import 'package:wave_p2p/src/widgets/animated_status_line.dart';
 
 class ConnectionScreen extends StatelessWidget {
@@ -15,7 +16,8 @@ class ConnectionScreen extends StatelessWidget {
     required this.localId,
     required this.isPeerInitiator,
     required this.onReturnPressed,
-    required this.onClosePeerPressed, required this.state,
+    required this.onClosePeerPressed,
+    required this.state,
   });
 
   final bool isNavBarShowed;
@@ -37,8 +39,8 @@ class ConnectionScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: WaveStatus(
-                type: _resolveStatusType(state),
-                label: _resolveStatusText(state),
+                type: _resolveStatusType(state, context),
+                label: _resolveStatusText(state, context),
               ),
             ),
             SizedBox(height: 20),
@@ -80,7 +82,7 @@ class ConnectionScreen extends StatelessWidget {
               child: Row(
                 children: [
                   WaveText(
-                    _resolveSubtitleText(state, isPeerInitiator),
+                    _resolveSubtitleText(state, isPeerInitiator, context),
                     type: WaveTextType.caption,
                     color: _resolveSubtitleColor(state),
                   ),
@@ -90,12 +92,12 @@ class ConnectionScreen extends StatelessWidget {
             if (state == CallState.connected) ...[
               SizedBox(height: 305),
               WaveSimpleButton(
-                label: 'Close peer',
+                label: context.l10n.t('connection_screen.close'),
                 onPressed: onClosePeerPressed,
               ),
               SizedBox(height: 20),
               WaveText(
-                'This leads to the termination of your connection',
+                context.l10n.t('connection_screen.warn_termination'),
                 type: WaveTextType.caption,
                 textAlign: TextAlign.center,
                 color: MdColors.disabledColor,
@@ -109,14 +111,14 @@ class ConnectionScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: WaveHintText(
                   textAlign: TextAlign.start,
-                  boldPart: 'This might help: ',
+                  boldPart: context.l10n.t('connection_screen.help'),
                   normalPart:
-                      'Return to the previous step and try to pair once again',
+                      context.l10n.t('connection_screen.return_to_prev_step'),
                 ),
               ),
               SizedBox(height: 260),
               WaveSimpleButton(
-                label: 'Return',
+                label: context.l10n.t('connection_screen.return'),
                 onPressed: onReturnPressed,
               ),
               SizedBox(height: 260),
@@ -127,7 +129,7 @@ class ConnectionScreen extends StatelessWidget {
     );
   }
 
-  WaveStatusType _resolveStatusType(CallState callState) {
+  WaveStatusType _resolveStatusType(CallState callState, BuildContext context) {
     switch (callState) {
       case CallState.connected:
         return WaveStatusType.positive;
@@ -140,32 +142,34 @@ class ConnectionScreen extends StatelessWidget {
     }
   }
 
-  _resolveStatusText(CallState callState) {
+  _resolveStatusText(CallState callState, BuildContext context) {
     switch (callState) {
       case CallState.connected:
-        return 'Connected';
+        return context.l10n.t('connection_screen.connected');
       case CallState.connecting:
-        return 'Connecting';
+        return context.l10n.t('connection_screen.connecting');
       case CallState.failed:
-        return 'Failed to connect';
+        return context.l10n.t('connection_screen.fail_to_connect');
       case CallState.disconnected:
-        return 'Disconnected';
+        return context.l10n.t('connection_screen.disconnected');
     }
   }
 
-  String _resolveSubtitleText(CallState callState, bool? isPeerInitiator) {
+  String _resolveSubtitleText(
+      CallState callState, bool? isPeerInitiator, BuildContext context) {
     switch (callState) {
       case CallState.connected:
-        return 'Successful connection!';
+        return context.l10n.t('connection_screen.success_connection');
       case CallState.connecting:
-        if (isPeerInitiator == null) return 'Waiting other device to connect..';
+        if (isPeerInitiator == null)
+          return context.l10n.t('connection_screen.device_to_connect');
         return isPeerInitiator
-            ? 'Waiting your friend’s device to accept..'
-            : 'Waiting your friend’s device to answer..';
+            ? context.l10n.t('connection_screen.device_to _accept')
+            : context.l10n.t('connection_screen.device_to_answer');
       case CallState.failed:
-        return 'Failed!';
+        return context.l10n.t('connection_screen.failed');
       case CallState.disconnected:
-        return 'Connection lost!';
+        return context.l10n.t('connection_screen.connection_lost');
     }
   }
 

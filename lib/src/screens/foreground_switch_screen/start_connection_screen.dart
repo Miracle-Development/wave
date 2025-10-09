@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
+import 'package:wave_p2p/src/i18n/localizations.dart';
 
 class StartConnectionScreen extends StatelessWidget {
   const StartConnectionScreen({
@@ -21,25 +22,28 @@ class StartConnectionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final orWidget = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: WaveDivider(type: WaveDividerType.disabled, label: 'OR'),
+      child: WaveDivider(
+        type: WaveDividerType.disabled,
+        label: context.l10n.t('start_connection_screen.or'),
+      ),
     );
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         WaveText(
-          'Create a code',
+          context.l10n.t('start_connection_screen.create_code'),
           type: WaveTextType.title,
           weight: WaveTextWeight.bold,
         ),
         SizedBox(height: 10),
         WaveText(
-          'If you want to initiate a connection',
+          context.l10n.t('start_connection_screen.initiate'),
           type: WaveTextType.caption,
           color: MdColors.disabledColor,
         ),
         SizedBox(height: 24),
         WaveSimpleButton(
-          label: 'Create',
+          label: context.l10n.t('start_connection_screen.create'),
           onPressed: onCreateCode,
           type: WaveButtonType.main,
           padding: EdgeInsets.symmetric(
@@ -66,19 +70,19 @@ class StartConnectionScreen extends StatelessWidget {
 
         SizedBox(height: 80),
         WaveText(
-          'Paste code from friend',
+          context.l10n.t('start_connection_screen.paste_code'),
           type: WaveTextType.title,
           weight: WaveTextWeight.bold,
         ),
         SizedBox(height: 10),
         WaveText(
-          'If you want to connect to already created peer',
+          context.l10n.t('start_connection_screen.connect'),
           type: WaveTextType.caption,
           color: MdColors.disabledColor,
         ),
         SizedBox(height: 24),
         WaveSimpleButton(
-          label: 'Paste',
+          label: context.l10n.t('start_connection_screen.paste'),
           onPressed: onPasteCode,
           type: WaveButtonType.main,
           padding: EdgeInsets.symmetric(

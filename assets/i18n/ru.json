@@ -1,0 +1,52 @@
+{
+  "appTitle": "Wave",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "start_screen": {
+    "welcome": "Welcome!",
+    "start": "Start"
+  },
+  "start_connection_screen": {
+    "create_code": "Create a code",
+    "initiate": "If you want to initiate a connection",
+    "create": "Create",
+    "or": "OR",
+    "paste_code": "Paste code from friend",
+    "connect": "If you want to connect to already created peer",
+    "paste": "Paste"
+  },
+  "enable_microphone_screen": {
+    "allow": "Allow access, please",
+    "mic_on": "Mic on"
+  },
+  "copy_code_screen": {
+    "your_code": "This is your two-word pair cod. Copy and send it to your friend",
+    "check": "Check pair",
+    "wait": "Wait your friend to paste the code for button enabling",
+    "fail": "Failed to create code"
+  },
+
+  "paste_code_screen": {
+    "paste_code": "Copy your friend’s code and paste it to the text input below:",
+    "connect": "Connect"
+  },
+
+  "connection_screen": {
+    "close": "Close peer",
+    "warn_termination": "This leads to the termination of your connection",
+    "help": "This might help: ",
+    "return_to_prev_step": "Return to the previous step and try to pair once again",
+    "return": "Return",
+    "connected": "Connected",
+    "connecting": "Connecting",
+    "fail_to_connect": "Failed to connect",
+    "disconnected": "Disconnected",
+    "success_connection": "Successful connection!",
+    "device_to_connect": "Waiting other device to connect..",
+    "device_to _accept": "Waiting your friend’s device to accept...",
+    "device_to_answer": "Waiting your friend’s device to answer...",
+    "failed": "Failed!",
+    "connection_lost": "Connection lost!"
+  }
+}

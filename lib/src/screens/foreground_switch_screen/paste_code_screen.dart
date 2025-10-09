@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wave_p2p/src/core/keys.dart';
+import 'package:wave_p2p/src/i18n/localizations.dart';
 
 class PasteCodeScreen extends StatefulWidget {
   const PasteCodeScreen({
@@ -26,7 +27,7 @@ class _PasteCodeScreenState extends State<PasteCodeScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 57.0),
           child: WaveText(
-            'Copy your friend’s code and paste it to the text input below:',
+            context.l10n.t("paste_code_screen.paste_code"),
             type: WaveTextType.caption,
             maxLines: 3,
             textAlign: TextAlign.center,
@@ -41,7 +42,7 @@ class _PasteCodeScreenState extends State<PasteCodeScreen> {
         ),
         SizedBox(height: 135),
         WaveSimpleButton(
-          label: 'Connect',
+          label: context.l10n.t("paste_code_screen.connect"),
           onPressed: _onAcceptOfferPressed,
         ),
       ],
