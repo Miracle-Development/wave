@@ -46,25 +46,22 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
             textAlign: TextAlign.center,
           ),
         ),
-        const SizedBox(height: 27),
+
         if (_creating) ...[
-          // TODO change
           const SizedBox(
-            height: 200,
+            height: 64,
             child: WaveFlowerLoader(),
           ),
         ] else if (_offerId != null) ...[
+          const SizedBox(height: 18),
           WaveTextButton(
             label: _offerId!,
             onPressed: _onCopyCodePressed,
           ),
         ] else ...[
-          // TODO change
           const Text('Failed to create code'),
         ],
-        if (!_creating) ...[
-          const SizedBox(height: 135),
-        ],
+        SizedBox(height: _creating ? 127 : 135),
         // Check pair: enabled когда пришёл answer
         WaveSimpleButton(
           label: 'Check pair',
@@ -91,7 +88,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
       final manager = context.read<WebRTCManager>();
       final id = await manager.createOfferLink();
 
-// сохраняем в памяти localId two-word code
+      // сохраняем в памяти localId two-word code
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(currentPeerLocalIdKey, id);
 
