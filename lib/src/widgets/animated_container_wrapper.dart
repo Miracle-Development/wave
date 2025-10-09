@@ -7,7 +7,8 @@ class AnimatedContainerWrapper extends StatefulWidget {
     super.key,
     this.purpleTitle,
     required this.child,
-    required this.isAnimated, required this.topPadding,
+    required this.isAnimated,
+    required this.topPadding,
   });
 
   final String? purpleTitle;
