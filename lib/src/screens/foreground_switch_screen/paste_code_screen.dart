@@ -28,7 +28,7 @@ class _PasteCodeScreenState extends State<PasteCodeScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 57.0),
           child: WaveText(
-            locale.translate("paste_code_screen.paste_code"),
+            locale.translate("paste_code_screen.paste_code_text"),
             type: WaveTextType.caption,
             maxLines: 3,
             textAlign: TextAlign.center,
@@ -43,7 +43,7 @@ class _PasteCodeScreenState extends State<PasteCodeScreen> {
         ),
         SizedBox(height: 135),
         WaveSimpleButton(
-          label: locale.translate("paste_code_screen.connect"),
+          label: locale.translate("paste_code_screen.connect_button"),
           onPressed: _onAcceptOfferPressed,
         ),
       ],

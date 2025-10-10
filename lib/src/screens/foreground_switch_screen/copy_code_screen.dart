@@ -41,7 +41,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 57.0),
           child: WaveText(
-            locale.translate("copy_code_screen.your_code"),
+            locale.translate("copy_code_screen.your_code_text"),
             type: WaveTextType.caption,
             maxLines: 3,
             textAlign: TextAlign.center,
@@ -58,12 +58,12 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
           ),
         ] else ...[
           // TODO change
-          Text(locale.translate("copy_code_screen.fail")),
+          Text(locale.translate("copy_code_screen.fail_text")),
         ],
         const SizedBox(height: 135),
         // Check pair: enabled когда пришёл answer
         WaveSimpleButton(
-          label: locale.translate("copy_code_screen.check"),
+          label: locale.translate("copy_code_screen.check_button"),
           onPressed: answerReady ? _onButtonPressed : null,
         ),
         const SizedBox(height: 20),
@@ -71,7 +71,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 57.0),
             child: WaveText(
-              locale.translate("copy_code_screen.wait"),
+              locale.translate("copy_code_screen.wait_text"),
               type: WaveTextType.caption,
               maxLines: 3,
               textAlign: TextAlign.center,

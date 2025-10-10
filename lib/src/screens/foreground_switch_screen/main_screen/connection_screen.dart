@@ -35,31 +35,31 @@ class ConnectionScreen extends StatelessWidget {
     String resolveStatusText(CallState callState) {
       switch (callState) {
         case CallState.connected:
-          return locale.translate('connection_screen.connected');
+          return locale.translate('connection_screen.connected_text');
         case CallState.connecting:
-          return locale.translate('connection_screen.connecting');
+          return locale.translate('connection_screen.connecting_text');
         case CallState.failed:
-          return locale.translate('connection_screen.fail_to_connect');
+          return locale.translate('connection_screen.fail_to_connect_text');
         case CallState.disconnected:
-          return locale.translate('connection_screen.disconnected');
+          return locale.translate('connection_screen.disconnected_text');
       }
     }
 
     String resolveSubtitleText(CallState callState, bool? isPeerInitiator) {
       switch (callState) {
         case CallState.connected:
-          return locale.translate('connection_screen.success_connection');
+          return locale.translate('connection_screen.success_connection_text');
         case CallState.connecting:
           if (isPeerInitiator == null) {
-            return locale.translate('connection_screen.device_to_connect');
+            return locale.translate('connection_screen.device_to_connect_text');
           }
           return isPeerInitiator
-              ? locale.translate('connection_screen.device_to _accept')
-              : locale.translate('connection_screen.device_to_answer');
+              ? locale.translate('connection_screen.device_to_accept_text')
+              : locale.translate('connection_screen.device_to_answer_text');
         case CallState.failed:
-          return locale.translate('connection_screen.failed');
+          return locale.translate('connection_screen.failed_text');
         case CallState.disconnected:
-          return locale.translate('connection_screen.connection_lost');
+          return locale.translate('connection_screen.connection_lost_text');
       }
     }
 
@@ -125,12 +125,12 @@ class ConnectionScreen extends StatelessWidget {
             if (state == CallState.connected) ...[
               SizedBox(height: 305),
               WaveSimpleButton(
-                label: locale.translate('connection_screen.close'),
+                label: locale.translate('connection_screen.close_peer_button'),
                 onPressed: onClosePeerPressed,
               ),
               SizedBox(height: 20),
               WaveText(
-                locale.translate('connection_screen.warn_termination'),
+                locale.translate('connection_screen.warn_termination_text'),
                 type: WaveTextType.caption,
                 textAlign: TextAlign.center,
                 color: MdColors.disabledColor,
@@ -144,14 +144,14 @@ class ConnectionScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: WaveHintText(
                   textAlign: TextAlign.start,
-                  boldPart: locale.translate('connection_screen.help'),
-                  normalPart:
-                      locale.translate('connection_screen.return_to_prev_step'),
+                  boldPart: locale.translate('connection_screen.help_text'),
+                  normalPart: locale
+                      .translate('connection_screen.return_to_prev_step_text'),
                 ),
               ),
               SizedBox(height: 260),
               WaveSimpleButton(
-                label: locale.translate('connection_screen.return'),
+                label: locale.translate('connection_screen.return_button'),
                 onPressed: onReturnPressed,
               ),
               SizedBox(height: 260),

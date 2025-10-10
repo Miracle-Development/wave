@@ -49,7 +49,7 @@ class _CallScreenState extends State<CallScreen> {
         id: '1',
         inCall: false,
         muted: true,
-        name: locale.translate("call_screen.you"),
+        name: locale.translate("call_screen.you_text"),
       ),
     );
 
@@ -60,20 +60,20 @@ class _CallScreenState extends State<CallScreen> {
         id: '2',
         inCall: false,
         muted: true,
-        name: locale.translate("call_screen.peer"),
+        name: locale.translate("call_screen.peer_text"),
       ),
     );
 
     String resolveDividerText(CallState state) {
       switch (state) {
         case CallState.connected:
-          return locale.translate("call_screen.connected");
+          return locale.translate("call_screen.connected_text");
         case CallState.failed:
-          return locale.translate("call_screen.call_failed");
+          return locale.translate("call_screen.call_failed_text");
         case CallState.connecting:
-          return locale.translate("call_screen.connecting");
+          return locale.translate("call_screen.connecting_text");
         default:
-          return locale.translate("call_screen.ready");
+          return locale.translate("call_screen.ready_text");
       }
     }
 
@@ -88,7 +88,7 @@ class _CallScreenState extends State<CallScreen> {
         ),
         WaveChatBubble(
           type: WaveChatBubbleType.bubbleMessageInfo,
-          label: locale.translate("call_screen.encrypted"),
+          label: locale.translate("call_screen.encrypted_text"),
         ),
 
         SizedBox(height: 40),
@@ -107,9 +107,10 @@ class _CallScreenState extends State<CallScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 36.0),
               child: WaveDeviceMenu(
                 items: mics,
-                subtitle: locale.translate("call_screen.current_input_device"),
+                subtitle:
+                    locale.translate("call_screen.current_input_device_text"),
                 labelBuilder: (item) =>
-                    item.label ?? locale.translate("call_screen.dfl_mic"),
+                    item.label ?? locale.translate("call_screen.dfl_mic_text"),
                 onChanged: (v) => manager.selectMic(v.deviceId),
               ),
             ),
@@ -118,9 +119,11 @@ class _CallScreenState extends State<CallScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 36.0),
               child: WaveDeviceMenu(
                 items: outs,
-                subtitle: locale.translate("call_screen.current_output_device"),
+                subtitle:
+                    locale.translate("call_screen.current_output_device_text"),
                 labelBuilder: (item) =>
-                    item.label ?? locale.translate("call_screen.dfl_speaker"),
+                    item.label ??
+                    locale.translate("call_screen.dfl_speaker_text"),
                 onChanged: (v) => manager.selectSpeaker(v.deviceId),
               ),
             ),
@@ -133,7 +136,7 @@ class _CallScreenState extends State<CallScreen> {
                 children: [
                   if (localParticipant != null)
                     WaveParticipant(
-                      label: locale.translate("call_screen.you"),
+                      label: locale.translate("call_screen.you_text"),
                       inCall: localParticipant.inCall,
                       muted: localParticipant.muted,
                     ),
@@ -142,7 +145,7 @@ class _CallScreenState extends State<CallScreen> {
                   SizedBox(width: 16),
                   if (remoteParticipant != null)
                     WaveParticipant(
-                      label: locale.translate("call_screen.peer"),
+                      label: locale.translate("call_screen.peer_text"),
                       inCall: remoteParticipant.inCall,
                       muted: remoteParticipant.muted,
                     ),
@@ -166,7 +169,7 @@ class _CallScreenState extends State<CallScreen> {
                 ),
                 child: WaveCircleButton(
                   type: WaveCircleButtonType.setting,
-                  subtitle: locale.translate("call_screen.settings"),
+                  subtitle: locale.translate("call_screen.settings_text"),
                   onTap: () => setState(() => isSettingsOpen = !isSettingsOpen),
                 ),
               ),
@@ -209,8 +212,8 @@ class _CallScreenState extends State<CallScreen> {
                       ? WaveCircleButtonType.leaveCall
                       : WaveCircleButtonType.startCall,
                   subtitle: manager.inCall
-                      ? locale.translate("call_screen.leave")
-                      : locale.translate("call_screen.join"),
+                      ? locale.translate("call_screen.leave_text")
+                      : locale.translate("call_screen.join_text"),
                   onTap: () async {
                     if (manager.inCall) {
                       await manager.leaveCall();

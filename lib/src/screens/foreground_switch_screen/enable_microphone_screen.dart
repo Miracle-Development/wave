@@ -18,12 +18,12 @@ class EnableMicrophoneScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         WaveText(
-          locale.translate('enable_microphone_screen.allow'),
+          locale.translate('enable_microphone_screen.allow_text'),
           type: WaveTextType.subtitle,
         ),
         SizedBox(height: 20),
         WaveSimpleButton(
-          label: locale.translate('enable_microphone_screen.mic_on'),
+          label: locale.translate('enable_microphone_screen.mic_on_button'),
           onPressed: onNext,
           showShadow: true,
           type: WaveButtonType.alternative,

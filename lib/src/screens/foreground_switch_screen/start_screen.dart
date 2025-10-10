@@ -191,7 +191,7 @@ class _StartScreenState extends State<StartScreen>
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: WaveText(
-                          locale.translate('start_screen.welcome'),
+                          locale.translate('start_screen.welcome_text'),
                           type: WaveTextType.subtitle,
                           weight: WaveTextWeight.bold,
                           color: MdColors.brandColor,
@@ -239,7 +239,7 @@ class _StartScreenState extends State<StartScreen>
                     child: Padding(
                       padding: EdgeInsets.only(top: screenH / 3 - 68),
                       child: WaveSimpleButton(
-                        label: locale.translate('start_screen.start'),
+                        label: locale.translate('start_screen.start_button'),
                         onPressed: _onStartPressed,
                         type: WaveButtonType.alternative,
                         showShadow: true,

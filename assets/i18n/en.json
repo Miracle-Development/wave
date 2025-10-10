@@ -4,70 +4,70 @@
     "description": "The title of the application"
   },
   "start_screen": {
-    "welcome": "Welcome!",
-    "start": "Start"
+    "welcome_text": "Welcome!",
+    "start_button": "Start"
   },
   "start_connection_screen": {
-    "create_code": "Create a code",
-    "initiate": "If you want to initiate a connection",
-    "create": "Create",
-    "or": "OR",
-    "paste_code": "Paste code from friend",
-    "connect": "If you want to connect to already created peer",
-    "paste": "Paste"
+    "create_code_text": "Create a code",
+    "initiate_text": "If you want to initiate a connection",
+    "create_button": "Create",
+    "or_text": "OR",
+    "paste_code_text": "Paste code from friend",
+    "connect_text": "If you want to connect to already created peer",
+    "paste_button": "Paste"
   },
   "enable_microphone_screen": {
-    "allow": "Allow access, please",
-    "mic_on": "Mic on"
+    "allow_text": "Allow access, please",
+    "mic_on_button": "Mic on"
   },
   "copy_code_screen": {
-    "your_code": "This is your two-word pair cod. Copy and send it to your friend",
-    "check": "Check pair",
-    "wait": "Wait your friend to paste the code for button enabling",
-    "fail": "Failed to create code"
+    "your_code_text": "This is your two-word pair cod. Copy and send it to your friend",
+    "check_button": "Check pair",
+    "wait_text": "Wait your friend to paste the code for button enabling",
+    "fail_text": "Failed to create code"
   },
 
   "paste_code_screen": {
-    "paste_code": "Copy your friend’s code and paste it to the text input below:",
-    "connect": "Connect"
+    "paste_code_text": "Copy your friend’s code and paste it to the text input below:",
+    "connect_button": "Connect"
   },
 
   "connection_screen": {
-    "close": "Close peer",
-    "warn_termination": "This leads to the termination of your connection",
-    "help": "This might help: ",
-    "return_to_prev_step": "Return to the previous step and try to pair once again",
-    "return": "Return",
-    "connected": "Connected",
-    "connecting": "Connecting",
-    "fail_to_connect": "Failed to connect",
-    "disconnected": "Disconnected",
-    "success_connection": "Successful connection!",
-    "device_to_connect": "Waiting other device to connect..",
-    "device_to _accept": "Waiting your friend’s device to accept...",
-    "device_to_answer": "Waiting your friend’s device to answer...",
-    "failed": "Failed!",
-    "connection_lost": "Connection lost!"
+    "close_peer_button": "Close peer",
+    "warn_termination_text": "This leads to the termination of your connection",
+    "help_text": "This might help: ",
+    "return_to_prev_step_text": "Return to the previous step and try to pair once again",
+    "return_button": "Return",
+    "connected_text": "Connected",
+    "connecting_text": "Connecting",
+    "fail_to_connect_text": "Failed to connect",
+    "disconnected_text": "Disconnected",
+    "success_connection_text": "Successful connection!",
+    "device_to_connect_text": "Waiting other device to connect..",
+    "device_to_accept_text": "Waiting your friend’s device to accept...",
+    "device_to_answer_text": "Waiting your friend’s device to answer...",
+    "failed_text": "Failed!",
+    "connection_lost_text": "Connection lost!"
   },
 
   "main_screen": {
-    "invalid": "Invalid two-word code"
+    "invalid_text": "Invalid two-word code"
   },
 
   "call_screen": {
-    "you": "You",
-    "peer": "Peer",
-    "encrypted": "Your call is end-to-end encrypted",
-    "current_input_device": "Current Input Device",
-    "current_output_device": "Current Output Device",
-    "dfl_mic": "Default Microphone",
-    "dfl_speaker": "Default Speaker",
-    "settings": "Settings",
-    "leave": "Leave Call",
-    "join": "Join Call",
-    "connected": "Connected",
-    "call_failed": "Call Failed",
-    "connecting": "Connecting...",
-    "ready": "Ready to call"
+    "you_text": "You",
+    "peer_text": "Peer",
+    "encrypted_text": "Your call is end-to-end encrypted",
+    "current_input_device_text": "Current Input Device",
+    "current_output_device_text": "Current Output Device",
+    "dfl_mic_text": "Default Microphone",
+    "dfl_speaker_text": "Default Speaker",
+    "settings_text": "Settings",
+    "leave_text": "Leave Call",
+    "join_text": "Join Call",
+    "connected_text": "Connected",
+    "call_failed_text": "Call Failed",
+    "connecting_text": "Connecting...",
+    "ready_text": "Ready to call"
   }
 }
