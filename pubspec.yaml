@@ -20,10 +20,10 @@ dependencies:
     sdk: flutter
   flutter_webrtc: ^1.1.0
   md_ui_kit:
-    path: ../md_ui_kit
-    # git:
-    #   url: https://github.com/Miracle-Development/md_ui_kit.git
-    #   ref: master
+    # path: ../md_ui_kit
+    git:
+      url: https://github.com/Miracle-Development/md_ui_kit.git
+      ref: master
   permission_handler: ^12.0.1
   provider: ^6.1.5+1
   shared_preferences: ^2.5.3
