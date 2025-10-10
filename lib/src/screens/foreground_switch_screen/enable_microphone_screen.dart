@@ -18,7 +18,7 @@ class EnableMicrophoneScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         WaveText(
-          locale.translate('enable_microphone_screen.allow_text'),
+          locale.translate('enable_microphone_screen.allow_access_text'),
           type: WaveTextType.subtitle,
         ),
         SizedBox(height: 20),

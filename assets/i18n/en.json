@@ -17,14 +17,14 @@
     "paste_button": "Paste"
   },
   "enable_microphone_screen": {
-    "allow_text": "Allow access, please",
+    "allow_access_text": "Allow access, please",
     "mic_on_button": "Mic on"
   },
   "copy_code_screen": {
     "your_code_text": "This is your two-word pair cod. Copy and send it to your friend",
     "check_button": "Check pair",
     "wait_text": "Wait your friend to paste the code for button enabling",
-    "fail_text": "Failed to create code"
+    "fail_create_code_text": "Failed to create code"
   },
 
   "paste_code_screen": {

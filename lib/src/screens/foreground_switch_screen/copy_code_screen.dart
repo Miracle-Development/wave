@@ -58,7 +58,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
           ),
         ] else ...[
           // TODO change
-          Text(locale.translate("copy_code_screen.fail_text")),
+          Text(locale.translate("copy_code_screen.fail_create_code_text")),
         ],
         const SizedBox(height: 135),
         // Check pair: enabled когда пришёл answer
