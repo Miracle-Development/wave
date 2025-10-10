@@ -89,28 +89,25 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final manager = context.read<WebRTCManager>();
 
-    return SafeArea(
-      child: ListenableBuilder(
-        listenable: manager,
-        builder: (context, child) {
-          return DynamicContainerWrapper(
-            useScroll: navBarIndex != 1,
-            isNavBarShowed: _isNavBarShowed,
-            topPadding: widget.topPadding,
-            navBarIndex: navBarIndex,
-            onNavBarIndexChanged: (index) =>
-                setState(() => navBarIndex = index),
-            onSendButtonPressed: () async {
-              final t = _chatTextController.text.trim();
-              if (t.isEmpty) return;
-              await manager.sendText(t);
-              _chatTextController.clear();
-            },
-            controller: _chatTextController,
-            child: _buildCurrentPage(manager.callState),
-          );
-        },
-      ),
+    return ListenableBuilder(
+      listenable: manager,
+      builder: (context, child) {
+        return DynamicContainerWrapper(
+          useScroll: navBarIndex != 1,
+          isNavBarShowed: _isNavBarShowed,
+          topPadding: widget.topPadding,
+          navBarIndex: navBarIndex,
+          onNavBarIndexChanged: (index) => setState(() => navBarIndex = index),
+          onSendButtonPressed: () async {
+            final t = _chatTextController.text.trim();
+            if (t.isEmpty) return;
+            await manager.sendText(t);
+            _chatTextController.clear();
+          },
+          controller: _chatTextController,
+          child: _buildCurrentPage(manager.callState),
+        );
+      },
     );
   }
 
