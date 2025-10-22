@@ -1,3 +1,7 @@
+## 1.0.3
+
+- WaveFlowerLoader added
+
 ## 1.0.2
 
 - Offer creation and answering implemented
