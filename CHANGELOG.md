@@ -1,4 +1,4 @@
-## 1.0.3
+## 1.0.4
 
 [Wave-5] WaveFlowerLoader added
 
