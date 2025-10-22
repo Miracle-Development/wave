@@ -110,7 +110,8 @@ class _CallScreenState extends State<CallScreen> {
                 subtitle:
                     locale.translate("call_screen.current_input_device_text"),
                 labelBuilder: (item) =>
-                    item.label ?? locale.translate("call_screen.dfl_mic_text"),
+                    item.label ??
+                    locale.translate("call_screen.default_microphone_text"),
                 onChanged: (v) => manager.selectMic(v.deviceId),
               ),
             ),
@@ -123,7 +124,7 @@ class _CallScreenState extends State<CallScreen> {
                     locale.translate("call_screen.current_output_device_text"),
                 labelBuilder: (item) =>
                     item.label ??
-                    locale.translate("call_screen.dfl_speaker_text"),
+                    locale.translate("call_screen.default_speaker_text"),
                 onChanged: (v) => manager.selectSpeaker(v.deviceId),
               ),
             ),
@@ -212,8 +213,8 @@ class _CallScreenState extends State<CallScreen> {
                       ? WaveCircleButtonType.leaveCall
                       : WaveCircleButtonType.startCall,
                   subtitle: manager.inCall
-                      ? locale.translate("call_screen.leave_text")
-                      : locale.translate("call_screen.join_text"),
+                      ? locale.translate("call_screen.leave_call_text")
+                      : locale.translate("call_screen.join_call_text"),
                   onTap: () async {
                     if (manager.inCall) {
                       await manager.leaveCall();

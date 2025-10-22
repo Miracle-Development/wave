@@ -31,7 +31,7 @@ class ForegroundSwitchScreen extends StatefulWidget {
 
 class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
   // TODO back to 0   if stable
-  VisibleScreenType _stepper = VisibleScreenType.main;
+  VisibleScreenType _stepper = VisibleScreenType.startButton;
 
   bool _isPeerInitiator = true;
 

@@ -48,7 +48,8 @@ class ConnectionScreen extends StatelessWidget {
     String resolveSubtitleText(CallState callState, bool? isPeerInitiator) {
       switch (callState) {
         case CallState.connected:
-          return locale.translate('connection_screen.success_connection_text');
+          return locale
+              .translate('connection_screen.successful_connection_text');
         case CallState.connecting:
           if (isPeerInitiator == null) {
             return locale.translate('connection_screen.device_to_connect_text');
