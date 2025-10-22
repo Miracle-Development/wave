@@ -541,7 +541,7 @@ packages:
       resolved-ref: e9fb4e48d48135f80a74c8ec50de8ac056a0effb
       url: "https://github.com/Miracle-Development/md_ui_kit.git"
     source: git
-    version: "3.0.0"
+    version: "3.0.1"
   meta:
     dependency: transitive
     description:
