@@ -34,9 +34,12 @@ class _PasteCodeScreenState extends State<PasteCodeScreen> {
         ),
         SizedBox(height: 27),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40.0),
-          child: TextField(
+          padding: const EdgeInsets.symmetric(horizontal: 70.0),
+          child: WaveInput(
+            type: WaveInputType.code,
             controller: _codeController,
+            // TODO: Set error flag properly
+            hasError: false,
           ),
         ),
         SizedBox(height: 135),
