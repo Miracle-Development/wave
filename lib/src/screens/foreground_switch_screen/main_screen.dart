@@ -44,6 +44,7 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> _getLocalOfferId() async {
     final prefs = await SharedPreferences.getInstance();
     // TODO: обработать случай когда нет кода в локальной памяти
+    // TODO: что-то сделать с локалькой
     final id =
         prefs.getString(currentPeerLocalIdKey) ?? 'Invalid two-word code';
     setState(() {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:wave_p2p/src/widgets/quad_painter.dart';
+import 'package:wave_p2p/src/i18n/localizations.dart'; // где лежит extension
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key, required this.onNext});
@@ -120,6 +121,7 @@ class _StartScreenState extends State<StartScreen>
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
     const double topPadding = 40 + 28;
 
     return LayoutBuilder(
@@ -189,7 +191,7 @@ class _StartScreenState extends State<StartScreen>
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: WaveText(
-                          'Welcome!',
+                          locale.translate('start_screen.welcome_text'),
                           type: WaveTextType.subtitle,
                           weight: WaveTextWeight.bold,
                           color: MdColors.brandColor,
@@ -237,7 +239,7 @@ class _StartScreenState extends State<StartScreen>
                     child: Padding(
                       padding: EdgeInsets.only(top: screenH / 3 - 68),
                       child: WaveSimpleButton(
-                        label: 'Start',
+                        label: locale.translate('start_screen.start_button'),
                         onPressed: _onStartPressed,
                         type: WaveButtonType.alternative,
                         showShadow: true,

@@ -6,6 +6,7 @@ import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wave_p2p/src/core/keys.dart';
 import 'package:wave_p2p/src/core/webrtc_manager.dart';
+import 'package:wave_p2p/src/i18n/localizations.dart';
 
 class CopyCodeScreen extends StatefulWidget {
   const CopyCodeScreen({super.key, required this.onCheckPairPressed});
@@ -28,6 +29,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
     // следим за наличием ответа в менеджере — при изменении UI перестроится автоматически
     final manager = context.watch<WebRTCManager>();
     final answerReady = manager.isAnswerAvailable;
@@ -36,10 +38,10 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         SizedBox(height: 280),
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 57.0),
           child: WaveText(
-            'This is your two-word pair code. Copy and send it to your friend',
+            locale.translate("copy_code_screen.your_code_text"),
             type: WaveTextType.caption,
             maxLines: 3,
             textAlign: TextAlign.center,
@@ -56,12 +58,12 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
           ),
         ] else ...[
           // TODO change
-          const Text('Failed to create code'),
+          Text(locale.translate("copy_code_screen.fail_create_code_text")),
         ],
         const SizedBox(height: 135),
         // Check pair: enabled когда пришёл answer
         WaveSimpleButton(
-          label: 'Check pair',
+          label: locale.translate("copy_code_screen.check_button"),
           onPressed: answerReady ? _onButtonPressed : null,
         ),
         const SizedBox(height: 20),
@@ -69,7 +71,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 57.0),
             child: WaveText(
-              'Wait your friend to paste the code for button enabling',
+              locale.translate("copy_code_screen.wait_text"),
               type: WaveTextType.caption,
               maxLines: 3,
               textAlign: TextAlign.center,

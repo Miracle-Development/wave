@@ -30,6 +30,7 @@ dependencies:
   uuid: ^4.5.1
   callkeep: ^0.4.1
   wave: ^0.2.2
+  intl: ^0.20.2
   # redux: ^5.0.0
   # flutter_redux: ^0.10.0
 
@@ -60,6 +61,7 @@ flutter:
     - assets/icons/mic/
     - assets/icons/circle_button/
     - assets/icons/participants/
+    - assets/i18n/
 
   fonts:
     - family: Play

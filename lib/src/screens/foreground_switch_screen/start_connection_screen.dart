@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
+import 'package:wave_p2p/src/i18n/localizations.dart';
 
 class StartConnectionScreen extends StatelessWidget {
   const StartConnectionScreen({
@@ -19,27 +20,31 @@ class StartConnectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context);
     final orWidget = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: WaveDivider(type: WaveDividerType.disabled, label: 'OR'),
+      child: WaveDivider(
+        type: WaveDividerType.disabled,
+        label: locale.translate('start_connection_screen.or_text'),
+      ),
     );
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         WaveText(
-          'Create a code',
+          locale.translate('start_connection_screen.create_code_text'),
           type: WaveTextType.title,
           weight: WaveTextWeight.bold,
         ),
         SizedBox(height: 10),
         WaveText(
-          'If you want to initiate a connection',
+          locale.translate('start_connection_screen.initiate_text'),
           type: WaveTextType.caption,
           color: MdColors.disabledColor,
         ),
         SizedBox(height: 24),
         WaveSimpleButton(
-          label: 'Create',
+          label: locale.translate('start_connection_screen.create_button'),
           onPressed: onCreateCode,
           type: WaveButtonType.main,
           padding: EdgeInsets.symmetric(
@@ -66,19 +71,19 @@ class StartConnectionScreen extends StatelessWidget {
 
         SizedBox(height: 80),
         WaveText(
-          'Paste code from friend',
+          locale.translate('start_connection_screen.paste_code_text'),
           type: WaveTextType.title,
           weight: WaveTextWeight.bold,
         ),
         SizedBox(height: 10),
         WaveText(
-          'If you want to connect to already created peer',
+          locale.translate('start_connection_screen.connect_text'),
           type: WaveTextType.caption,
           color: MdColors.disabledColor,
         ),
         SizedBox(height: 24),
         WaveSimpleButton(
-          label: 'Paste',
+          label: locale.translate('start_connection_screen.paste_button'),
           onPressed: onPasteCode,
           type: WaveButtonType.main,
           padding: EdgeInsets.symmetric(
