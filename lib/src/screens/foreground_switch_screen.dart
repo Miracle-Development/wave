@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:md_ui_kit/widgets/gradient_scaffold_wrapper.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wave_p2p/src/core/keys.dart';
@@ -90,101 +92,178 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     switch (stepper) {
       // Экран с кнопкой "Start", скрывается если нажался хотя бы раз
       case VisibleScreenType.startButton:
-        return StartScreen(
-          key: ValueKey<String>('startButton$postfix'),
-          onNext: _onStartButtonPressed,
+        return GradientScaffoldWrapper(
+          showLogo: true,
+          showArrow: false,
+          iosTopPadding: kIsWeb ? 28 : 90,
+          onTapBack: () {
+            setState(() {
+              _stepper = VisibleScreenType.selectAction;
+            });
+          },
+          child: StartScreen(
+            key: ValueKey<String>('startButton$postfix'),
+            onNext: _onStartButtonPressed,
+          ),
         );
 
       // Экран с кнопкой "Mic on", скрывается если нажался хотя бы раз
       // без анимации, если проигрывается после startButton
       case VisibleScreenType.micOn:
-        return AnimatedContainerWrapper(
-          purpleTitle: 'One more step',
-          isAnimated: false,
-          key: ValueKey<String>('micOn$postfix'),
-          topPadding: topPadding,
-          child: EnableMicrophoneScreen(
-            onNext: _onEnableMicPressed,
+        return GradientScaffoldWrapper(
+          showLogo: true,
+          showArrow: false,
+          iosTopPadding: kIsWeb ? 28 : 90,
+          onTapBack: () {
+            setState(() {
+              _stepper = VisibleScreenType.selectAction;
+            });
+          },
+          child: AnimatedContainerWrapper(
+            purpleTitle: 'One more step',
+            isAnimated: false,
+            key: ValueKey<String>('micOn$postfix'),
+            topPadding: topPadding,
+            child: EnableMicrophoneScreen(
+              onNext: _onEnableMicPressed,
+            ),
           ),
         );
 
       // Экран с кнопкой "Mic on", скрывается если нажался хотя бы раз
       // с анимацией, если открывается сразу после заставки
       case VisibleScreenType.micOnAnimated:
-        return AnimatedContainerWrapper(
-          purpleTitle: 'One more step',
-          isAnimated: true,
-          key: ValueKey<String>('minOnAnimated$postfix'),
-          topPadding: topPadding,
-          child: EnableMicrophoneScreen(
-            onNext: _onEnableMicPressed,
+        return GradientScaffoldWrapper(
+          showLogo: true,
+          showArrow: false,
+          iosTopPadding: kIsWeb ? 28 : 90,
+          onTapBack: () {
+            setState(() {
+              _stepper = VisibleScreenType.selectAction;
+            });
+          },
+          child: AnimatedContainerWrapper(
+            purpleTitle: 'One more step',
+            isAnimated: true,
+            key: ValueKey<String>('minOnAnimated$postfix'),
+            topPadding: topPadding,
+            child: EnableMicrophoneScreen(
+              onNext: _onEnableMicPressed,
+            ),
           ),
         );
 
       // Экран с выбором действия - создать/вставить код
       // без анимации, если проигрывается после micOn
       case VisibleScreenType.selectAction:
-        return AnimatedContainerWrapper(
-          isAnimated: false,
-          key: ValueKey<String>('selectAction$postfix'),
-          topPadding: topPadding,
-          child: StartConnectionScreen(
-            onCreateCode: _onCreateCodePressed,
-            onPasteCode: _onPasteCodePressed,
-            // TODO: remove reconnect functionality
-            onOrPressed: _onOrPressed,
+        return GradientScaffoldWrapper(
+          showLogo: true,
+          showArrow: false,
+          iosTopPadding: kIsWeb ? 28 : 90,
+          onTapBack: () {
+            setState(() {
+              _stepper = VisibleScreenType.selectAction;
+            });
+          },
+          child: AnimatedContainerWrapper(
+            isAnimated: false,
+            key: ValueKey<String>('selectAction$postfix'),
+            topPadding: topPadding,
+            child: StartConnectionScreen(
+              onCreateCode: _onCreateCodePressed,
+              onPasteCode: _onPasteCodePressed,
+              // TODO: remove reconnect functionality
+              onOrPressed: _onOrPressed,
+            ),
           ),
         );
 
       // Экран с выбором действия - создать/вставить код
       // без анимации, если проигрывается после micOn
       case VisibleScreenType.selectActionAnimated:
-        return AnimatedContainerWrapper(
-          key: ValueKey<String>('selectActionAnimated$postfix'),
-          topPadding: topPadding,
-          isAnimated: true,
-          child: StartConnectionScreen(
-            onCreateCode: _onCreateCodePressed,
-            onPasteCode: _onPasteCodePressed,
-            // TODO: remove reconnect functionality
-            onOrPressed: _onOrPressed,
+        return GradientScaffoldWrapper(
+          showLogo: true,
+          showArrow: false,
+          iosTopPadding: kIsWeb ? 28 : 90,
+          onTapBack: () {
+            setState(() {
+              _stepper = VisibleScreenType.selectAction;
+            });
+          },
+          child: AnimatedContainerWrapper(
+            key: ValueKey<String>('selectActionAnimated$postfix'),
+            topPadding: topPadding,
+            isAnimated: true,
+            child: StartConnectionScreen(
+              onCreateCode: _onCreateCodePressed,
+              onPasteCode: _onPasteCodePressed,
+              // TODO: remove reconnect functionality
+              onOrPressed: _onOrPressed,
+            ),
           ),
         );
 
       // Экран создания кода
       case VisibleScreenType.createCode:
-        return AnimatedContainerWrapper(
-          key: ValueKey<String>('createCode$postfix'),
-          topPadding: topPadding,
-          isAnimated: false,
-          child: CopyCodeScreen(
-            onCheckPairPressed: _onCheckPairPressed,
+        return GradientScaffoldWrapper(
+          showLogo: true,
+          iosTopPadding: kIsWeb ? 28 : 90,
+          onTapBack: () {
+            setState(() {
+              _stepper = VisibleScreenType.selectAction;
+            });
+          },
+          child: AnimatedContainerWrapper(
+            key: ValueKey<String>('createCode$postfix'),
+            topPadding: topPadding,
+            isAnimated: false,
+            child: CopyCodeScreen(
+              onCheckPairPressed: _onCheckPairPressed,
+            ),
           ),
         );
 
       // Экран вставки кода
       case VisibleScreenType.pasteCode:
-        return AnimatedContainerWrapper(
-          key: ValueKey<String>('pasteCode$postfix'),
-          topPadding: topPadding,
-          isAnimated: false,
-          child: PasteCodeScreen(
-            onConnectPressed: _onCheckAnswerPressed,
+        return GradientScaffoldWrapper(
+          showLogo: true,
+          iosTopPadding: kIsWeb ? 28 : 90,
+          onTapBack: () {
+            setState(() {
+              _stepper = VisibleScreenType.selectAction;
+            });
+          },
+          child: AnimatedContainerWrapper(
+            key: ValueKey<String>('pasteCode$postfix'),
+            topPadding: topPadding,
+            isAnimated: false,
+            child: PasteCodeScreen(
+              onConnectPressed: _onCheckAnswerPressed,
+            ),
           ),
         );
 
       // Основной экран с динамичным навбаром, скаффолдом с адаптивной высотой и волной
       case VisibleScreenType.main:
-        return MainScreen(
-          key: ValueKey<String>('main$postfix'),
-          topPadding: topPadding,
-          isPeerInitiator: _isPeerInitiator,
-          onReturnPressed: () {
+        return GradientScaffoldWrapper(
+          showLogo: true,
+          iosTopPadding: kIsWeb ? 28 : 90,
+          onTapBack: () {
             setState(() {
               _stepper = VisibleScreenType.selectAction;
             });
           },
-          onClosePeerPressed: _onClosePeerPressed,
+          child: MainScreen(
+            key: ValueKey<String>('main$postfix'),
+            topPadding: topPadding,
+            isPeerInitiator: _isPeerInitiator,
+            onReturnPressed: () {
+              setState(() {
+                _stepper = VisibleScreenType.selectAction;
+              });
+            },
+            onClosePeerPressed: _onClosePeerPressed,
+          ),
         );
 
       // TODO: DO NOT REMOVE TO PREFENT FAILURE ON PROD
