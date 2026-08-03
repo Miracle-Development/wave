@@ -39,7 +39,7 @@
 	<string>This app requires microphone access for making calls</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>UIBackgroundModes</key>
+	<!-- <key>UIBackgroundModes</key> -->
 	<!-- <array>
 		<string>audio</string>
 		<string>bluetooth-central</string>
