@@ -54,6 +54,7 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
   @override
   Widget build(BuildContext context) {
     final topPadding = widget.topPadding;
+    final bottomInset = MediaQuery.of(context).padding.bottom;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -68,6 +69,16 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
 
         return Stack(
           children: [
+            if (widget.isNavBarShowed)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: ColoredBox(
+                  color: MdColors.navBarContainerColor,
+                  child: SizedBox(height: bottomInset),
+                ),
+              ),
             // Подложка контента
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -77,7 +88,7 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
                 height: widget.isNavBarShowed
                     ? !isChatTab
                         ? h - 95
-                        : h
+                        : h - (95 + bottomInset)
                     : h,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
