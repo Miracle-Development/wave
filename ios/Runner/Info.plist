@@ -40,10 +40,10 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
-	<array>
+	<!-- <array>
 		<string>audio</string>
 		<string>bluetooth-central</string>
-	</array>
+	</array> -->
 	<!-- <key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.developmiracle.wave.refresh</string>
