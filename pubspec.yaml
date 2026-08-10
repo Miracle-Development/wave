@@ -18,7 +18,6 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flutter_webrtc: ^1.1.0
   md_ui_kit:
     # path: ../md_ui_kit
     git:
@@ -33,6 +32,8 @@ dependencies:
       url: https://github.com/flutter-webrtc/callkeep.git
       ref: b55d64476a2888b3981a57d4400390269a137b34
   wave: ^0.2.2
+  proximity_sensor: ^1.4.0
+  flutter_webrtc: ^1.6.0
   # redux: ^5.0.0
   # flutter_redux: ^0.10.0
 

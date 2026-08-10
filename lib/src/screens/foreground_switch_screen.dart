@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wave_p2p/models/call_state.dart';
 import 'package:wave_p2p/src/core/keys.dart';
 import 'package:wave_p2p/src/core/webrtc_manager.dart';
 import 'package:wave_p2p/src/screens/foreground_switch_screen/copy_code_screen.dart';
@@ -35,8 +36,6 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
 
   bool _isPeerInitiator = true;
 
-  late WebRTCManager _disposableManager;
-
   @override
   void initState() {
     // TODO: remove reconnect functionality
@@ -44,15 +43,27 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
 
     _checkHasStartButtonPressed();
     _checkMicPermission();
-    _disposableManager = Provider.of<WebRTCManager>(context, listen: false);
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final manager = context.read<WebRTCManager>();
+      manager.addListener(_onManagerStateChanged);
+    });
+  }
+
+  void _onManagerStateChanged() {
+    final manager = context.read<WebRTCManager>();
+    if (manager.callState == CallState.connected &&
+        _stepper != VisibleScreenType.main) {
+      setState(() {
+        _stepper = VisibleScreenType.main;
+      });
+    }
   }
 
   @override
   void dispose() {
-    final manager = _disposableManager;
-    // закрываем соединение при очистке виджета
-    manager.closeAll();
+    final manager = context.read<WebRTCManager>();
+    manager.removeListener(_onManagerStateChanged);
     super.dispose();
   }
 
@@ -157,9 +168,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           key: ValueKey<String>('createCode$postfix'),
           topPadding: topPadding,
           isAnimated: false,
-          child: CopyCodeScreen(
-            onCheckPairPressed: _onCheckPairPressed,
-          ),
+          child: CopyCodeScreen(),
         );
 
       // Экран вставки кода
@@ -168,9 +177,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           key: ValueKey<String>('pasteCode$postfix'),
           topPadding: topPadding,
           isAnimated: false,
-          child: PasteCodeScreen(
-            onConnectPressed: _onCheckAnswerPressed,
-          ),
+          child: PasteCodeScreen(),
         );
 
       // Основной экран с динамичным навбаром, скаффолдом с адаптивной высотой и волной
@@ -307,50 +314,6 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     });
 
     // await _disposableManager.restoreConnection();
-  }
-
-  Future<void> _onCheckPairPressed() async {
-    final manager = context.read<WebRTCManager>();
-    try {
-      // достаем из памяти localId two-word code
-      final offerId = await _getLocalOfferId();
-      // pull answer and apply it (this will throw if answer isn't ready)
-      await manager.acceptAnswer(offerId);
-
-      setState(() {
-        _stepper = VisibleScreenType.main;
-      });
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(isPeerInitiatorKey, _isPeerInitiator);
-      await prefs.setBool(prefsHasActiveConnectionKey, true);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to apply answer: $e')),
-      );
-    } finally {}
-  }
-
-  Future<void> _onCheckAnswerPressed() async {
-    final manager = context.read<WebRTCManager>();
-    try {
-      // достаем из памяти localId two-word code
-      final offerId = await _getLocalOfferId();
-      // pull answer and apply it (this will throw if answer isn't ready)
-      await manager.acceptOffer(offerId);
-
-      setState(() {
-        _stepper = VisibleScreenType.main;
-      });
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(isPeerInitiatorKey, _isPeerInitiator);
-      await prefs.setBool(prefsHasActiveConnectionKey, true);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to apply offer: $e')),
-      );
-    } finally {}
   }
 
   Future<String> _getLocalOfferId() async {

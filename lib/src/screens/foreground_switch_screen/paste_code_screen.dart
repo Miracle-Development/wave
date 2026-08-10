@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wave_p2p/src/core/keys.dart';
+import 'package:wave_p2p/src/core/webrtc_manager.dart';
 
 class PasteCodeScreen extends StatefulWidget {
-  const PasteCodeScreen({
-    super.key,
-    required this.onConnectPressed,
-  });
-
-  final VoidCallback onConnectPressed;
+  const PasteCodeScreen({super.key});
 
   @override
   State<PasteCodeScreen> createState() => _PasteCodeScreenState();
@@ -17,6 +14,7 @@ class PasteCodeScreen extends StatefulWidget {
 
 class _PasteCodeScreenState extends State<PasteCodeScreen> {
   final _codeController = TextEditingController();
+  bool _isProcessing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -27,40 +25,63 @@ class _PasteCodeScreenState extends State<PasteCodeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 57.0),
             child: WaveText(
-              'Copy your friend’s code and paste it to the text input below:',
+              'Вставьте код друга в поле ниже:',
               type: WaveTextType.caption,
               maxLines: 3,
               textAlign: TextAlign.center,
             ),
           ),
-          SizedBox(height: 27),
+          const SizedBox(height: 27),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
             child: TextField(
               controller: _codeController,
+              enabled: !_isProcessing,
             ),
           ),
-          SizedBox(height: 135),
+          const SizedBox(height: 135),
           WaveSimpleButton(
             label: 'Connect',
-            onPressed: _onAcceptOfferPressed,
+            onPressed: _isProcessing ? null : _onConnectPressed,
           ),
+          if (_isProcessing)
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(),
+            ),
         ],
       ),
     );
   }
 
-  Future<void> _onAcceptOfferPressed() async {
+  Future<void> _onConnectPressed() async {
     if (_codeController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Введите ID')),
       );
       return;
     }
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(currentPeerLocalIdKey, _codeController.text.trim());
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(currentPeerLocalIdKey, _codeController.text.trim());
 
-    widget.onConnectPressed();
+      // Принимаем оффер
+      final manager = context.read<WebRTCManager>();
+      await manager.acceptOffer(_codeController.text.trim());
+
+      // Переход на main будет выполнен автоматически в ForegroundSwitchScreen
+      // Но можно вызвать колбэк, если нужно
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка подключения: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
   }
 }

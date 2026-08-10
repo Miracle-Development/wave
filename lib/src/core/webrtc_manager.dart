@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:proximity_sensor/proximity_sensor.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wave_p2p/models/call_state.dart';
 import 'package:wave_p2p/models/chat_message.dart';
@@ -44,12 +45,19 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
 
   // Native audio channel (matches AppDelegate.swift)
   static const MethodChannel _nativeAudio = MethodChannel('wave_audio');
+  static const MethodChannel _proximityChannel =
+      MethodChannel('wave_proximity');
+
+  bool _proximityEnabled = false;
+  bool isEarpieceMode = false;
+  StreamSubscription<int>? _proximitySubscription;
 
   // UI public
   CallState callState = CallState.disconnected;
   RTCDataChannel? chat;
   MediaStream? localStream;
   MediaStream? remoteStream;
+  MediaStream? _localVideoStream;
 
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   RTCVideoRenderer get remoteRenderer => _remoteRenderer;
@@ -138,6 +146,18 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     } catch (e) {
       _log('native channel setMethodCallHandler failed: $e');
     }
+
+    // try {
+    //   ProximitySensor.evmn .proximityStream.listen((bool near) {
+    //     if (_isEarpieceMode) {
+    //       // Если приближение > 0 (близко) – затемняем экран
+    //       // В iOS/Android это реализуется через нативный метод
+    //       _setScreenDimmed(near);
+    //     }
+    //   });
+    // } catch (e) {
+    //   _log('Proximity sensor initialization failed: $e');
+    // }
   }
 
   @override
@@ -153,6 +173,8 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     } catch (_) {}
     _callDocSub?.cancel();
     _callDocSub = null;
+    _proximitySubscription?.cancel();
+    _proximitySubscription = null;
     super.dispose();
   }
 
@@ -197,6 +219,20 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
       unawaited(_answerSub?.cancel());
     } catch (_) {}
     _answerSub = null;
+  }
+
+  void _setScreenDimmed(bool dim) {
+    try {
+      // Для iOS используем нативный канал (управляет isIdleTimerDisabled).
+      // Для Android мы вызываем setProximityScreenOff отдельно, но можно и через этот канал,
+      // если реализовать на стороне Android. Я оставлю оба способа.
+      if (Platform.isIOS) {
+        _proximityChannel.invokeMethod('setScreenDimmed', {'dim': dim});
+      }
+      // Для Android используется setProximityScreenOff, который мы вызываем отдельно.
+    } catch (e) {
+      _log('Failed to set screen dim via channel: $e');
+    }
   }
 
   // ---------------- PC wiring ----------------
@@ -831,7 +867,7 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
 
   // ---------------- Renegotiation ----------------
   Future<void> _requestRenegotiation(
-      {Duration timeout = const Duration(seconds: 8)}) async {
+      {Duration timeout = const Duration(seconds: 180)}) async {
     if (_renegotiationInProgress) {
       _log('Renegotiation already in progress — queueing another request');
       _pendingRenegotiationRequested = true;
@@ -1306,6 +1342,87 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     return _anyRemoteSpeaking();
   }
 
+  Future<void> toggleAudioOutput() async {
+    final newMode = !isEarpieceMode;
+    isEarpieceMode = newMode;
+    // Выбираем выход: если earpiece -> id = 'earpiece', иначе 'speaker'
+    final routeId = newMode ? 'earpiece' : 'speaker';
+    try {
+      if (kIsWeb) {
+        // Для web просто используем стандартный output
+        await _remoteRenderer.audioOutput('default');
+      } else {
+        await _nativeAudio.invokeMethod('setAudioRoute', {'id': routeId});
+      }
+      if (newMode) {
+        // Включаем earpiece – активируем датчик приближения
+        await _enableProximitySensor();
+      } else {
+        // Выключаем earpiece – деактивируем датчик
+        await _disableProximitySensor();
+      }
+      notifyListeners();
+    } catch (e) {
+      _log('Toggle audio output failed: $e');
+      // В случае ошибки откатываем состояние
+      isEarpieceMode = !newMode;
+      rethrow;
+    }
+  }
+
+  Future<void> _enableProximitySensor() async {
+    // Отменяем предыдущую подписку, если есть
+    await _disableProximitySensor();
+
+    // Проверяем доступность датчика (опционально)
+    final available = await ProximitySensor.isProximitySensorAvailable();
+    if (!available) {
+      _log('Proximity sensor not available on this device');
+      return;
+    }
+
+    // Для Android: включаем системное затемнение экрана при приближении
+    if (Platform.isAndroid) {
+      await ProximitySensor.setProximityScreenOff(true);
+    }
+
+    // Подписываемся на события датчика (для всех платформ, но на Android события могут дублироваться)
+    _proximitySubscription = ProximitySensor.events.listen((int distance) {
+      // Обычно distance == 0 означает "близко" (объект рядом), >0 – "далеко"
+      final near = (distance == 0);
+      _log('Proximity event: distance=$distance, near=$near');
+      if (Platform.isIOS) {
+        // Для iOS затемняем экран через нативный канал
+        _setScreenDimmed(near);
+      }
+      // Для Android затемнение уже управляется через setProximityScreenOff,
+      // но если нужно дополнительное управление (например, блокировка UI), можно добавить.
+    }, onError: (err) {
+      _log('Proximity sensor error: $err');
+    });
+
+    _proximityEnabled = true;
+  }
+
+  /// Деактивация датчика приближения и сброс затемнения
+  Future<void> _disableProximitySensor() async {
+    // Отменяем подписку
+    await _proximitySubscription?.cancel();
+    _proximitySubscription = null;
+
+    // Для Android: выключаем системное затемнение
+    if (Platform.isAndroid) {
+      await ProximitySensor.setProximityScreenOff(false);
+    }
+
+    // Для iOS: снимаем затемнение экрана
+    if (Platform.isIOS) {
+      _setScreenDimmed(false);
+    }
+
+    _proximityEnabled = false;
+  }
+
   void _updateRemoteAudioPlayback() {
     try {
       if (remoteStream == null) {
@@ -1407,7 +1524,209 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
+  Future<bool> _checkCameraPermission() async {
+    if (kIsWeb) return true;
+    if (Platform.isAndroid || Platform.isIOS) {
+      try {
+        final status = await Permission.camera.request();
+        return status.isGranted;
+      } catch (e) {
+        _log('Camera permission request failed: $e');
+        return false;
+      }
+    }
+    return false;
+  }
+
+  Future<void> enableVideo() async {
+    if (_localVideoStream != null) return;
+    final ok = await _checkCameraPermission();
+    if (!ok) throw Exception('Camera permission denied');
+    final constraints = <String, dynamic>{
+      'audio': false,
+      'video': {'facingMode': 'user', 'width': 640, 'height': 480}
+    };
+    final s = await navigator.mediaDevices.getUserMedia(constraints);
+    final tracks = s.getVideoTracks();
+    if (tracks.isEmpty) {
+      await s.dispose();
+      throw Exception('No video tracks');
+    }
+    _localVideoStream = s;
+    try {
+      localRenderer.srcObject = _localVideoStream;
+    } catch (e) {
+      _log('localRenderer set failed: $e');
+    }
+
+    final pc = signaling.pc;
+    if (pc != null) {
+      try {
+        final track = tracks.first;
+        final senders = await pc.getSenders();
+        RTCRtpSender? existed;
+        for (final sdr in senders) {
+          if (sdr.track != null && sdr.track!.kind == 'video') {
+            existed = sdr;
+            break;
+          }
+        }
+        if (existed != null) {
+          try {
+            await existed.replaceTrack(track);
+            _log('Replaced existing video sender track');
+          } catch (e) {
+            _log('replaceTrack video failed: $e — will addTrack');
+            await pc.addTrack(track, _localVideoStream!);
+            _log('Added video track via addTrack');
+            await _requestRenegotiation(timeout: const Duration(seconds: 180));
+          }
+        } else {
+          await pc.addTrack(track, _localVideoStream!);
+          _log('Added video track via addTrack');
+          await _requestRenegotiation(timeout: const Duration(seconds: 180));
+        }
+      } catch (e) {
+        _log('enableVideo: adding video track failed: $e');
+        try {
+          for (final t in _localVideoStream!.getTracks()) t.stop();
+          await _localVideoStream!.dispose();
+        } catch (_) {}
+        _localVideoStream = null;
+        rethrow;
+      }
+    } else {
+      _log('enableVideo: pc==null, will attach when pc becomes available');
+    }
+    notifyListeners();
+  }
+
+  Future<void> disableVideo() async {
+    if (_localVideoStream == null) return;
+    final pc = signaling.pc;
+    if (pc != null) {
+      try {
+        final senders = await pc.getSenders();
+        for (final s in senders) {
+          if (s.track != null && s.track!.kind == 'video') {
+            try {
+              await s.replaceTrack(null);
+              _log('disableVideo: replaced video sender with null');
+            } catch (e) {
+              _log('disableVideo replaceTrack failed: $e');
+            }
+          }
+        }
+      } catch (e) {
+        _log('disableVideo pc operation failed: $e');
+      }
+    }
+    try {
+      for (final t in _localVideoStream!.getTracks()) t.stop();
+      await _localVideoStream!.dispose();
+    } catch (e) {
+      _log('disableVideo cleanup failed: $e');
+    }
+    _localVideoStream = null;
+    try {
+      localRenderer.srcObject = null;
+    } catch (_) {}
+    try {
+      await _requestRenegotiation(timeout: const Duration(seconds: 180));
+    } catch (e) {
+      _log('disableVideo renegotiation failed: $e');
+    }
+    notifyListeners();
+  }
+
+  // --- Демонстрация экрана ---
+  Future<void> enableScreenShare() async {
+    // Проверяем, поддерживается ли на данной платформе
+    if (Platform.isIOS) {
+      _log(
+          'Screen sharing is not supported on iOS without ReplayKit extension.');
+      throw Exception('Screen sharing not available on iOS');
+    }
+
+    if (_localVideoStream != null) {
+      // Если уже есть видео, лучше отключить его или объединить.
+      // По умолчанию заменим существующий видео-трек.
+      await disableVideo();
+    }
+
+    try {
+      // Запрос разрешения на запись экрана (для Android и Web)
+      final mediaStream = await navigator.mediaDevices.getDisplayMedia({
+        'video': true,
+        'audio': false, // Можно включить, если нужно передавать звук системы
+      });
+      final track = mediaStream.getVideoTracks().first;
+
+      final pc = signaling.pc;
+      if (pc == null) {
+        _log('PC not ready for screen share');
+        mediaStream.dispose();
+        return;
+      }
+
+      // Находим существующий видео-сендер или создаём новый
+      final senders = await pc.getSenders();
+      RTCRtpSender? videoSender;
+      for (final s in senders) {
+        if (s.track != null && s.track!.kind == 'video') {
+          videoSender = s;
+          break;
+        }
+      }
+
+      if (videoSender != null) {
+        await videoSender.replaceTrack(track);
+      } else {
+        await pc.addTrack(track, mediaStream);
+      }
+
+      // Сохраняем поток и отображаем локально
+      _localVideoStream = mediaStream;
+      localRenderer.srcObject = mediaStream;
+
+      // Запрашиваем ренегосиацию с увеличенным таймаутом
+      await _requestRenegotiation(timeout: const Duration(seconds: 180));
+
+      notifyListeners();
+    } catch (e) {
+      _log('enableScreenShare failed: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> disableScreenShare() async {
+    // Аналогично disableVideo, но с проверкой на тип трека
+    if (_localVideoStream == null) return;
+    final pc = signaling.pc;
+    if (pc != null) {
+      try {
+        final senders = await pc.getSenders();
+        for (final s in senders) {
+          if (s.track != null && s.track!.kind == 'video') {
+            try {
+              await s.replaceTrack(null);
+            } catch (e) {}
+          }
+        }
+      } catch (e) {}
+    }
+    try {
+      for (final t in _localVideoStream!.getTracks()) t.stop();
+      await _localVideoStream!.dispose();
+    } catch (_) {}
+    _localVideoStream = null;
+    localRenderer.srcObject = null;
+    await _requestRenegotiation(timeout: const Duration(seconds: 180));
+    notifyListeners();
+  }
+
   Future<void> closeAll() async {
+    await _disableProximitySensor();
     _log('closeAll: full cleanup starting');
 
     // stop timers & cancel watchers
@@ -1681,7 +2000,7 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
 
   // Wait for renegotiation answers by watching collection
   Future<String?> _waitForRenegotiationAnswerDocByCollection(String renegId,
-      {Duration timeout = const Duration(seconds: 10)}) async {
+      {Duration timeout = const Duration(seconds: 180)}) async {
     if (offerId == null) return null;
     final coll =
         firestore.collection('calls').doc(offerId).collection('renegotiations');

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:md_ui_kit/widgets/wave_circle_button.dart';
@@ -26,13 +28,13 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-  // bool inCall = false;
   bool isSettingsOpen = false;
+  bool _isVideoEnabled = false;
+  bool _isScreenSharing = false;
 
   @override
   Widget build(BuildContext context) {
-    final manager =
-        widget.disposableManager ?? Provider.of<WebRTCManager>(context);
+    final manager = context.watch<WebRTCManager>();
 
     final mics = manager.devices.where((d) => d.kind == 'audioinput').toList();
     final outs = manager.devices.where((d) => d.kind == 'audiooutput').toList();
@@ -194,6 +196,60 @@ class _CallScreenState extends State<CallScreen> {
                 ),
               ),
             ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: Icon(
+                manager.isEarpieceMode ? Icons.phone_iphone : Icons.speaker,
+              ),
+              onPressed: () => manager.toggleAudioOutput(),
+              tooltip: manager.isEarpieceMode ? 'Телефон' : 'Динамик',
+            ),
+            const SizedBox(width: 16),
+            IconButton(
+              icon: Icon(
+                _isVideoEnabled ? Icons.videocam : Icons.videocam_off,
+              ),
+              onPressed: () async {
+                if (_isVideoEnabled) {
+                  await manager.disableVideo();
+                } else {
+                  try {
+                    await manager.enableVideo();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Ошибка камеры: $e')),
+                    );
+                  }
+                }
+                setState(() => _isVideoEnabled = !_isVideoEnabled);
+              },
+            ),
+            if (!Platform.isIOS) ...[
+              const SizedBox(width: 16),
+              IconButton(
+                icon: Icon(_isScreenSharing
+                    ? Icons.stop_screen_share
+                    : Icons.screen_share),
+                onPressed: () async {
+                  if (_isScreenSharing) {
+                    await manager.disableScreenShare();
+                  } else {
+                    try {
+                      await manager.enableScreenShare();
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Ошибка шаринга: $e')),
+                      );
+                    }
+                  }
+                  setState(() => _isScreenSharing = !_isScreenSharing);
+                },
+              ),
+            ],
           ],
         ),
 
