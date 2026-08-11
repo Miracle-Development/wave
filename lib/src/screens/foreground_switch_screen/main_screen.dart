@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wave_p2p/models/call_state.dart';
 import 'package:wave_p2p/src/core/keys.dart';
 import 'package:wave_p2p/src/core/webrtc_manager.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/friend_list_screen.dart';
 import 'package:wave_p2p/src/screens/foreground_switch_screen/main_screen/call_screen.dart';
 import 'package:wave_p2p/src/screens/foreground_switch_screen/main_screen/chat_screen.dart';
 import 'package:wave_p2p/src/screens/foreground_switch_screen/main_screen/connection_screen.dart';
@@ -136,6 +137,8 @@ class _MainScreenState extends State<MainScreen> {
           key: ValueKey<int>(2),
           isInitialMuted: false,
         );
+      case 3:
+        return FriendsListScreen(key: ValueKey<int>(3));
       default:
         return Placeholder(
           key: ValueKey<int>(-1),

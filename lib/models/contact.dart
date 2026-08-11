@@ -1,8 +1,29 @@
 class Contact {
   final String id;
-  final String displayName;
-  Contact({required this.id, required this.displayName});
-  Map<String, dynamic> toJson() => {"id": id, "displayName": displayName};
-  factory Contact.fromJson(Map<String, dynamic> j) =>
-      Contact(id: j['id'] as String, displayName: j['displayName'] as String);
+  final String name;
+  final String? note;
+  final DateTime addedAt;
+
+  Contact({
+    required this.id,
+    required this.name,
+    this.note,
+    required this.addedAt,
+  });
+
+  String get displayName => note?.isNotEmpty == true ? note! : name;
+
+  Map<String, dynamic> toJson() => {
+        'contactId': id,
+        'name': name,
+        'note': note,
+        'addedAt': addedAt.toIso8601String(),
+      };
+
+  factory Contact.fromJson(Map<String, dynamic> json) => Contact(
+        id: json['contactId'] as String,
+        name: json['name'] as String,
+        note: json['note'] as String?,
+        addedAt: DateTime.parse(json['addedAt'] as String),
+      );
 }

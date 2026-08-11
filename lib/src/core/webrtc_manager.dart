@@ -14,6 +14,8 @@ import 'package:proximity_sensor/proximity_sensor.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wave_p2p/models/call_state.dart';
 import 'package:wave_p2p/models/chat_message.dart';
+import 'package:wave_p2p/models/contact.dart';
+import 'package:wave_p2p/src/core/contact_service.dart';
 
 import 'signaling.dart';
 import 'storage.dart';
@@ -112,6 +114,10 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
 
   String? callKeepUUID; // UI side may use this for CallKeep
 
+  final ContactService _contactService = ContactService();
+  List<Contact> _contacts = [];
+  Stream<List<Contact>>? _contactsStream;
+
   // ---------------- lifecycle ----------------
   Future<void> init() async {
     // register lifecycle observer
@@ -158,6 +164,12 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     // } catch (e) {
     //   _log('Proximity sensor initialization failed: $e');
     // }
+
+    _contactsStream = _contactService.watchContacts(localId);
+    _contactsStream!.listen((contacts) {
+      _contacts = contacts;
+      notifyListeners();
+    });
   }
 
   @override
@@ -195,6 +207,35 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _log(String msg) => print('[WebRTCManager][$localId] $msg');
+
+  /// Создать код приглашения
+  Future<String> createInviteCode() async {
+    final name = _generateRandomName(); // сохраним или сгенерируем
+    return _contactService.createFriendRequest(localId, name);
+  }
+
+  String _generateRandomName() {
+    // Используем комбинацию прилагательного и существительного
+    final adj = words.generateWordPairs().take(1).first.first;
+    final noun = words.generateWordPairs().take(1).first.second;
+    return '${adj[0].toUpperCase()}${adj.substring(1)}${noun[0].toUpperCase()}${noun.substring(1)}';
+  }
+
+  /// Принять приглашение по коду
+  Future<void> acceptInviteCode(String code) async {
+    final req = await _contactService.acceptFriendRequest(code, localId);
+    if (req == null) throw Exception('Invalid or expired code');
+    // Добавляем контакт
+    await _contactService.addContact(localId, req.fromId, req.fromName);
+  }
+
+  /// Обновить заметку контакта
+  Future<void> updateContactNote(String contactId, String note) async {
+    await _contactService.updateContactNote(localId, contactId, note);
+  }
+
+  /// Получить список контактов (синхронно)
+  List<Contact> get contacts => _contacts;
 
   void _pushSystemMessage(String text,
       {SystemMessageType type = SystemMessageType.info,
