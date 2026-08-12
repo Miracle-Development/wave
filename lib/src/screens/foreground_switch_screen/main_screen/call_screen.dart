@@ -1,6 +1,6 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
 import 'package:md_ui_kit/widgets/wave_circle_button.dart';
 import 'package:md_ui_kit/widgets/wave_device_menu.dart';
@@ -39,25 +39,68 @@ class _CallScreenState extends State<CallScreen> {
     final mics = manager.devices.where((d) => d.kind == 'audioinput').toList();
     final outs = manager.devices.where((d) => d.kind == 'audiooutput').toList();
 
-    // Получаем список участников
     final participants = manager.participantsList;
-
-    // Находим локального участника (you)
     final localParticipant = participants.firstWhere(
       (p) => p.id == manager.localId,
-      orElse: () =>
-          ParticipantState(id: '1', inCall: false, muted: true, name: 'You'),
+      orElse: () => ParticipantState(id: '1', inCall: false, muted: true, name: 'You'),
     );
-
-    // Находим удаленного участника (peer) - первого из оставшихся
     final remoteParticipant = participants.firstWhere(
       (p) => p.id != manager.localId,
-      orElse: () =>
-          ParticipantState(id: '2', inCall: false, muted: true, name: 'Peer'),
+      orElse: () => ParticipantState(id: '2', inCall: false, muted: true, name: 'Peer'),
     );
+
+    // Видео-виджеты
+    final remoteVideo = manager.remoteRenderer;
+    final localVideo = manager.localRenderer;
 
     return Column(
       children: [
+        // Верхняя часть с видео (если активно)
+        if (_isVideoEnabled || _isScreenSharing) ...[
+          Expanded(
+            flex: 3,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Удалённое видео (на весь экран)
+                RTCVideoView(
+                  remoteVideo,
+                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                ),
+                // Локальное видео (маленькое в углу)
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: Container(
+                    width: 120,
+                    height: 160,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: RTCVideoView(
+                      localVideo,
+                      objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                    ),
+                  ),
+                ),
+                // Индикатор состояния
+                Positioned(
+                  bottom: 16,
+                  left: 16,
+                  child: WaveText(
+                    manager.formattedCallDuration,
+                    type: WaveTextType.caption,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+
+        // Остальной интерфейс (как было)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
           child: WaveDivider(
@@ -69,15 +112,16 @@ class _CallScreenState extends State<CallScreen> {
           type: WaveChatBubbleType.bubbleMessageInfo,
           label: 'Your call is end-to-end encrypted',
         ),
-
-        SizedBox(height: 40),
-        WaveText(
-          manager.formattedCallDuration,
-          type: WaveTextType.subtitle,
-          weight: WaveTextWeight.regular,
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 100),
+        const SizedBox(height: 8),
+        if (!_isVideoEnabled && !_isScreenSharing) ...[
+          WaveText(
+            manager.formattedCallDuration,
+            type: WaveTextType.subtitle,
+            weight: WaveTextWeight.regular,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 40),
+        ],
 
         SwipeSwitcher(
           showDevices: isSettingsOpen,
@@ -91,7 +135,7 @@ class _CallScreenState extends State<CallScreen> {
                 onChanged: (v) => manager.selectMic(v.deviceId),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 36.0),
               child: WaveDeviceMenu(
@@ -108,39 +152,35 @@ class _CallScreenState extends State<CallScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (localParticipant != null)
-                    WaveParticipant(
-                      label: 'You',
-                      inCall: localParticipant.inCall,
-                      muted: localParticipant.muted,
-                    ),
-                  SizedBox(width: 16),
-                  WaveParticipantLoader(),
-                  SizedBox(width: 16),
-                  if (remoteParticipant != null)
-                    WaveParticipant(
-                      label: 'Peer',
-                      inCall: remoteParticipant.inCall,
-                      muted: remoteParticipant.muted,
-                    ),
+                  WaveParticipant(
+                    label: 'You',
+                    inCall: localParticipant.inCall,
+                    muted: localParticipant.muted,
+                  ),
+                  const SizedBox(width: 16),
+                  const WaveParticipantLoader(),
+                  const SizedBox(width: 16),
+                  WaveParticipant(
+                    label: 'Peer',
+                    inCall: remoteParticipant.inCall,
+                    muted: remoteParticipant.muted,
+                  ),
                 ],
               ),
             ),
           ],
         ),
 
-        SizedBox(height: 100),
+        const SizedBox(height: 20),
 
+        // Кнопки управления
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
               width: 100,
               child: Padding(
-                padding: const EdgeInsets.only(
-                  top: 26.0,
-                  right: 26.0,
-                ),
+                padding: const EdgeInsets.only(top: 26.0, right: 26.0),
                 child: WaveCircleButton(
                   type: WaveCircleButtonType.setting,
                   subtitle: 'Settings',
@@ -169,18 +209,13 @@ class _CallScreenState extends State<CallScreen> {
                       }
                     }
                   }
-                } catch (e) {
-                  // ignore callkeep issues
-                }
+                } catch (_) {}
               },
             ),
             SizedBox(
               width: 100,
               child: Padding(
-                padding: const EdgeInsets.only(
-                  top: 26.0,
-                  left: 26.0,
-                ),
+                padding: const EdgeInsets.only(top: 26.0, left: 26.0),
                 child: WaveCircleButton(
                   type: manager.inCall
                       ? WaveCircleButtonType.leaveCall
@@ -198,6 +233,10 @@ class _CallScreenState extends State<CallScreen> {
             ),
           ],
         ),
+
+        const SizedBox(height: 12),
+
+        // Дополнительные кнопки: динамик, камера, шаринг
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -231,9 +270,9 @@ class _CallScreenState extends State<CallScreen> {
             if (!Platform.isIOS) ...[
               const SizedBox(width: 16),
               IconButton(
-                icon: Icon(_isScreenSharing
-                    ? Icons.stop_screen_share
-                    : Icons.screen_share),
+                icon: Icon(
+                  _isScreenSharing ? Icons.stop_screen_share : Icons.screen_share,
+                ),
                 onPressed: () async {
                   if (_isScreenSharing) {
                     await manager.disableScreenShare();
@@ -253,59 +292,7 @@ class _CallScreenState extends State<CallScreen> {
           ],
         ),
 
-        // SizedBox(height: 32),
-        //         WaveSimpleButton(
-        //   label: 'Close Peer',
-        //   onPressed: () async {
-        //     await manager.closeAll();
-        //   },
-        // ),
-
-        // Column(
-        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        //   children: [
-        // if (!inCall)
-        // WaveSimpleButton(
-        //   label: manager.inCall ? 'Leave Call' : 'Start Call',
-        //   onPressed: () async {
-        //     if (manager.inCall) {
-        //       await manager.leaveCall();
-        //     } else {
-        //       try {
-        //         await manager.startCall();
-        //       } catch (e) {
-        //         ScaffoldMessenger.of(context).showSnackBar(
-        //           SnackBar(
-        //             content: Text('Start call failed: $e'),
-        //           ),
-        //         );
-        //       }
-        //     }
-        //   },
-        // ),
-        // WaveSimpleButton(
-        //   label: 'Toggle Video',
-        //   onPressed: () async {
-        //     if (manager.localRenderer.srcObject != null) {
-        //       await manager.disableVideo();
-        //     } else {
-        //       try {
-        //         await manager.enableVideo();
-        //       } catch (e) {
-        //         ScaffoldMessenger.of(context).showSnackBar(
-        //           SnackBar(
-        //             content: Text('Camera error: $e'),
-        //           ),
-        //         );
-        //       }
-        //     }
-        //   },
-        // ),
-
-        // ],
-        // ),
-
-        SizedBox(height: 200),
+        const SizedBox(height: 20),
       ],
     );
   }

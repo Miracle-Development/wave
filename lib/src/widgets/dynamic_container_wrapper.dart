@@ -231,6 +231,20 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
                                   },
                                 ),
                               ),
+                              SizedBox(
+                                width: 78,
+                                child: WaveNavBarItem(
+                                  icon: NavBarIconType.link,
+                                  label: 'Friend',
+                                  selected: widget.navBarIndex == 3,
+                                  onTap: () {
+                                    if (widget.navBarIndex == 1) {
+                                      manager.markChatRead();
+                                    }
+                                    widget.onNavBarIndexChanged(3);
+                                  },
+                                ),
+                              ),
                             ],
                           ),
                         ),
