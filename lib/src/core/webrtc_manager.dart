@@ -676,6 +676,37 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     return false;
   }
 
+  Future<bool> checkCameraPermission() async {
+    if (kIsWeb) {
+      // на вебе проверяем через getUserMedia
+      try {
+        final stream =
+            await navigator.mediaDevices.getUserMedia({'video': true});
+        stream.getTracks().forEach((t) => t.stop());
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      final statusVideoPref = await Permission.camera.status;
+      try {
+        if (statusVideoPref.isGranted) {
+          return true;
+        } else {
+          final status = await Permission.camera.request();
+          return status.isGranted;
+        }
+      } catch (e) {
+        _log('Camera permission request failed: $e');
+        return false;
+      }
+    }
+    _log('Unsupported platform for camera permission check');
+    return false;
+  }
+
   /// Create or update local audio stream.
   /// IMPORTANT: do NOT attach to PeerConnection unless _inCall == true.
   Future<void> _ensureLocalAudio({bool unmuted = true}) async {

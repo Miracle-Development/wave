@@ -22,27 +22,15 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
       mainAxisSize: MainAxisSize.min, // Важно: не растягиваться на всю высоту
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const WaveText('Друзья', type: WaveTextType.title),
-              WaveSimpleButton(
-                label: 'Добавить',
-                onPressed: () => _showAddFriendDialog(context),
-                type: WaveButtonType.main,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              ),
-            ],
-          ),
-        ),
         // Если контактов нет – показываем сообщение, иначе список
         contacts.isEmpty
             ? const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Center(child: Text('Нет друзей. Добавьте первого!')),
+                padding: EdgeInsets.all(32.0),
+                child: Center(
+                    child: WaveText(
+                  'Нет друзей. Добавьте первого!',
+                  type: WaveTextType.subtitle,
+                )),
               )
             : ListView.builder(
                 shrinkWrap: true, // Важно: занимает только необходимую высоту
@@ -64,6 +52,17 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                   );
                 },
               ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            WaveSimpleButton(
+              label: 'Добавить',
+              onPressed: () => _showAddFriendDialog(context),
+              type: WaveButtonType.main,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+          ],
+        ),
       ],
     );
   }

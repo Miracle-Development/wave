@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wave_p2p/models/call_state.dart';
@@ -6,6 +8,7 @@ import 'package:wave_p2p/src/core/keys.dart';
 import 'package:wave_p2p/src/core/webrtc_manager.dart';
 import 'package:wave_p2p/src/screens/foreground_switch_screen/copy_code_screen.dart';
 import 'package:wave_p2p/src/screens/foreground_switch_screen/enable_microphone_screen.dart';
+import 'package:wave_p2p/src/screens/foreground_switch_screen/enable_video_screen.dart';
 import 'package:wave_p2p/src/screens/foreground_switch_screen/main_screen.dart';
 import 'package:wave_p2p/src/screens/foreground_switch_screen/paste_code_screen.dart';
 import 'package:wave_p2p/src/screens/foreground_switch_screen/start_connection_screen.dart';
@@ -16,6 +19,8 @@ enum VisibleScreenType {
   startButton,
   micOn,
   micOnAnimated,
+  videoOn,
+  videoOnAnimated,
   selectAction,
   selectActionAnimated,
   createCode,
@@ -132,6 +137,32 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           ),
         );
 
+      // Экран с кнопкой "Video on", скрывается если нажался хотя бы раз
+      // без анимации, если проигрывается после startButton
+      case VisibleScreenType.videoOn:
+        return AnimatedContainerWrapper(
+          purpleTitle: 'One more step',
+          isAnimated: false,
+          key: ValueKey<String>('videoOn$postfix'),
+          topPadding: topPadding,
+          child: EnableVideoScreen(
+            onNext: _onEnableVideoPressed,
+          ),
+        );
+
+      // Экран с кнопкой "Video on", скрывается если нажался хотя бы раз
+      // с анимацией, если открывается сразу после заставки
+      case VisibleScreenType.videoOnAnimated:
+        return AnimatedContainerWrapper(
+          purpleTitle: 'One more step',
+          isAnimated: true,
+          key: ValueKey<String>('videoOnAnimated$postfix'),
+          topPadding: topPadding,
+          child: EnableVideoScreen(
+            onNext: _onEnableVideoPressed,
+          ),
+        );
+
       // Экран с выбором действия - создать/вставить код
       // без анимации, если проигрывается после micOn
       case VisibleScreenType.selectAction:
@@ -209,12 +240,19 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
     final prefs = await SharedPreferences.getInstance();
 
     final gotStarted = prefs.getBool(prefsFirstTimeStartKey) ?? false;
+    final gotMicAccess = prefs.getBool(prefsMicAccessKey) ?? false;
 
     if (gotStarted) {
-      // if (!kDebugMode)
-      setState(() {
-        _stepper = VisibleScreenType.micOnAnimated;
-      });
+      if (gotMicAccess) {
+        setState(() {
+          _stepper = VisibleScreenType.videoOnAnimated;
+        });
+      } else {
+        setState(() {
+          _stepper = VisibleScreenType.micOnAnimated;
+        });
+      }
+
       return;
     }
   }
@@ -233,10 +271,16 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       if (hasAccess && hasAccessPref) {
         await manager.updateAudioDevices();
 
-        // if (!kDebugMode)
-        setState(() {
-          _stepper = VisibleScreenType.selectActionAnimated;
-        });
+        if (!kDebugMode) {
+          setState(() {
+            _stepper = VisibleScreenType.videoOnAnimated;
+          });
+        } else {
+          setState(() {
+            _stepper = VisibleScreenType.selectActionAnimated;
+          });
+        }
+
         return;
       } else {
         await prefs.setBool(prefsMicAccessKey, false);
@@ -263,7 +307,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
       // запоминаем
       await prefs.setBool(prefsMicAccessKey, true);
       setState(() {
-        _stepper = VisibleScreenType.selectActionAnimated;
+        _stepper = VisibleScreenType.videoOnAnimated;
       });
     } else {
       // TODO: Доступ не получен
@@ -272,6 +316,39 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
             content: Text(
                 'Доступ к микрофону не получен, разрешите его в настройках')),
       );
+      // setState(() {
+      //   _stepper = VisibleScreenType.selectAction;
+      // });
+    }
+  }
+
+  Future<void> _onEnableVideoPressed() async {
+    final manager = context.read<WebRTCManager>();
+    final prefs = await SharedPreferences.getInstance();
+    final hasAccess = await manager.checkCameraPermission();
+
+    if (hasAccess) {
+      // if (mounted) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text('Доступ к микрофону получен')),
+      //   );
+      // }
+
+      // функция обновления списка устройств
+      // await manager.updateAudioDevices();
+
+      // запоминаем
+      await prefs.setBool(prefsCamAccessKey, true);
+      setState(() {
+        _stepper = VisibleScreenType.selectActionAnimated;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text('Доступ к камере не получен, разрешите его в настройках')),
+      );
+
       // setState(() {
       //   _stepper = VisibleScreenType.selectAction;
       // });
