@@ -32,7 +32,8 @@ class ContactService {
     final req = FriendRequest.fromJson(code, data);
     if (req.used) return null; // уже использован
     // Проверка на истечение срока (10 минут)
-    if (req.createdAt.isBefore(DateTime.now().subtract(const Duration(minutes: 10)))) {
+    if (req.createdAt
+        .isBefore(DateTime.now().subtract(const Duration(minutes: 10)))) {
       return null; // истёк
     }
     // Активируем код
@@ -45,7 +46,8 @@ class ContactService {
   }
 
   /// Добавить контакт обоим пользователям (взаимное добавление)
-  Future<void> addContact(String myId, String friendId, String friendName) async {
+  Future<void> addContact(
+      String myId, String friendId, String friendName) async {
     final myRef = _firestore.collection('contacts').doc(myId);
     final friendRef = _firestore.collection('contacts').doc(friendId);
 
@@ -56,35 +58,39 @@ class ContactService {
     );
     final friendContact = Contact(
       id: myId,
-      name: await _getNameForId(myId), // нужно получить имя текущего пользователя
+      name:
+          await _getNameForId(myId),
       addedAt: DateTime.now(),
     );
 
-    await _firestore.runTransaction((txn) async {
-      txn.update(myRef, {
-        'list': FieldValue.arrayUnion([myContact.toJson()]),
-      });
-      txn.update(friendRef, {
-        'list': FieldValue.arrayUnion([friendContact.toJson()]),
-      });
-    });
+    await myRef.set(
+      {
+        'list': FieldValue.arrayUnion([myContact.toJson()])
+      },
+      SetOptions(merge: true),
+    );
+    await friendRef.set(
+      {
+        'list': FieldValue.arrayUnion([friendContact.toJson()])
+      },
+      SetOptions(merge: true),
+    );
   }
 
   /// Подписка на список контактов пользователя
   Stream<List<Contact>> watchContacts(String myId) {
-    return _firestore
-        .collection('contacts')
-        .doc(myId)
-        .snapshots()
-        .map((snap) {
+    return _firestore.collection('contacts').doc(myId).snapshots().map((snap) {
       if (!snap.exists) return <Contact>[];
       final list = snap.data()?['list'] as List? ?? [];
-      return list.map((e) => Contact.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => Contact.fromJson(e as Map<String, dynamic>))
+          .toList();
     });
   }
 
   /// Обновить заметку контакта
-  Future<void> updateContactNote(String myId, String contactId, String note) async {
+  Future<void> updateContactNote(
+      String myId, String contactId, String note) async {
     final doc = _firestore.collection('contacts').doc(myId);
     final snap = await doc.get();
     if (!snap.exists) return;

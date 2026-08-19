@@ -6,7 +6,14 @@ import 'package:wave_p2p/models/contact.dart';
 
 /// Экран списка друзей
 class FriendsListScreen extends StatefulWidget {
-  const FriendsListScreen({super.key});
+  const FriendsListScreen({
+    super.key,
+    required this.onOpenChat,
+    required this.onStartCall,
+  });
+
+  final void Function(Contact) onOpenChat;
+  final void Function(Contact) onStartCall;
 
   @override
   State<FriendsListScreen> createState() => _FriendsListScreenState();
@@ -18,16 +25,44 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
     final manager = context.watch<WebRTCManager>();
     final contacts = manager.contacts;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min, // Важно: не растягиваться на всю высоту
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min, // Важно: не растягиваться на всю высоту
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Если контактов нет – показываем сообщение, иначе список
+          contacts.isEmpty
+              ? const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(child: Text('Нет друзей. Добавьте первого!')),
+                )
+              : ListView.builder(
+                  shrinkWrap: true, // Важно: занимает только необходимую высоту
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Отключаем внутренний скролл
+                  itemCount: contacts.length,
+                  itemBuilder: (_, index) {
+                    final contact = contacts[index];
+                    return ListTile(
+                      leading:
+                          CircleAvatar(child: Text(contact.displayName[0])),
+                      title: Text(contact.displayName),
+                      subtitle: Text(contact.id),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.edit_note),
+                        onPressed: () => _editNote(context, contact),
+                      ),
+                      minVerticalPadding: 0,
+                      contentPadding: EdgeInsets.all(0),
+                      onTap: () => widget.onOpenChat(contact),
+                      onLongPress: () => widget.onStartCall(contact),
+                    );
+                  },
+                ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const WaveText('Друзья', type: WaveTextType.title),
               WaveSimpleButton(
                 label: 'Добавить',
                 onPressed: () => _showAddFriendDialog(context),
@@ -37,34 +72,8 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
               ),
             ],
           ),
-        ),
-        // Если контактов нет – показываем сообщение, иначе список
-        contacts.isEmpty
-            ? const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Center(child: Text('Нет друзей. Добавьте первого!')),
-              )
-            : ListView.builder(
-                shrinkWrap: true, // Важно: занимает только необходимую высоту
-                physics:
-                    const NeverScrollableScrollPhysics(), // Отключаем внутренний скролл
-                itemCount: contacts.length,
-                itemBuilder: (_, index) {
-                  final contact = contacts[index];
-                  return ListTile(
-                    leading: CircleAvatar(child: Text(contact.displayName[0])),
-                    title: Text(contact.displayName),
-                    subtitle: Text(contact.id),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit_note),
-                      onPressed: () => _editNote(context, contact),
-                    ),
-                    onTap: () => _openChatWithContact(context, contact),
-                    onLongPress: () => _callContact(context, contact),
-                  );
-                },
-              ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -101,20 +110,6 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  void _openChatWithContact(BuildContext context, Contact contact) {
-    // TODO: открыть чат с контактом (можно использовать существующий ChatScreen, передав contactId)
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Чат с ${contact.displayName} (в разработке)')),
-    );
-  }
-
-  void _callContact(BuildContext context, Contact contact) {
-    // TODO: инициировать звонок контакту (создать offer и сохранить в Firestore)
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Звонок ${contact.displayName} (в разработке)')),
     );
   }
 }

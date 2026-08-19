@@ -42,11 +42,13 @@ class _CallScreenState extends State<CallScreen> {
     final participants = manager.participantsList;
     final localParticipant = participants.firstWhere(
       (p) => p.id == manager.localId,
-      orElse: () => ParticipantState(id: '1', inCall: false, muted: true, name: 'You'),
+      orElse: () =>
+          ParticipantState(id: '1', inCall: false, muted: true, name: 'You'),
     );
     final remoteParticipant = participants.firstWhere(
       (p) => p.id != manager.localId,
-      orElse: () => ParticipantState(id: '2', inCall: false, muted: true, name: 'Peer'),
+      orElse: () =>
+          ParticipantState(id: '2', inCall: false, muted: true, name: 'Peer'),
     );
 
     // Видео-виджеты
@@ -80,7 +82,8 @@ class _CallScreenState extends State<CallScreen> {
                     ),
                     child: RTCVideoView(
                       localVideo,
-                      objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                      objectFit:
+                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                     ),
                   ),
                 ),
@@ -247,52 +250,52 @@ class _CallScreenState extends State<CallScreen> {
               onPressed: () => manager.toggleAudioOutput(),
               tooltip: manager.isEarpieceMode ? 'Телефон' : 'Динамик',
             ),
-            const SizedBox(width: 16),
-            IconButton(
-              icon: Icon(
-                _isVideoEnabled ? Icons.videocam : Icons.videocam_off,
-              ),
-              onPressed: () async {
-                if (_isVideoEnabled) {
-                  await manager.disableVideo();
-                } else {
-                  try {
-                    await manager.enableVideo();
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Ошибка камеры: $e')),
-                    );
-                  }
-                }
-                setState(() => _isVideoEnabled = !_isVideoEnabled);
-              },
-            ),
-            if (!Platform.isIOS) ...[
-              const SizedBox(width: 16),
-              IconButton(
-                icon: Icon(
-                  _isScreenSharing ? Icons.stop_screen_share : Icons.screen_share,
-                ),
-                onPressed: () async {
-                  if (_isScreenSharing) {
-                    await manager.disableScreenShare();
-                  } else {
-                    try {
-                      await manager.enableScreenShare();
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Ошибка шаринга: $e')),
-                      );
-                    }
-                  }
-                  setState(() => _isScreenSharing = !_isScreenSharing);
-                },
-              ),
-            ],
+            // const SizedBox(width: 16),
+            // IconButton(
+            //   icon: Icon(
+            //     _isVideoEnabled ? Icons.videocam : Icons.videocam_off,
+            //   ),
+            //   onPressed: () async {
+            //     if (_isVideoEnabled) {
+            //       await manager.disableVideo();
+            //     } else {
+            //       try {
+            //         await manager.enableVideo();
+            //       } catch (e) {
+            //         ScaffoldMessenger.of(context).showSnackBar(
+            //           SnackBar(content: Text('Ошибка камеры: $e')),
+            //         );
+            //       }
+            //     }
+            //     setState(() => _isVideoEnabled = !_isVideoEnabled);
+            //   },
+            // ),
+            // if (!Platform.isIOS) ...[
+            //   const SizedBox(width: 16),
+            //   IconButton(
+            //     icon: Icon(
+            //       _isScreenSharing ? Icons.stop_screen_share : Icons.screen_share,
+            //     ),
+            //     onPressed: () async {
+            //       if (_isScreenSharing) {
+            //         await manager.disableScreenShare();
+            //       } else {
+            //         try {
+            //           await manager.enableScreenShare();
+            //         } catch (e) {
+            //           ScaffoldMessenger.of(context).showSnackBar(
+            //             SnackBar(content: Text('Ошибка шаринга: $e')),
+            //           );
+            //         }
+            //       }
+            //       setState(() => _isScreenSharing = !_isScreenSharing);
+            //     },
+            //   ),
+            // ],
           ],
         ),
 
-        const SizedBox(height: 20),
+        // const SizedBox(height: 20),
       ],
     );
   }

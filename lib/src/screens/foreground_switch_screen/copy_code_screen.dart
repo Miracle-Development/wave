@@ -53,6 +53,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
       final manager = context.read<WebRTCManager>();
       final offerId = await _getLocalOfferId();
       await manager.acceptAnswer(offerId);
+      await manager.startCall();
       _autoAccepted = true;
       // Переход на главный экран происходит через изменение состояния в ForegroundSwitchScreen
       // но мы можем и сами вызвать колбэк, если нужно
@@ -170,6 +171,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
       final manager = context.read<WebRTCManager>();
       final offerId = await _getLocalOfferId();
       await manager.acceptAnswer(offerId);
+      await manager.startCall();
       // переход на main будет выполнен в ForegroundSwitchScreen через изменение состояния
     } catch (e) {
       if (mounted) {

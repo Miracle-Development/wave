@@ -16,6 +16,7 @@ class DynamicContainerWrapper extends StatefulWidget {
     this.useScroll = true,
     required this.onSendButtonPressed,
     required this.controller,
+    required this.isConnected,
   });
 
   final Widget child;
@@ -27,6 +28,7 @@ class DynamicContainerWrapper extends StatefulWidget {
   final bool useScroll;
   final VoidCallback onSendButtonPressed;
   final TextEditingController controller;
+  final bool isConnected;
 
   @override
   State<DynamicContainerWrapper> createState() =>
@@ -55,6 +57,9 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
   Widget build(BuildContext context) {
     final topPadding = widget.topPadding;
     final bottomInset = MediaQuery.of(context).padding.bottom;
+
+    final isChatCallShows = widget.isConnected;
+    final navBarWidth = isChatCallShows ? 78.0 : 78.0 * 2;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -185,7 +190,7 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               SizedBox(
-                                width: 78,
+                                width: navBarWidth,
                                 child: WaveNavBarItem(
                                   icon: NavBarIconType.planet,
                                   label: 'Connection',
@@ -198,41 +203,43 @@ class _DynamicContainerWrapperState extends State<DynamicContainerWrapper>
                                   },
                                 ),
                               ),
-                              SizedBox(
-                                width: 78,
-                                child: WaveNavBarItem(
-                                  icon: NavBarIconType.chat,
-                                  label: 'Chat',
-                                  selected: widget.navBarIndex == 1,
-                                  counter: manager.unread > 0 &&
-                                          widget.navBarIndex != 1
-                                      ? manager.unread
-                                      : null,
-                                  onTap: () {
-                                    WidgetsBinding.instance
-                                        .addPostFrameCallback(
-                                      (_) => manager.markChatRead(),
-                                    );
-                                    widget.onNavBarIndexChanged(1);
-                                  },
+                              if (isChatCallShows)
+                                SizedBox(
+                                  width: navBarWidth,
+                                  child: WaveNavBarItem(
+                                    icon: NavBarIconType.chat,
+                                    label: 'Chat',
+                                    selected: widget.navBarIndex == 1,
+                                    counter: manager.unread > 0 &&
+                                            widget.navBarIndex != 1
+                                        ? manager.unread
+                                        : null,
+                                    onTap: () {
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback(
+                                        (_) => manager.markChatRead(),
+                                      );
+                                      widget.onNavBarIndexChanged(1);
+                                    },
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                width: 78,
-                                child: WaveNavBarItem(
-                                  icon: NavBarIconType.phone,
-                                  label: 'Call',
-                                  selected: widget.navBarIndex == 2,
-                                  onTap: () {
-                                    if (widget.navBarIndex == 1) {
-                                      manager.markChatRead();
-                                    }
-                                    widget.onNavBarIndexChanged(2);
-                                  },
+                              if (isChatCallShows)
+                                SizedBox(
+                                  width: navBarWidth,
+                                  child: WaveNavBarItem(
+                                    icon: NavBarIconType.phone,
+                                    label: 'Call',
+                                    selected: widget.navBarIndex == 2,
+                                    onTap: () {
+                                      if (widget.navBarIndex == 1) {
+                                        manager.markChatRead();
+                                      }
+                                      widget.onNavBarIndexChanged(2);
+                                    },
+                                  ),
                                 ),
-                              ),
                               SizedBox(
-                                width: 78,
+                                width: navBarWidth,
                                 child: WaveNavBarItem(
                                   icon: NavBarIconType.link,
                                   label: 'Friend',

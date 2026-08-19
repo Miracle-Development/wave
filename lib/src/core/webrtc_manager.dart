@@ -117,6 +117,13 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
   final ContactService _contactService = ContactService();
   List<Contact> _contacts = [];
   Stream<List<Contact>>? _contactsStream;
+  Contact? _selectedContact;
+  set selectedContact(Contact? contact) {
+    _selectedContact = contact;
+    notifyListeners();
+  }
+
+  Contact? get selectedContact => _selectedContact;
 
   // ---------------- lifecycle ----------------
   Future<void> init() async {

@@ -8,14 +8,10 @@ class StartConnectionScreen extends StatelessWidget {
     super.key,
     required this.onCreateCode,
     required this.onPasteCode,
-    required this.onOrPressed,
   });
 
   final VoidCallback onCreateCode;
   final VoidCallback onPasteCode;
-
-  // TODO: remove reconnect functionality
-  final VoidCallback onOrPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -56,9 +52,6 @@ class StartConnectionScreen extends StatelessWidget {
                   hoverColor: Colors.transparent,
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
-                  onTap: () {
-                    onOrPressed();
-                  },
                   child: orWidget,
                 ),
               )

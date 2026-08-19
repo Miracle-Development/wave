@@ -71,6 +71,7 @@ class _PasteCodeScreenState extends State<PasteCodeScreen> {
       // Принимаем оффер
       final manager = context.read<WebRTCManager>();
       await manager.acceptOffer(_codeController.text.trim());
+      await manager.startCall(); 
 
       // Переход на main будет выполнен автоматически в ForegroundSwitchScreen
       // Но можно вызвать колбэк, если нужно

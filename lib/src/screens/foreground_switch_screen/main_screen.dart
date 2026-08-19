@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wave_p2p/models/call_state.dart';
+import 'package:wave_p2p/models/contact.dart';
 import 'package:wave_p2p/src/core/keys.dart';
 import 'package:wave_p2p/src/core/webrtc_manager.dart';
 import 'package:wave_p2p/src/screens/foreground_switch_screen/main_screen/friend_list_screen.dart';
@@ -16,13 +17,11 @@ class MainScreen extends StatefulWidget {
   const MainScreen({
     super.key,
     required this.isPeerInitiator,
-    required this.onReturnPressed,
     required this.topPadding,
     required this.onClosePeerPressed,
   });
 
   final bool isPeerInitiator;
-  final VoidCallback onReturnPressed;
   final VoidCallback onClosePeerPressed;
   final double topPadding;
 
@@ -34,7 +33,7 @@ class _MainScreenState extends State<MainScreen> {
   String localId = '';
 
   // TODO: remove reconnect functionality
-  bool _isNavBarShowed = kDebugMode ? true : false;
+  bool _isNavBarShowed = true;
 
   int navBarIndex = 0;
 
@@ -55,16 +54,18 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    // _isNavBarShowed = true;
     _getLocalOfferId();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final manager = context.read<WebRTCManager>();
-      // выключаем микрофон сразу после подключения
-      // await manager.toggleMicMute();
-      manager.addListener(_handleStateChange);
-    });
-
     _disposableManager = Provider.of<WebRTCManager>(context, listen: false);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // final manager = context.read<WebRTCManager>();
+
+      // выключаем микрофон сразу после подключения
+      await _disposableManager.toggleMicMute();
+      _disposableManager.addListener(_handleStateChange);
+    });
   }
 
   void _handleStateChange() {
@@ -81,19 +82,19 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void dispose() {
     _chatTextController.dispose();
-    final manager = _disposableManager;
-    manager.removeListener(_handleStateChange);
+    _disposableManager.removeListener(_handleStateChange);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final manager = context.read<WebRTCManager>();
-
     return ListenableBuilder(
-      listenable: manager,
+      listenable: _disposableManager,
       builder: (context, child) {
+        final isConnected = _disposableManager.callState == CallState.connected;
+
         return DynamicContainerWrapper(
+          isConnected: isConnected,
           useScroll: navBarIndex != 1,
           isNavBarShowed: _isNavBarShowed,
           topPadding: widget.topPadding,
@@ -102,18 +103,18 @@ class _MainScreenState extends State<MainScreen> {
           onSendButtonPressed: () async {
             final t = _chatTextController.text.trim();
             if (t.isEmpty) return;
-            await manager.sendText(t);
+            await _disposableManager.sendText(t);
             _chatTextController.clear();
           },
           controller: _chatTextController,
-          child: _buildCurrentPage(manager.callState),
+          child: _buildCurrentPage(_disposableManager.callState),
         );
       },
     );
   }
 
   Widget _buildCurrentPage(CallState state) {
-    // final manager = context.read<WebRTCManager>();
+    final manager = context.read<WebRTCManager>();
 
     switch (navBarIndex) {
       case 0:
@@ -124,7 +125,6 @@ class _MainScreenState extends State<MainScreen> {
           localId: localId,
           state: state,
           isPeerInitiator: widget.isPeerInitiator,
-          onReturnPressed: widget.onReturnPressed,
           onClosePeerPressed: widget.onClosePeerPressed,
         );
       case 1:
@@ -138,7 +138,28 @@ class _MainScreenState extends State<MainScreen> {
           isInitialMuted: false,
         );
       case 3:
-        return FriendsListScreen(key: ValueKey<int>(3));
+        return FriendsListScreen(
+          key: ValueKey<int>(3),
+          onOpenChat: (Contact contact) {
+            manager.selectedContact = contact;
+            setState(() => navBarIndex = 1); // переключить на чат
+          },
+          onStartCall: (Contact contact) async {
+            manager.selectedContact = contact;
+            // Если соединение не установлено, сначала создаём offer и ждём ответа
+            if (manager.callState != CallState.connected) {
+              // Можно создать оффер и показать экран ожидания
+              await manager
+                  .createOfferLink(); // или acceptOffer, в зависимости от роли
+              // Здесь нужно переключить на вкладку Call, но пока просто
+              setState(() => navBarIndex = 2);
+            } else {
+              // Если уже соединены, просто включаем звонок
+              await manager.startCall();
+              setState(() => navBarIndex = 2);
+            }
+          },
+        );
       default:
         return Placeholder(
           key: ValueKey<int>(-1),
