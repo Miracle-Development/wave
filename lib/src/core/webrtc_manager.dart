@@ -1126,6 +1126,9 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
     // Ensure pc before applying remote answer
     await _ensurePcReady();
     await signaling.acceptAnswerBlob(answerBlob);
+
+    lastAnswerBlob = null;
+    notifyListeners();
   }
 
   // ---------------- Start / Join Call ----------------

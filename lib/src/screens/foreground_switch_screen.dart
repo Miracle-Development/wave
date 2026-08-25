@@ -199,7 +199,13 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           key: ValueKey<String>('createCode$postfix'),
           topPadding: topPadding,
           isAnimated: false,
-          child: CopyCodeScreen(),
+          child: CopyCodeScreen(
+            onBackPressed: () {
+              setState(() {
+                _stepper = VisibleScreenType.selectAction;
+              });
+            }
+          ),
         );
 
       // Экран вставки кода
@@ -208,7 +214,13 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           key: ValueKey<String>('pasteCode$postfix'),
           topPadding: topPadding,
           isAnimated: false,
-          child: PasteCodeScreen(),
+          child: PasteCodeScreen(
+            onBackPressed: () {
+              setState(() {
+                _stepper = VisibleScreenType.selectAction;
+              });
+            }
+          ),
         );
 
       // Основной экран с динамичным навбаром, скаффолдом с адаптивной высотой и волной

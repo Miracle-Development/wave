@@ -102,7 +102,7 @@ class ConnectionScreen extends StatelessWidget {
               ),
               SizedBox(height: 305),
             ],
-            if (state == CallState.failed ||
+            if (state == CallState.failed || 
                 state == CallState.disconnected) ...[
               SizedBox(height: 12),
               Padding(

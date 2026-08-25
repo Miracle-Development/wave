@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:md_ui_kit/_core/colors.dart';
 import 'package:md_ui_kit/md_ui_kit.dart';
+import 'package:md_ui_kit/widgets/wave_flower_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wave_p2p/src/core/keys.dart';
 import 'package:wave_p2p/src/core/webrtc_manager.dart';
 
 class CopyCodeScreen extends StatefulWidget {
-  const CopyCodeScreen({super.key});
+  const CopyCodeScreen({super.key, required this.onBackPressed});
+
+  final VoidCallback onBackPressed;
 
   @override
   State<CopyCodeScreen> createState() => _CopyCodeScreenState();
@@ -20,52 +24,52 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
   bool _isProcessing = false; // блокировка кнопки
   bool _autoAccepted = false; // чтобы не повторять автопринятие
 
+  late final WebRTCManager _manager;
+
   @override
   void initState() {
+    _manager = context.read<WebRTCManager>();
     super.initState();
-    _createOffer();
-    // Подписываемся на изменения документа, чтобы автоматически принять ответ
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final manager = context.read<WebRTCManager>();
-      manager.addListener(_onManagerChanged);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _manager.addListener(_onManagerChanged);
+      _createOffer();
     });
   }
 
   @override
   void dispose() {
-    final manager = context.read<WebRTCManager>();
-    manager.removeListener(_onManagerChanged);
+    _manager.removeListener(_onManagerChanged);
     super.dispose();
   }
 
   void _onManagerChanged() {
-    final manager = context.read<WebRTCManager>();
+    if (!mounted) return;
     // Если ответ уже пришёл и мы ещё не приняли его автоматически
-    if (manager.isAnswerAvailable && !_autoAccepted && !_isProcessing) {
+    if (_manager.isAnswerAvailable && !_autoAccepted && !_isProcessing) {
       _autoAcceptAnswer();
     }
   }
 
   Future<void> _autoAcceptAnswer() async {
-    if (_isProcessing) return;
+    if (_isProcessing || !mounted) return;
     setState(() => _isProcessing = true);
     try {
-      final manager = context.read<WebRTCManager>();
       final offerId = await _getLocalOfferId();
-      await manager.acceptAnswer(offerId);
+      await _manager.acceptAnswer(offerId);
       _autoAccepted = true;
       // Переход на главный экран происходит через изменение состояния в ForegroundSwitchScreen
       // но мы можем и сами вызвать колбэк, если нужно
       // Пока просто уведомим
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Соединение установлено автоматически!')),
+          const SnackBar(content: Text('Successfully connected')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка автоподключения: $e')),
+          SnackBar(content: Text('Autoconnection failed: $e')),
         );
       }
     } finally {
@@ -75,8 +79,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
 
   Future<void> _createOffer() async {
     try {
-      final manager = context.read<WebRTCManager>();
-      final id = await manager.createOfferLink();
+      final id = await _manager.createOfferLink();
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(currentPeerLocalIdKey, id);
       if (!mounted) return;
@@ -87,7 +90,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка создания кода: $e')),
+          SnackBar(content: Text('Failed to create code: $e')),
         );
         setState(() => _creating = false);
       }
@@ -101,17 +104,42 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final manager = context.watch<WebRTCManager>();
-    final answerReady = manager.isAnswerAvailable;
+    final answerReady = _manager.isAnswerAvailable;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        const SizedBox(height: 280),
+        Row(
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                widget.onBackPressed();
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: 32.0,
+                  top: 12,
+                ),
+                child: RotatedBox(
+                  quarterTurns: 1,
+                  child: SvgPicture.asset(
+                    'assets/icons/menu/shevron_down.svg',
+                    width: 32,
+                    height: 32,
+                    colorFilter: ColorFilter.mode(
+                        MdColors.buttonAltPressedBg, BlendMode.srcIn),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 280 - 32),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 57.0),
           child: WaveText(
-            'Это ваш двухсловный код. Скопируйте и отправьте другу',
+            'This is your two-word pair code. Copy and send it to your friend',
             type: WaveTextType.caption,
             maxLines: 3,
             textAlign: TextAlign.center,
@@ -119,25 +147,26 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
         ),
         const SizedBox(height: 27),
         if (_creating)
-          const CircularProgressIndicator()
+          CircularProgressIndicator()
         else if (_offerId != null)
           WaveTextButton(
             label: _offerId!,
             onPressed: _onCopyCodePressed,
           )
         else
-          const Text('Не удалось создать код'),
+          const Text('Failed to create pair code'),
         const SizedBox(height: 135),
         WaveSimpleButton(
-          label: 'Проверить пару',
-          onPressed: (answerReady && !_isProcessing) ? _onCheckPairPressed : null,
+          label: 'Check Pair',
+          onPressed:
+              (answerReady && !_isProcessing) ? _onCheckPairPressed : null,
         ),
         const SizedBox(height: 20),
         if (!answerReady)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 57.0),
             child: WaveText(
-              'Дождитесь, пока друг вставит код для активации кнопки',
+              'Wait your friend to paste the code for button enabling',
               type: WaveTextType.caption,
               maxLines: 3,
               textAlign: TextAlign.center,
@@ -158,7 +187,7 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
     await Clipboard.setData(ClipboardData(text: _offerId!));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Код скопирован')),
+        const SnackBar(content: Text('Successfully copied!')),
       );
     }
   }
@@ -167,14 +196,13 @@ class _CopyCodeScreenState extends State<CopyCodeScreen> {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
     try {
-      final manager = context.read<WebRTCManager>();
       final offerId = await _getLocalOfferId();
-      await manager.acceptAnswer(offerId);
+      await _manager.acceptAnswer(offerId);
       // переход на main будет выполнен в ForegroundSwitchScreen через изменение состояния
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка применения ответа: $e')),
+          SnackBar(content: Text('Failed apply peer answer: $e')),
         );
       }
     } finally {
