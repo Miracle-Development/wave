@@ -2,6 +2,7 @@ import 'package:callkeep/callkeep.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:wave_p2p/firebase_options.dart';
+import 'package:wave_p2p/src/core/signaling.dart';
 
 import 'src/wave_app.dart';
 import 'src/settings/settings_controller.dart';
@@ -32,12 +33,11 @@ void main() async {
     try {
       await ck.setup(options: options);
     } catch (_) {
-        print('CallKeep.setup failed or uses different API: $_');
+      print('CallKeep.setup failed or uses different API: $_');
     }
   } catch (e) {
     print('CallKeep initialization skipped: $e');
   }
-
 
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
@@ -46,6 +46,20 @@ void main() async {
   // Load the user's preferred theme while the splash screen is displayed.
   // This prevents a sudden theme change when the app is first displayed.
   await settingsController.loadSettings();
+
+  final fallbackServers = [
+    {'urls': 'stun:stun.stunprotocol.org:3478'},
+    {'urls': 'stun:stun.voipbuster.com'},
+    {'urls': 'stun:stun.l.google.com:19302'},
+    // Можно добавить свои TURN-серверы (с учётными данными)
+    // {
+    //   'urls': ['turn:my-turn-server.com:3478'],
+    //   'username': 'user',
+    //   'credential': 'pass',
+    // },
+  ];
+
+  Signaling().setFallbackIceServers(fallbackServers);
 
   // Run the app and pass in the SettingsController. The app listens to the
   // SettingsController for changes, then passes it further down to the
