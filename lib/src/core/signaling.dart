@@ -44,6 +44,7 @@ class Signaling {
   // };
   final Map<String, dynamic> config = {
     'iceServers': [], // временно пусто, заполнится в init()
+    'iceCandidatePoolSize': 5,
     'sdpSemantics': 'unified-plan',
   };
 
@@ -300,8 +301,13 @@ class Signaling {
     final offer = await pc!.createOffer({'offerToReceiveAudio': true});
     debugPrint(
         'makeOfferBlob: creating offer, signalingState=${pc!.signalingState}');
+    final start = DateTime.now();
     await pc!.setLocalDescription(offer);
+    debugPrint(
+        'setLocalDescription took ${DateTime.now().difference(start).inMilliseconds}ms');
     await _waitIceComplete();
+    debugPrint(
+        'ICE gathering took ${DateTime.now().difference(start).inMilliseconds}ms');
     final sd = await pc!.getLocalDescription();
     final blob = jsonEncode({'type': sd!.type, 'sdp': sd.sdp});
     debugPrint('makeOfferBlob done. signalingState=${pc!.signalingState}');
