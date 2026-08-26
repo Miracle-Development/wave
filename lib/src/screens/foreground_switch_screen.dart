@@ -48,6 +48,7 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
 
     _checkHasStartButtonPressed();
     _checkMicPermission();
+    _checkVideoPermission();
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final manager = context.read<WebRTCManager>();
@@ -199,13 +200,11 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           key: ValueKey<String>('createCode$postfix'),
           topPadding: topPadding,
           isAnimated: false,
-          child: CopyCodeScreen(
-            onBackPressed: () {
-              setState(() {
-                _stepper = VisibleScreenType.selectAction;
-              });
-            }
-          ),
+          child: CopyCodeScreen(onBackPressed: () {
+            setState(() {
+              _stepper = VisibleScreenType.selectAction;
+            });
+          }),
         );
 
       // Экран вставки кода
@@ -214,13 +213,11 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
           key: ValueKey<String>('pasteCode$postfix'),
           topPadding: topPadding,
           isAnimated: false,
-          child: PasteCodeScreen(
-            onBackPressed: () {
-              setState(() {
-                _stepper = VisibleScreenType.selectAction;
-              });
-            }
-          ),
+          child: PasteCodeScreen(onBackPressed: () {
+            setState(() {
+              _stepper = VisibleScreenType.selectAction;
+            });
+          }),
         );
 
       // Основной экран с динамичным навбаром, скаффолдом с адаптивной высотой и волной
@@ -292,6 +289,32 @@ class ForegroundSwitchScreenState extends State<ForegroundSwitchScreen> {
             _stepper = VisibleScreenType.selectActionAnimated;
           });
         }
+
+        return;
+      } else {
+        await prefs.setBool(prefsMicAccessKey, false);
+        return;
+      }
+    }
+  }
+
+  Future<void> _checkVideoPermission() async {
+    final manager = context.read<WebRTCManager>();
+    final prefs = await SharedPreferences.getInstance();
+    final hasAccessPref = prefs.getBool(prefsCamAccessKey) ?? false;
+
+    // предпроверка, чтобы не было заранее запроса доступа на веб
+    final gotStarted = prefs.getBool(prefsFirstTimeStartKey) ?? false;
+
+    if (gotStarted) {
+      final hasAccess = await manager.checkCameraPermission();
+
+      if (hasAccess && hasAccessPref) {
+        await manager.updateAudioDevices();
+
+        setState(() {
+          _stepper = VisibleScreenType.selectActionAnimated;
+        });
 
         return;
       } else {
