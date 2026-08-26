@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show WebSocket, HttpClient;
+import 'dart:io' show WebSocket;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
@@ -32,104 +32,16 @@ class Signaling {
   OnCandidate? onCandidate;
   OnCall? onCall;
 
-  List<Map<String, dynamic>> _userFallbackIceServers = [
-    {'urls': 'stun:stun.l.google.com:19302'},
-  ];
-
-  // final Map<String, dynamic> config = {
-  //   'iceServers': [
-  //     {'urls': 'stun:stun.l.google.com:19302'},
-  //   ],
-  //   'sdpSemantics': 'unified-plan',
-  // };
   final Map<String, dynamic> config = {
-    'iceServers': [], // временно пусто, заполнится в init()
+    'iceServers': [
+      {'urls': 'stun:stun.l.google.com:19302'},
+    ],
     'iceCandidatePoolSize': 5,
     'sdpSemantics': 'unified-plan',
   };
 
-  void setFallbackIceServers(List<Map<String, dynamic>> servers) {
-    _userFallbackIceServers = servers;
-  }
-
-  Future<List<Map<String, dynamic>>> _fetchXirsysIceServers() async {
-    const ident = 'realtemity';
-    const secret = '97719ea0-a0a1-11f1-b5a1-0242ac150002';
-    final credentials = base64Encode(utf8.encode('$ident:$secret'));
-
-    final client = HttpClient();
-    try {
-      final request = await client
-          .putUrl(Uri.parse('https://global.xirsys.net/_turn/wave'));
-      request.headers.set('Authorization', 'Basic $credentials');
-      request.headers.set('Content-Type', 'application/json');
-      request.add(utf8.encode(jsonEncode({'format': 'urls'})));
-
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(responseBody);
-        final iceServers = data['v']['iceServers'] as List?;
-        if (iceServers != null) {
-          return iceServers.map((e) => e as Map<String, dynamic>).toList();
-        } else {
-          throw Exception('No iceServers in response');
-        }
-      } else {
-        throw Exception(
-            'Xirsys API error: ${response.statusCode} - $responseBody');
-      }
-    } finally {
-      client.close();
-    }
-  }
-
   /// Initialize RTCPeerConnection (create pc and set handlers)
   Future<void> init() async {
-    List<Map<String, dynamic>> iceServers;
-    try {
-      iceServers = await _fetchXirsysIceServers();
-      debugPrint('✅ Xirsys ICE servers fetched successfully');
-    } catch (e) {
-      debugPrint('⚠️ Failed to fetch Xirsys ICE servers: $e');
-      // 2. Запасной вариант (Open Relay Project + STUN Google)
-      if (_userFallbackIceServers.isNotEmpty) {
-        debugPrint('🔄 Using user-provided fallback ICE servers');
-        iceServers = _userFallbackIceServers;
-      } else {
-        // Иначе стандартный fallback (Google STUN + Open Relay TURN)
-        debugPrint('🔄 Using default fallback ICE servers');
-        iceServers = [
-          {'urls': 'stun:stun.l.google.com:19302'},
-          {
-            'urls': [
-              'turn:openrelay.metered.ca:80',
-              'turn:openrelay.metered.ca:443',
-              'turn:openrelay.metered.ca:443?transport=tcp',
-            ],
-            'username': 'openrelayproject',
-            'credential': 'openrelayproject',
-          },
-        ];
-      }
-      // iceServers = [
-      //   {'urls': 'stun:stun.l.google.com:19302'},
-      //   {
-      //     'urls': [
-      //       'turn:openrelay.metered.ca:80',
-      //       'turn:openrelay.metered.ca:443',
-      //       'turn:openrelay.metered.ca:443?transport=tcp',
-      //     ],
-      //     'username': 'openrelayproject',
-      //     'credential': 'openrelayproject',
-      //   },
-      // ];
-      // debugPrint('🔄 Using fallback ICE servers');
-    }
-
-    config['iceServers'] = iceServers;
-
     pc = await createPeerConnection(config);
 
     pc!.onIceCandidate = (candidate) {
