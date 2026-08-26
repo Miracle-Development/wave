@@ -4,6 +4,8 @@ import 'dart:io' show WebSocket;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
+const _iceTimeout = Duration(seconds: 15);
+
 typedef OnOffer = void Function(String fromId, String sdp);
 typedef OnAnswer = void Function(String fromId, String sdp);
 typedef OnCandidate = void Function(String fromId, dynamic candidate);
@@ -35,8 +37,17 @@ class Signaling {
   final Map<String, dynamic> config = {
     'iceServers': [
       {'urls': 'stun:stun.l.google.com:19302'},
+      {
+        'urls': [
+          'turn:88.201.251.161:3478?transport=udp',
+          'turn:88.201.251.161:3478?transport=tcp',
+        ],
+        'username': 'waveturnserver',
+        'credential': 'thisiswavebb',
+      }
     ],
     'iceCandidatePoolSize': 5,
+    'iceTransportPolicy': 'relay',
     'sdpSemantics': 'unified-plan',
   };
 
@@ -217,7 +228,7 @@ class Signaling {
     await pc!.setLocalDescription(offer);
     debugPrint(
         'setLocalDescription took ${DateTime.now().difference(start).inMilliseconds}ms');
-    await _waitIceComplete();
+    await _waitIceCompleteWithTimeout(_iceTimeout);
     debugPrint(
         'ICE gathering took ${DateTime.now().difference(start).inMilliseconds}ms');
     final sd = await pc!.getLocalDescription();
@@ -235,7 +246,7 @@ class Signaling {
     await safeSetRemoteDescription(desc);
     final answer = await pc!.createAnswer({'offerToReceiveAudio': true});
     await pc!.setLocalDescription(answer);
-    await _waitIceComplete();
+    await _waitIceCompleteWithTimeout(_iceTimeout);
     debugPrint(
         'acceptOfferBlob: answer created and setLocal, signalingState=${pc!.signalingState}');
   }
@@ -254,11 +265,28 @@ class Signaling {
     await safeSetRemoteDescription(desc);
   }
 
+  // если не работает подключение с таймаутом, заменить везде
+  // _waitIceCompleteWithTimeout на _waitIceComplete -
+  // это добавит длительность к поиску второго устройства,
+  // но повысит надежность соединения
   Future<void> _waitIceComplete() async {
     if (pc == null) return;
     while (pc!.iceGatheringState !=
         RTCIceGatheringState.RTCIceGatheringStateComplete) {
       await Future.delayed(const Duration(milliseconds: 120));
+    }
+  }
+
+  Future<void> _waitIceCompleteWithTimeout(Duration timeout) async {
+    if (pc == null) return;
+    final start = DateTime.now();
+    while (pc!.iceGatheringState !=
+        RTCIceGatheringState.RTCIceGatheringStateComplete) {
+      await Future.delayed(Duration(milliseconds: 100));
+      if (DateTime.now().difference(start) > timeout) {
+        debugPrint('ICE gathering timed out after ${timeout.inSeconds}s');
+        break;
+      }
     }
   }
 
