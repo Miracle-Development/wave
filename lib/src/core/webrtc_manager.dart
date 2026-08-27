@@ -118,6 +118,8 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
   List<Contact> _contacts = [];
   Stream<List<Contact>>? _contactsStream;
 
+  Timer? _keepAliveTimer;
+
   // ---------------- lifecycle ----------------
   Future<void> init() async {
     // register lifecycle observer
@@ -170,10 +172,13 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
       _contacts = contacts;
       notifyListeners();
     });
+
+    _startKeepAlive();
   }
 
   @override
   void dispose() {
+    _keepAliveTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _incomingCtrl.close();
     _cancelAnswerWatch();
@@ -204,6 +209,17 @@ class WebRTCManager extends ChangeNotifier with WidgetsBindingObserver {
         _log('didChangeAppLifecycleState reactivate error: $e');
       });
     }
+  }
+
+  void _startKeepAlive() {
+    _keepAliveTimer?.cancel();
+    _keepAliveTimer = Timer.periodic(Duration(seconds: 15), (_) {
+      if (chat != null &&
+          chat!.state == RTCDataChannelState.RTCDataChannelOpen) {
+        // Отправляем presence с текущим состоянием (без изменений)
+        _sendPresenceOverDc();
+      }
+    });
   }
 
   void _log(String msg) => print('[WebRTCManager][$localId] $msg');

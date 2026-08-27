@@ -4,7 +4,7 @@ import 'dart:io' show WebSocket;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
-const _iceTimeout = Duration(seconds: 15);
+const _iceTimeout = Duration(seconds: 10);
 
 typedef OnOffer = void Function(String fromId, String sdp);
 typedef OnAnswer = void Function(String fromId, String sdp);
@@ -47,7 +47,7 @@ class Signaling {
       }
     ],
     'iceCandidatePoolSize': 5,
-    'iceTransportPolicy': 'relay',
+    // 'iceTransportPolicy': 'relay',
     'sdpSemantics': 'unified-plan',
   };
 
